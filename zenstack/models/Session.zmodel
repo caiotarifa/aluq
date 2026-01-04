@@ -1,0 +1,17 @@
+import '../types/BaseModel'
+import './User'
+
+model Session with BaseModel {
+  userId String
+  token String @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  impersonatedBy String?
+
+  activeOrganizationId String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map('session')
+}

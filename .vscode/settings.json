@@ -1,0 +1,31 @@
+{
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+
+  "eslint.useFlatConfig": true,
+
+  "files.associations": {
+    "*.css": "tailwindcss",
+    "*.zmodel": "zmodel-v3"
+  },
+
+  "nuxtr.defaultPackageManager": "pnpm",
+  "nuxtr.intellisense.nuxtrc": true,
+  "nuxtr.intellisense.vueFiles": true,
+  "nuxtr.intellisense.nuxtignore": true,
+  "nuxtr.openItemsAfterCreation": true,
+  "nuxtr.vueFiles.template.defaultLanguage": "html",
+  "nuxtr.vueFiles.firstTag": "template",
+  "nuxtr.vueFiles.script.type": "setup",
+  "nuxtr.vueFiles.script.defaultLanguage": "js",
+  "nuxtr.vueFiles.style.addStyleTag": false,
+  "nuxtr.vueFiles.style.alwaysScoped": true,
+  "nuxtr.vueFiles.style.defaultLanguage": "css",
+
+  "tailwindCSS.classAttributes": ["class", "ui"],
+
+  "tailwindCSS.experimental.classRegex": [
+    ["ui:\\s*{([^)]*)\\s*}", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+  ]
+}

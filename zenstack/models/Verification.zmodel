@@ -1,0 +1,9 @@
+import '../types/BaseModel'
+
+model Verification with BaseModel {
+  identifier String
+  value String
+  expiresAt DateTime
+
+  @@map('verification')
+}

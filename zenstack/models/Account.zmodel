@@ -1,0 +1,19 @@
+import '../types/BaseModel'
+import './User'
+
+model Account with BaseModel {
+  accountId String
+  providerId String
+  userId String
+  accessToken String?
+  refreshToken String?
+  idToken String?
+  accessTokenExpiresAt DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope String?
+  password String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map('account')
+}

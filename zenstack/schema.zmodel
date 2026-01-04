@@ -1,0 +1,16 @@
+import './models/Account'
+import './models/Invitation'
+import './models/Member'
+import './models/Organization'
+import './models/Session'
+import './models/User'
+import './models/Verification'
+
+datasource db {
+  provider = 'sqlite'
+  url = 'file:./dev.db'
+}
+
+plugin policy {
+  provider = '@zenstackhq/plugin-policy'
+}

@@ -1,0 +1,29 @@
+import '../types/BaseModel'
+
+import './Account'
+import './Invitation'
+import './Member'
+import './Session'
+
+model User with BaseModel {
+  name String
+
+  email String @unique @email
+  emailVerified Boolean @default(false)
+
+  role String?
+
+  banned Boolean? @default(false)
+  banReason String?
+  banExpires DateTime?
+
+  phone String?
+  image String?
+
+  accounts Account[]
+  invitations Invitation[]
+  members Member[]
+  sessions Session[]
+
+  @@map('user')
+}
