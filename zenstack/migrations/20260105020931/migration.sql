@@ -24,6 +24,10 @@ CREATE TABLE "user" (
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "emailVerified" BOOLEAN NOT NULL DEFAULT false,
+    "role" TEXT,
+    "banned" BOOLEAN DEFAULT false,
+    "banReason" TEXT,
+    "banExpires" DATETIME,
     "phone" TEXT,
     "image" TEXT
 );
@@ -50,16 +54,10 @@ CREATE TABLE "organization" (
     "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
-    "legalName" TEXT NOT NULL,
-    "taxId" TEXT NOT NULL,
     "logo" TEXT,
-    "email" TEXT NOT NULL,
-    "phone" TEXT NOT NULL,
-    "website" TEXT NOT NULL,
     "defaultLocale" TEXT NOT NULL DEFAULT 'pt-BR',
     "defaultCurrencyCode" TEXT NOT NULL DEFAULT 'BRL',
-    "metadata" TEXT,
-    "settings" JSONB
+    "metadata" TEXT
 );
 
 -- CreateTable
@@ -84,6 +82,8 @@ CREATE TABLE "session" (
     "expiresAt" DATETIME NOT NULL,
     "ipAddress" TEXT,
     "userAgent" TEXT,
+    "impersonatedBy" TEXT,
+    "activeOrganizationId" TEXT,
     CONSTRAINT "session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 

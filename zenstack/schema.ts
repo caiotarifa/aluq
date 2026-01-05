@@ -312,32 +312,10 @@ export class SchemaType implements SchemaDef {
                     unique: true,
                     attributes: [{ name: "@unique" }]
                 },
-                legalName: {
-                    name: "legalName",
-                    type: "String"
-                },
-                taxId: {
-                    name: "taxId",
-                    type: "String"
-                },
                 logo: {
                     name: "logo",
                     type: "String",
                     optional: true
-                },
-                email: {
-                    name: "email",
-                    type: "String",
-                    attributes: [{ name: "@email" }]
-                },
-                phone: {
-                    name: "phone",
-                    type: "String"
-                },
-                website: {
-                    name: "website",
-                    type: "String",
-                    attributes: [{ name: "@url" }]
                 },
                 defaultLocale: {
                     name: "defaultLocale",
@@ -354,11 +332,6 @@ export class SchemaType implements SchemaDef {
                 metadata: {
                     name: "metadata",
                     type: "String",
-                    optional: true
-                },
-                settings: {
-                    name: "settings",
-                    type: "Json",
                     optional: true
                 },
                 members: {

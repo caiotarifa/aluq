@@ -6,20 +6,12 @@ import './Invitation'
 model Organization with BaseModel {
   name String
   slug String @unique
-
-  legalName String
-  taxId String
-
   logo String?
-  email String @email
-  phone String
-  website String @url
 
   defaultLocale String @default('pt-BR')
   defaultCurrencyCode String @default('BRL')
 
   metadata String?
-  settings Json?
 
   members Member[]
   invitations Invitation[]

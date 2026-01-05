@@ -6,7 +6,7 @@ import { zenstackAdapter } from '@zenstackhq/better-auth'
 import { db } from './db'
 
 export const auth = betterAuth({
-  appName: 'Loca1',
+  appName: 'Aluq',
 
   plugins: [
     admin(),

@@ -1,0 +1,21 @@
+# Common
+and: e
+of: de
+or: ou
+
+# Brand
+brand:
+  name: Aluq
+
+# Messages
+messages:
+  unexpectedError: 'Ocorreu um erro inesperado.'
+
+  auth:
+    signedIn: 'Bem-vindo de volta!'
+
+# Components
+
+# Auth
+
+# Models
