@@ -4,6 +4,8 @@ import { admin, organization } from 'better-auth/plugins'
 import { zenstackAdapter } from '@zenstackhq/better-auth'
 
 import { db } from './db'
+import { sendMail } from './mailer'
+import { emailVerification, resetPassword } from './mailer/templates'
 
 export const auth = betterAuth({
   appName: 'Aluq',
@@ -38,8 +40,16 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
 
-    sendResetPassword: async ({ user, url, token }) => {
-      console.log('Send reset password:', { user, url, token })
+    sendResetPassword: ({ user, url }) => {
+      sendMail({
+        to: user.email,
+        subject: 'Redefinir sua senha',
+
+        html: resetPassword({
+          name: user.name,
+          url
+        })
+      })
     }
   },
 
@@ -47,8 +57,16 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
 
-    sendVerificationEmail: async ({ user, url, token }) => {
-      console.log('Send verification email:', { user, url, token })
+    sendVerificationEmail: ({ user, url }) => {
+      sendMail({
+        to: user.email,
+        subject: 'Verifique seu e-mail',
+
+        html: emailVerification({
+          name: user.name,
+          url
+        })
+      })
     }
   },
 
