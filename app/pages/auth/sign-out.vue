@@ -3,13 +3,13 @@
     <AuthCard class="text-center">
       <UIcon
         v-if="isSigningOut"
-        name="tabler:loader-2"
+        :name="appConfig.ui.icons.loading"
         class="size-12 animate-spin text-muted"
       />
 
       <UIcon
         v-else
-        name="i-tabler-circle-check"
+        :name="appConfig.ui.icons.success"
         class="size-12 text-green-500"
       />
 
@@ -38,10 +38,15 @@
 </template>
 
 <script setup>
+definePageMeta({
+  auth: { verifiedEmail: false }
+})
+
 useSeoMeta({
   title: 'Saindo...'
 })
 
+const appConfig = useAppConfig()
 const { isSigningOut, signOut } = useAuth()
 const router = useRouter()
 

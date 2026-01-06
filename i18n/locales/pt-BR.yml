@@ -13,6 +13,14 @@ messages:
 
   auth:
     signedIn: 'Bem-vindo de volta!'
+    signedUp: 'Sua conta foi criada com sucesso.'
+    signedOut: 'Você foi desconectado com sucesso.'
+    resetEmailSent: 'Enviamos um e-mail com instruções para redefinir sua senha.'
+    passwordReset: 'Sua senha foi redefinida com sucesso.'
+    verificationEmailSent: 'E-mail de verificação enviado com sucesso.'
+    emailVerified: 'Seu e-mail foi verificado com sucesso!'
+    emailVerificationFailed: 'Não foi possível verificar seu e-mail. O link pode estar expirado.'
+    rateLimitExceeded: 'Aguarde {seconds} segundos antes de tentar novamente.'
 
 # Components
 

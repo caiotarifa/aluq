@@ -10,18 +10,6 @@ import {
 } from '~/schemas/auth'
 
 /**
- * Auth client.
- *
- * @returns {AuthClient} Auth client instance.
- */
-export const authClient = createAuthClient({
-  plugins: [
-    organizationClient,
-    adminClient
-  ]
-})
-
-/**
  * Auth error class.
  *
  * @class
@@ -47,19 +35,68 @@ export function useAuth() {
   const { t } = useI18n()
   const { notifyError, notifySuccess } = useNotify()
 
-  const session = authClient.useSession(useFetch)
+  // Auth client.
+  const url = useRequestURL()
 
-  // States.
+  const headers = import.meta.server
+    ? useRequestHeaders()
+    : undefined
+
+  const authClient = createAuthClient({
+    baseURL: url.origin,
+    fetchOptions: { headers },
+
+    plugins: [
+      organizationClient,
+      adminClient
+    ]
+  })
+
+  // Session state (shared via useState).
+  const session = useState('auth:session', () => null)
+  const user = useState('auth:user', () => null)
+
+  const sessionFetching = import.meta.server
+    ? ref(false)
+    : useState('auth:sessionFetching', () => false)
+
+  // Fetch session.
+  async function fetchSession() {
+    if (sessionFetching.value) return
+
+    sessionFetching.value = true
+    const { data } = await authClient.getSession()
+
+    session.value = data?.session || null
+    user.value = data?.user || null
+    sessionFetching.value = false
+
+    return data
+  }
+
+  // Listen for session changes (client only).
+  if (import.meta.client) {
+    authClient.$store.listen('$sessionSignal', async (signal) => {
+      if (!signal) return
+      await fetchSession()
+    })
+  }
+
+  // Computed states.
   const isSignedIn = computed(() =>
-    !!session.data?.value?.user
+    !!user.value
   )
 
   const currentUser = computed(() =>
-    session.data?.value?.user || null
+    user.value
+  )
+
+  const isEmailVerified = computed(() =>
+    user.value?.emailVerified || false
   )
 
   const activeOrganizationId = computed(() =>
-    session.data?.value?.session?.activeOrganizationId || null
+    session.value?.activeOrganizationId || null
   )
 
   // Loading states.
@@ -68,6 +105,8 @@ export function useAuth() {
   const isSigningOut = ref(false)
   const isSendingResetEmail = ref(false)
   const isResettingPassword = ref(false)
+  const isSendingVerificationEmail = ref(false)
+  const isVerifyingEmail = ref(false)
 
   /**
    * Sign in method using email.
@@ -90,6 +129,9 @@ export function useAuth() {
         throw result.error
       }
 
+      // Atualiza a sessão após login bem-sucedido
+      await fetchSession()
+
       notifySuccess({
         title: t('messages.auth.signedIn')
       })
@@ -97,7 +139,9 @@ export function useAuth() {
       return result
     }
 
-    catch ({ message, ...options }) {
+    catch (error) {
+      const { message, ...options } = error
+
       notifyError({ description: message })
       throw new AuthError(message, options)
     }
@@ -195,9 +239,8 @@ export function useAuth() {
     )
 
     try {
-      const result = await authClient.forgetPassword({
-        email,
-        redirectTo: '/auth/password/reset'
+      const result = await authClient.requestPasswordReset({
+        email
       })
 
       if (result.error) {
@@ -261,22 +304,103 @@ export function useAuth() {
   }
 
   /**
-   * Refresh session method.
+   * Send verification email.
    *
+   * @param {string} email
+   * @returns {Promise<{ retryAfter?: number }>}
+   */
+  async function sendVerificationEmail(email) {
+    isSendingVerificationEmail.value = true
+
+    try {
+      const result = await authClient.sendVerificationEmail({
+        email
+      })
+
+      if (result.error) {
+        throw result.error
+      }
+
+      notifySuccess({
+        title: t('messages.auth.verificationEmailSent')
+      })
+
+      return result
+    }
+
+    catch (error) {
+      const { message, status, ...options } = error
+
+      // Rate limited.
+      if (status === 429) {
+        const retryAfter = error.headers?.get?.('X-Retry-After') || 60
+
+        notifyError({
+          description: t('messages.auth.rateLimitExceeded', {
+            seconds: retryAfter
+          })
+        })
+
+        return { retryAfter: Number(retryAfter) }
+      }
+
+      notifyError({ description: message })
+      throw new AuthError(message, options)
+    }
+
+    finally {
+      isSendingVerificationEmail.value = false
+    }
+  }
+
+  /**
+   * Verify email with token.
+   *
+   * @param {string} token
    * @returns {Promise<void>}
    */
-  async function refresh() {
-    return session.refresh()
+  async function verifyEmail(token) {
+    isVerifyingEmail.value = true
+
+    try {
+      const result = await authClient.verifyEmail({
+        query: { token }
+      })
+
+      if (result.error) {
+        throw result.error
+      }
+
+      notifySuccess({
+        title: t('messages.auth.emailVerified')
+      })
+
+      return result
+    }
+
+    catch (error) {
+      const { message, ...options } = error
+
+      notifyError({
+        description: t('messages.auth.emailVerificationFailed')
+      })
+
+      throw new AuthError(message, options)
+    }
+
+    finally {
+      isVerifyingEmail.value = false
+    }
   }
 
   return {
     // Client instance.
-    authClient,
+    client: authClient,
 
     // State.
-    session,
     isSignedIn,
     currentUser,
+    isEmailVerified,
     activeOrganizationId,
 
     // Loading states.
@@ -285,8 +409,12 @@ export function useAuth() {
     isSigningOut,
     isSendingResetEmail,
     isResettingPassword,
+    isSendingVerificationEmail,
+    isVerifyingEmail,
 
     // Methods.
+    fetchSession,
+
     signInByEmail,
     signUpByEmail,
     signOut,
@@ -294,6 +422,7 @@ export function useAuth() {
     forgotPassword,
     resetPassword,
 
-    refresh
+    sendVerificationEmail,
+    verifyEmail
   }
 }

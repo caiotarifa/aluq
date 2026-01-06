@@ -2,6 +2,7 @@
   <NuxtLayout name="auth">
     <AuthCard>
       <UAuthForm
+        ref="authForm"
         description="Insira seus dados para acessar sua conta."
         :fields
         :schema="authSignInByEmailSchema"
@@ -11,7 +12,7 @@
       >
         <template #footer>
           <NuxtLink
-            to="/auth/forgot-password"
+            :to="forgotPasswordLink"
             class="text-primary hover:underline"
           >
             Esqueci minha senha
@@ -39,11 +40,25 @@
 import { authSignInByEmailSchema } from '~/schemas/auth'
 
 definePageMeta({
-  middleware: ['guest']
+  auth: { only: 'guest' }
 })
 
 useSeoMeta({
   title: 'Entrar'
+})
+
+// Auth form ref.
+const authForm = useTemplateRef('authForm')
+
+// Forgot password link.
+const forgotPasswordLink = computed(() => {
+  const email = authForm.value?.state?.email?.trim()
+
+  if (email) {
+    return `/auth/password/forgot?email=${encodeURIComponent(email)}`
+  }
+
+  return '/auth/password/forgot'
 })
 
 // Fields.
@@ -61,18 +76,29 @@ const fields = [
     label: 'Senha',
     type: 'password',
     placeholder: 'Digite a sua senha'
+  },
+
+  {
+    name: 'rememberMe',
+    label: 'Manter conectado',
+    type: 'checkbox'
   }
 ]
 
 // Auth.
-const { isSigningIn, signInByEmail } = useAuth()
+const { isSigningIn, signInByEmail, isEmailVerified } = useAuth()
+const route = useRoute()
 const router = useRouter()
 
 async function onSubmit(event) {
-  const { data } = event
+  await signInByEmail(event.data)
 
-  await signInByEmail(data)
-  router.push('/app')
+  if (!isEmailVerified.value) {
+    return router.push('/auth/email-verification')
+  }
+
+  const redirectTo = route.query.redirect || '/app'
+  return router.push(redirectTo)
 }
 
 // Submit button.

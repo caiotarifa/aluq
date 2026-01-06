@@ -30,7 +30,7 @@
 import { authSignUpByEmailSchema } from '~/schemas/auth'
 
 definePageMeta({
-  middleware: ['guest']
+  auth: { only: 'guest' }
 })
 
 useSeoMeta({
@@ -71,7 +71,7 @@ const router = useRouter()
 
 async function onSubmit(event) {
   await signUpByEmail(event.data)
-  router.push('/auth/organization')
+  router.push('/auth/email-verification')
 }
 
 // Submit button.

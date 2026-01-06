@@ -6,6 +6,9 @@
 .cache
 dist
 
+# Zenstack
+zenstack/*.db
+
 # Node dependencies
 node_modules
 

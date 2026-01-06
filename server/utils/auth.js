@@ -36,6 +36,30 @@ export const auth = betterAuth({
   // },
 
   emailAndPassword: {
-    enabled: true
+    enabled: true,
+
+    sendResetPassword: async ({ user, url, token }) => {
+      console.log('Send reset password:', { user, url, token })
+    }
+  },
+
+  emailVerification: {
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+
+    sendVerificationEmail: async ({ user, url, token }) => {
+      console.log('Send verification email:', { user, url, token })
+    }
+  },
+
+  rateLimit: {
+    enabled: true,
+
+    customRules: {
+      '/send-verification-email': {
+        window: 60,
+        max: 1
+      }
+    }
   }
 })

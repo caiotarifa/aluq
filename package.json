@@ -25,6 +25,7 @@
     "@zenstackhq/plugin-policy": "^3.1.0",
     "@zenstackhq/server": "^3.1.0",
     "better-sqlite3": "^12.5.0",
+    "nodemailer": "^7.0.12",
     "nuxt": "^4.2.2",
     "valibot": "^1.2.0"
   },

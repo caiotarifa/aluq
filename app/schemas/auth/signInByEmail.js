@@ -3,5 +3,6 @@ import * as f from '~/schemas/fields'
 
 export default v.object({
   email: f.email,
-  password: f.password
+  password: f.password,
+  rememberMe: v.optional(v.boolean())
 })
