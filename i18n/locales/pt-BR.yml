@@ -22,6 +22,16 @@ messages:
     emailVerificationFailed: 'Não foi possível verificar seu e-mail. O link pode estar expirado.'
     rateLimitExceeded: 'Aguarde {seconds} segundos antes de tentar novamente.'
 
+  organization:
+    created: 'Organização criada com sucesso!'
+    invitationAccepted: 'Convite aceito com sucesso!'
+    invitationRejected: 'Convite recusado.'
+
+# Copy Button
+copyButton:
+  copy: 'Copiar'
+  copied: 'Copiado!'
+
 # Components
 
 # Auth
