@@ -5,7 +5,6 @@ import { zenstackAdapter } from '@zenstackhq/better-auth'
 
 import { db } from './db'
 import { sendMail } from './mailer'
-import { emailVerification, resetPassword } from './mailer/templates'
 
 export const auth = betterAuth({
   appName: 'Aluq',
