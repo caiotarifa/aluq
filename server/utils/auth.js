@@ -19,6 +19,7 @@ export const auth = betterAuth({
     provider: 'sqlite'
   }),
 
+  // TODO: create getInitialOrganization logic hook for betterAuth.
   // databaseHooks: {
   //   session: {
   //     create: {

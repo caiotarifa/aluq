@@ -1,8 +1,11 @@
 <template>
-  <div class="flex items-center h-screen justify-center p-4">
+  <div class="flex items-center min-h-screen justify-center p-4">
     <div class="landing-grid absolute inset-0 z-[-1] mask-[radial-gradient(100%_100%_at_top_right,white,transparent)]" />
 
-    <div class="flex flex-col space-y-8 max-w-md w-full">
+    <div
+      class="flex flex-col space-y-8 w-full"
+      :class="wide ? 'max-w-3xl' : 'max-w-md'"
+    >
       <header class="mb-16">
         <NuxtLink to="/">
           <UColorModeImage
@@ -14,7 +17,9 @@
         </NuxtLink>
       </header>
 
-      <main>
+      <main class="relative">
+        <div class="absolute blur-2xl bg-radial from-(--ui-primary)/10 rounded-full size-full -z-10" />
+
         <Transition
           mode="out-in"
           name="slide-up"
@@ -41,6 +46,13 @@
 </template>
 
 <script setup>
+defineProps({
+  wide: {
+    type: Boolean,
+    default: false
+  }
+})
+
 const { t } = useI18n()
 const currentYear = new Date().getFullYear()
 </script>

@@ -7,14 +7,22 @@
     :text="t(`copyButton.${copied ? 'copied' : 'copy'}`)"
   >
     <UButton
-      class="align-bottom ml-1.5 p-0.5"
-      :class="{ 'opacity-50': !copied }"
+      class="align-bottom"
+      :class="{
+        'ml-1.5 p-0.5': compact,
+        'px-2.5': !compact,
+        'opacity-50': !copied
+      }"
       :color="copied ? 'primary' : 'neutral'"
       variant="link"
+      v-bind="button"
       @click="copy(text)"
     >
-      <template #trailing>
-        <UIcon :name="copied ? 'i-tabler-copy-check' : 'i-tabler-copy'" />
+      <template #leading>
+        <UIcon
+          :name="copied ? 'i-tabler-copy-check' : 'i-tabler-copy'"
+          v-bind="icon"
+        />
       </template>
     </UButton>
   </UTooltip>
@@ -24,6 +32,16 @@
 import { useClipboard } from '@vueuse/core'
 
 const props = defineProps({
+  button: {
+    type: Object,
+    default: () => ({})
+  },
+
+  compact: {
+    type: Boolean,
+    default: true
+  },
+
   text: {
     type: String,
     required: true
