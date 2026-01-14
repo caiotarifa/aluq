@@ -67,6 +67,7 @@
 
               <OrganizationInvitationList
                 v-if="hasInvitations"
+                v-model:loading="isLoadingInvitation"
                 :invitations
                 @accept="onAcceptInvitation"
                 @reject="onRejectInvitation"
@@ -139,6 +140,9 @@ const route = useRoute()
 
 const {
   userEmail,
+  organizations,
+  isFetchingOrganizations,
+  fetchOrganizations,
   setActiveOrganization,
   acceptInvitation,
   rejectInvitation
@@ -151,29 +155,50 @@ const redirectTo = computed(() =>
 )
 
 // Fetch organizations.
-const {
-  data: organizations,
-  pending: isFetchingOrganizations
-} = await useAsyncData('organizations', async () => {
-  const { client } = useAuth()
-  const result = await client.organization.list()
-
-  return result.data || []
-})
+await useAsyncData('auth:organizations', () =>
+  fetchOrganizations()
+)
 
 // Fetch invitations.
+// Only get the latest invitation per organization.
 const {
   data: invitations,
   pending: isFetchingInvitations,
   refresh: refreshInvitations
-} = await useAsyncData('invitations', async () => {
+} = await useAsyncData('auth:invitations', async () => {
   const { client } = useAuth()
   const result = await client.organization.listUserInvitations()
+  const allInvitations = result.data || []
+  const byOrganization = {}
 
-  return result.data || []
+  const memberOrganizationIds = new Set(
+    organizations.value?.map(({ id }) => id) || []
+  )
+
+  for (const invitation of allInvitations) {
+    const { organizationId } = invitation
+
+    if (memberOrganizationIds.has(organizationId)) {
+      continue
+    }
+
+    const existing = byOrganization[organizationId]
+
+    if (
+      !existing
+      || new Date(invitation.expiresAt) > new Date(existing.expiresAt)
+    ) {
+      byOrganization[organizationId] = invitation
+    }
+  }
+
+  return Object.values(byOrganization).filter(
+    invitation => invitation.status === 'pending'
+  )
 })
 
 const isLoadingOrganization = ref(false)
+const isLoadingInvitation = ref(false)
 
 const isLoading = computed(() =>
   isFetchingOrganizations.value || isFetchingInvitations.value
@@ -202,15 +227,29 @@ async function onSelectOrganization({ id }) {
 }
 
 async function onAcceptInvitation({ id }) {
-  const { id: organizationId } = await acceptInvitation(id)
-  await setActiveOrganization(organizationId)
-  await fetchSession()
+  isLoadingInvitation.value = `${id}:accept`
 
-  router.push(redirectTo.value)
+  try {
+    const { id: organizationId } = await acceptInvitation(id)
+    await setActiveOrganization(organizationId)
+    await fetchSession()
+
+    router.push(redirectTo.value)
+  }
+  finally {
+    isLoadingInvitation.value = false
+  }
 }
 
 async function onRejectInvitation({ id }) {
-  await rejectInvitation(id)
-  await refreshInvitations()
+  isLoadingInvitation.value = `${id}:reject`
+
+  try {
+    await rejectInvitation(id)
+    await refreshInvitations()
+  }
+  finally {
+    isLoadingInvitation.value = false
+  }
 }
 </script>

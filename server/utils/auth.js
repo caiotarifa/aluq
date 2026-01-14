@@ -12,7 +12,23 @@ export const auth = betterAuth({
   plugins: [
     admin(),
 
-    organization()
+    organization({
+      async sendInvitationEmail(data) {
+        const url = `${process.env.NUXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/organization?invitation=${data.id}`
+
+        await sendMail({
+          to: data.email,
+          subject: `Convite para ${data.organization.name}`,
+
+          html: organizationInvite({
+            inviterName: data.inviter.user.name,
+            organizationName: data.organization.name,
+            inviteeName: data.email,
+            url
+          })
+        })
+      }
+    })
   ],
 
   database: zenstackAdapter(db, {

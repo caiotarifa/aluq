@@ -3,14 +3,31 @@
     <UAlert
       v-for="invitation in invitations"
       :key="invitation.id"
-      :title="invitation.organizationName"
-      :description="roleLabel(invitation.role)"
-      :avatar="{ alt: invitation.organizationName }"
-      color="neutral"
-      variant="outline"
-      orientation="vertical"
       :actions="getActions(invitation)"
-    />
+      :avatar="{ alt: invitation.organizationName }"
+      class="ring-primary/25 transition-opacity"
+      :class="{ 'opacity-50 pointer-events-none': loading && !isSelected(invitation) }"
+      color="neutral"
+      orientation="vertical"
+      :title="invitation.organizationName"
+      :variant="isExpired(invitation) ? 'soft' : 'outline'"
+    >
+      <template #description>
+        <span
+          v-if="isExpired(invitation)"
+          class="text-error italic"
+        >
+          Convite expirado.
+        </span>
+
+        <span
+          v-else
+          class="italic"
+        >
+          {{ roleLabel(invitation.role) }}
+        </span>
+      </template>
+    </UAlert>
   </div>
 </template>
 
@@ -20,6 +37,11 @@ defineProps({
     type: Array,
     required: true
   }
+})
+
+const loading = defineModel('loading', {
+  type: [Boolean, String],
+  default: false
 })
 
 const emit = defineEmits([
@@ -37,20 +59,45 @@ function roleLabel(role) {
   return roleLabels[role] || 'Membro'
 }
 
+function isExpired(invitation) {
+  return new Date(invitation.expiresAt) < new Date()
+}
+
+function isSelected({ id }) {
+  return [`${id}:accept`, `${id}:reject`].includes(loading.value)
+}
+
 function getActions(invitation) {
+  if (isExpired(invitation)) {
+    return []
+  }
+
+  const isLoadingAccept = loading.value === `${invitation.id}:accept`
+  const isLoadingReject = loading.value === `${invitation.id}:reject`
+
   return [
     {
       color: 'neutral',
       label: 'Recusar',
       leadingIcon: 'i-tabler-x',
       variant: 'subtle',
-      onClick: () => emit('reject', invitation)
+      loading: isLoadingReject,
+      disabled: isLoadingAccept,
+      onClick: () => {
+        if (loading.value) return
+        emit('reject', invitation)
+      }
     },
     {
       label: 'Aceitar',
       leadingIcon: 'i-tabler-check',
       variant: 'subtle',
-      onClick: () => emit('accept', invitation)
+      loading: isLoadingAccept,
+      disabled: isLoadingReject,
+      onClick: () => {
+        if (loading.value) return
+        emit('accept', invitation)
+      }
     }
   ]
 }

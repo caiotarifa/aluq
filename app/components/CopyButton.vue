@@ -42,6 +42,11 @@ const props = defineProps({
     default: true
   },
 
+  icon: {
+    type: Object,
+    default: () => ({})
+  },
+
   text: {
     type: String,
     required: true

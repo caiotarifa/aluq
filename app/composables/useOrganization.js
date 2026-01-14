@@ -30,7 +30,11 @@ export function useOrganization() {
   const { client: authClient, currentUser } = useAuth()
 
   // Loading states.
-  const isFetchingOrganizations = ref(false)
+  const isFetchingOrganizations = useState(
+    'organization:isFetchingOrganizations',
+    () => false
+  )
+
   const isFetchingInvitations = ref(false)
   const isCreatingOrganization = ref(false)
   const isSettingActiveOrganization = ref(false)
@@ -38,7 +42,11 @@ export function useOrganization() {
   const isRejectingInvitation = ref(false)
 
   // Data states.
-  const organizations = ref([])
+  const organizations = useState(
+    'organization:organizations',
+    () => []
+  )
+
   const invitations = ref([])
 
   /**

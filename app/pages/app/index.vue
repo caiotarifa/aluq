@@ -52,17 +52,13 @@ definePageMeta({
 })
 
 const { activeOrganizationId, client } = useAuth()
+const { organizations, fetchOrganizations } = useOrganization()
 const { notifySuccess, notifyError } = useNotify()
 
 // Fetch organizations.
-const {
-  data: organizations
-} = await useAsyncData('organizations', async () => {
-  const { client } = useAuth()
-  const result = await client.organization.list()
-
-  return result.data || []
-})
+await useAsyncData('app:organizations', () =>
+  fetchOrganizations()
+)
 
 const organizationName = computed(() => {
   if (!activeOrganizationId.value || !organizations.value) return null
@@ -72,7 +68,7 @@ const organizationName = computed(() => {
   )?.name
 })
 
-// Invite member
+// Invite member.
 const inviteEmail = ref('')
 const inviteRole = ref('member')
 const isInviting = ref(false)
