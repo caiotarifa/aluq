@@ -21,7 +21,7 @@
       </UAuthForm>
 
       <template #footer>
-        <div class="text-sm text-muted text-center">
+        <div class="text-center text-sm text-muted">
           Não tem uma conta?
 
           <NuxtLink

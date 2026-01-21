@@ -1,7 +1,7 @@
 <template>
   <NuxtLayout name="auth">
     <AuthCard>
-      <div class="text-center space-y-4">
+      <div class="space-y-4 text-center">
         <UIcon
           :name="currentStatus.icon"
           :class="['size-12', currentStatus.iconClass]"
@@ -34,7 +34,7 @@
       </div>
 
       <template #footer>
-        <div class="text-sm text-muted text-center">
+        <div class="text-center text-sm text-muted">
           Quer usar outro e-mail?
 
           <NuxtLink

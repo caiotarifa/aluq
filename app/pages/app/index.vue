@@ -1,49 +1,54 @@
 <template>
-  <div class="p-6 space-y-6">
+  <NuxtLayout name="app">
     <div>
-      <h1 class="text-2xl font-bold">
-        Index APP
-      </h1>
-
-      <div class="mt-4">
-        <strong>Organização:</strong>
-        <br> {{ organizationName || 'Nenhuma' }}
-        <br> {{ activeOrganizationId || 'Sem ID' }}
-      </div>
+      Index
     </div>
+    <!-- <div class="p-6 space-y-6">
+      <div>
+        <h1 class="text-2xl font-bold">
+          Index APP
+        </h1>
 
-    <UCard
-      v-if="activeOrganizationId"
-      class="max-w-md"
-    >
-      <template #header>
-        <h2 class="font-semibold">
-          Convidar membro
-        </h2>
-      </template>
-
-      <div class="space-y-4">
-        <UInput
-          v-model="inviteEmail"
-          placeholder="Email do membro"
-          type="email"
-        />
-
-        <USelect
-          v-model="inviteRole"
-          :options="roleOptions"
-        />
-
-        <UButton
-          block
-          :loading="isInviting"
-          @click="sendInvite"
-        >
-          Enviar convite
-        </UButton>
+        <div class="mt-4">
+          <strong>Organização:</strong>
+          <br> {{ organizationName || 'Nenhuma' }}
+          <br> {{ activeOrganizationId || 'Sem ID' }}
+        </div>
       </div>
-    </UCard>
-  </div>
+
+      <UCard
+        v-if="activeOrganizationId"
+        class="max-w-md"
+      >
+        <template #header>
+          <h2 class="font-semibold">
+            Convidar membro
+          </h2>
+        </template>
+
+        <div class="space-y-4">
+          <UInput
+            v-model="inviteEmail"
+            placeholder="Email do membro"
+            type="email"
+          />
+
+          <USelect
+            v-model="inviteRole"
+            :options="roleOptions"
+          />
+
+          <UButton
+            block
+            :loading="isInviting"
+            @click="sendInvite"
+          >
+            Enviar convite
+          </UButton>
+        </div>
+      </UCard>
+    </div> -->
+  </NuxtLayout>
 </template>
 
 <script setup>
@@ -51,63 +56,63 @@ definePageMeta({
   auth: { only: 'user' }
 })
 
-const { activeOrganizationId, client } = useAuth()
-const { organizations, fetchOrganizations } = useOrganization()
-const { notifySuccess, notifyError } = useNotify()
+// const { activeOrganizationId, client } = useAuth()
+// const { organizations, fetchOrganizations } = useOrganization()
+// const { notifySuccess, notifyError } = useNotify()
 
-// Fetch organizations.
-await useAsyncData('app:organizations', () =>
-  fetchOrganizations()
-)
+// // Fetch organizations.
+// await useAsyncData('app:organizations', () =>
+//   fetchOrganizations()
+// )
 
-const organizationName = computed(() => {
-  if (!activeOrganizationId.value || !organizations.value) return null
+// const organizationName = computed(() => {
+//   if (!activeOrganizationId.value || !organizations.value) return null
 
-  return organizations.value.find(organization =>
-    organization.id === activeOrganizationId.value
-  )?.name
-})
+//   return organizations.value.find(organization =>
+//     organization.id === activeOrganizationId.value
+//   )?.name
+// })
 
-// Invite member.
-const inviteEmail = ref('')
-const inviteRole = ref('member')
-const isInviting = ref(false)
+// // Invite member.
+// const inviteEmail = ref('')
+// const inviteRole = ref('member')
+// const isInviting = ref(false)
 
-const roleOptions = [
-  { label: 'Membro', value: 'member' },
-  { label: 'Administrador', value: 'admin' },
-  { label: 'Proprietário', value: 'owner' }
-]
+// const roleOptions = [
+//   { label: 'Membro', value: 'member' },
+//   { label: 'Administrador', value: 'admin' },
+//   { label: 'Proprietário', value: 'owner' }
+// ]
 
-async function sendInvite() {
-  if (!inviteEmail.value || !activeOrganizationId.value) return
+// async function sendInvite() {
+//   if (!inviteEmail.value || !activeOrganizationId.value) return
 
-  isInviting.value = true
+//   isInviting.value = true
 
-  try {
-    const result = await client.organization.inviteMember({
-      email: inviteEmail.value,
-      role: inviteRole.value,
-      organizationId: activeOrganizationId.value
-    })
+//   try {
+//     const result = await client.organization.inviteMember({
+//       email: inviteEmail.value,
+//       role: inviteRole.value,
+//       organizationId: activeOrganizationId.value
+//     })
 
-    if (result.error) {
-      throw new Error(result.error.message || 'Erro ao enviar convite')
-    }
+//     if (result.error) {
+//       throw new Error(result.error.message || 'Erro ao enviar convite')
+//     }
 
-    notifySuccess({
-      title: 'Convite enviado com sucesso!'
-    })
+//     notifySuccess({
+//       title: 'Convite enviado com sucesso!'
+//     })
 
-    inviteEmail.value = ''
-  }
-  catch (error) {
-    notifyError({
-      description: error.message || 'Erro ao enviar convite'
-    })
-  }
-  finally {
-    isInviting.value = false
-  }
-}
+//     inviteEmail.value = ''
+//   }
+//   catch (error) {
+//     notifyError({
+//       description: error.message || 'Erro ao enviar convite'
+//     })
+//   }
+//   finally {
+//     isInviting.value = false
+//   }
+// }
 </script>

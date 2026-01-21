@@ -10,7 +10,7 @@
             Criar organização
           </h1>
 
-          <p class="text-sm text-muted mt-1">
+          <p class="mt-1 text-sm text-muted">
             Preencha os dados abaixo para criar sua nova organização.
           </p>
         </header>
@@ -90,8 +90,6 @@ const {
   setActiveOrganization
 } = useOrganization()
 
-const slug = useSlug()
-
 // Form state.
 const formState = reactive({
   name: '',
@@ -100,7 +98,7 @@ const formState = reactive({
 
 // Generate slug from name.
 function generateSlug(name) {
-  formState.slug = slug.from(name)
+  formState.slug = slugify(name)
 }
 
 // Submit form.

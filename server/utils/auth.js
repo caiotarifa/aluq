@@ -3,8 +3,12 @@ import { admin, organization } from 'better-auth/plugins'
 
 import { zenstackAdapter } from '@zenstackhq/better-auth'
 
-import { db } from './db'
-import { sendMail } from './mailer'
+import { db } from './db.js'
+import { sendMail } from './mailer/index.js'
+
+import emailVerification from './mailer/templates/email-verification.js'
+import resetPassword from './mailer/templates/reset-password.js'
+import organizationInvite from './mailer/templates/organization-invite.js'
 
 export const auth = betterAuth({
   appName: 'Aluq',

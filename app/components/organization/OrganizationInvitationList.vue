@@ -6,7 +6,7 @@
       :actions="getActions(invitation)"
       :avatar="{ alt: invitation.organizationName }"
       class="ring-primary/25 transition-opacity"
-      :class="{ 'opacity-50 pointer-events-none': loading && !isSelected(invitation) }"
+      :class="{ 'pointer-events-none opacity-50': loading && !isSelected(invitation) }"
       color="neutral"
       orientation="vertical"
       :title="invitation.organizationName"

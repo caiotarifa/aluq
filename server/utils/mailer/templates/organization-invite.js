@@ -1,4 +1,4 @@
-import { layout } from './layout'
+import { layout } from './layout.js'
 
 export default function ({ inviterName, organizationName, inviteeName, url }) {
   const firstName = inviteeName?.split(' ')[0] || 'Olá'

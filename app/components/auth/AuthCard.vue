@@ -1,6 +1,6 @@
 <template>
   <UCard
-    class="backdrop-blur bg-white/25 dark:bg-white/2"
+    class="bg-white/25 backdrop-blur-sm dark:bg-white/2"
     variant="soft"
   >
     <slot />

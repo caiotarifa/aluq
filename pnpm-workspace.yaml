@@ -6,6 +6,11 @@ ignoredBuiltDependencies:
   - vue-demi
 
 onlyBuiltDependencies:
+  - '@prisma/client'
   - '@prisma/engines'
   - better-sqlite3
   - prisma
+  - sharp
+
+patchedDependencies:
+  '@zenstackhq/tanstack-query@3.2.1': patches/@zenstackhq__tanstack-query@3.2.1.patch

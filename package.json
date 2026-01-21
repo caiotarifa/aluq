@@ -5,10 +5,13 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
     "lint": "eslint .",
-    "typecheck": "nuxt typecheck"
+    "postinstall": "nuxt prepare",
+    "preview": "nuxt preview",
+    "typecheck": "nuxt typecheck",
+    "db:generate": "zenstack generate",
+    "db:push": "zenstack db push",
+    "db:seed": "zenstack db seed"
   },
   "dependencies": {
     "@nuxt/hints": "1.0.0-alpha.5",
@@ -16,22 +19,29 @@
     "@nuxt/scripts": "0.13.2",
     "@nuxt/ui": "^4.3.0",
     "@nuxtjs/i18n": "^10.2.1",
-    "@nuxtjs/mdc": "^0.19.2",
-    "@unhead/vue": "^2.0.19",
-    "@zenstackhq/better-auth": "^3.1.0",
-    "@zenstackhq/orm": "^3.1.0",
-    "@zenstackhq/plugin-policy": "^3.1.0",
-    "@zenstackhq/server": "^3.1.0",
-    "better-sqlite3": "^12.5.0",
+    "@nuxtjs/mdc": "^0.20.0",
+    "@tanstack/vue-query": "^5.92.8",
+    "@unhead/vue": "^2.1.2",
+    "@zenstackhq/better-auth": "^3.2.1",
+    "@zenstackhq/orm": "^3.2.1",
+    "@zenstackhq/plugin-policy": "^3.2.1",
+    "@zenstackhq/server": "^3.2.1",
+    "@zenstackhq/tanstack-query": "^3.2.1",
+    "better-sqlite3": "^12.6.2",
     "nodemailer": "^7.0.12",
     "nuxt": "^4.2.2",
     "valibot": "^1.2.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.2.0",
     "@iconify-json/tabler": "^1.2.26",
     "@nuxt/eslint": "^1.12.1",
-    "@zenstackhq/cli": "^3.1.0",
-    "eslint": "^9.39.2"
+    "@zenstackhq/cli": "^3.2.1",
+    "eslint": "^9.39.2",
+    "eslint-plugin-better-tailwindcss": "^4.0.1"
   },
-  "packageManager": "pnpm@10.26.1"
+  "packageManager": "pnpm@10.26.1",
+  "zenstack": {
+    "seed": "node ./zenstack/seed.js"
+  }
 }

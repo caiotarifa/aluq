@@ -48,6 +48,15 @@ export default defineAppConfig({
       tip: 'i-tabler-bulb',
       upload: 'i-tabler-upload',
       warning: 'i-tabler-alert-triangle'
+    },
+
+    // Components.
+    breadcrumb: {
+      slots: {
+        linkLabel: 'text-xs truncate',
+        linkLeadingIcon: 'shrink-0 size-3',
+        separatorIcon: 'shrink-0 size-3 text-[var(--ui-text-muted)]/50'
+      }
     }
   }
 })

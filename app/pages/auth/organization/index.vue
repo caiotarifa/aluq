@@ -10,7 +10,7 @@
             {{ hasOrganizations ? 'Organizações' : 'Vamos começar...' }}
           </h1>
 
-          <p class="text-sm text-muted mt-1">
+          <p class="mt-1 text-sm text-muted">
             Selecione ou crie uma organização para continuar.
           </p>
         </header>

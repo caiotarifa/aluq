@@ -1,0 +1,21 @@
+import '../types/BaseModel'
+
+import './Organization'
+
+model BusinessUnit with BaseModel {
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+
+  isActive Boolean @default(true)
+
+  // Identity.
+  name String
+  legalName String?
+  taxId String?
+
+  // Policies.
+  @@allow('all', auth().organizationId == organizationId)
+
+  @@map('businessUnit')
+  @@index([organizationId])
+}

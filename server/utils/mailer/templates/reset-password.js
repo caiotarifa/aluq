@@ -1,4 +1,4 @@
-import { layout } from './layout'
+import { layout } from './layout.js'
 
 export default function ({ name, url }) {
   const firstName = name?.split(' ')[0] || 'Olá'

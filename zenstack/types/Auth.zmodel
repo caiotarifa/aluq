@@ -1,0 +1,6 @@
+type Auth {
+  userId String @id
+  organizationId String
+
+  @@auth
+}

@@ -3,7 +3,7 @@ import { PolicyPlugin } from '@zenstackhq/plugin-policy'
 import SQLite from 'better-sqlite3'
 import { SqliteDialect } from 'kysely'
 
-import { schema } from '~~/zenstack/schema'
+import { schema } from '../../zenstack/schema.ts'
 
 export const db = new ZenStackClient(schema, {
   dialect: new SqliteDialect({
