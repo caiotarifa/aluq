@@ -10,7 +10,7 @@ const positiveNumber = v.pipe(
 
 // Sorting.
 const sortItem = v.object({
-  key: v.string(),
+  property: v.string(),
 
   direction: v.union([
     v.literal('asc'),
@@ -22,14 +22,14 @@ function sortTransform(input) {
   const items = input.split(',')
 
   return items.map((item) => {
-    const [key, direction] = item.split(':')
-    return { key, direction }
+    const [property, direction] = item.split(':')
+    return { property, direction }
   })
 }
 
 function sortSerialize(items) {
   if (!items || !Array.isArray(items) || items.length === 0) return undefined
-  return items.map(item => `${item.key}:${item.direction}`).join(',')
+  return items.map(item => `${item.property}:${item.direction}`).join(',')
 }
 
 // Parsing.

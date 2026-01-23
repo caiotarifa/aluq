@@ -25,10 +25,14 @@ export function useRemoteList(entity, query = {}, options = {}) {
       ...toValue(query)
     }
 
+    const orderBy = sort.map(({ property, direction }) => (
+      { [property]: direction }
+    ))
+
     return {
       skip: (page - 1) * take,
       take,
-      orderBy: sort.map(({ key, direction }) => ({ [key]: direction }))
+      orderBy
     }
   }
 

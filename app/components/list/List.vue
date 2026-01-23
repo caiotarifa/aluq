@@ -1,50 +1,52 @@
 <template>
-  <div class="relative">
-    <header class="flex justify-between">
-      <div class="flex gap-2">
-        <USkeleton
-          v-if="loading"
-          class="h-8 w-61.25"
-        />
+  <div class="relative space-y-4 sm:space-y-6">
+    <header class="space-y-2 sm:space-y-4">
+      <div class="flex w-full justify-between">
+        <div class="flex gap-2">
+          <USkeleton
+            v-if="loading"
+            class="h-8 w-61.25"
+          />
 
-        <InputSearch
-          v-else
-          v-model="query.search"
-        />
+          <InputSearch
+            v-else
+            v-model="query.search"
+          />
+        </div>
+
+        <div class="flex gap-2">
+          <ListSort
+            v-model="query.sort"
+            :properties="{
+              name: {
+                label: 'Name',
+                type: 'text'
+              },
+
+              taxId: {
+                label: 'Tax ID',
+                type: 'text'
+              }
+            }"
+          />
+        </div>
       </div>
 
-      <div class="flex gap-2">
-        <ListSort
-          v-model="query.sort"
-          :fields="[
-            {
-              key: 'name',
-              label: 'Name',
-              icon: 'i-tabler-user',
-              sortable: true
-            },
-            {
-              key: 'taxId',
-              label: 'Tax ID',
-              icon: 'i-tabler-id',
-              sortable: true
-            }
-          ]"
-        />
-      </div>
+      <UTabs
+        v-model="viewModel"
+        :content="false"
+        :items="views"
+        variant="link"
+      />
     </header>
 
-    <div class="flex justify-between py-6">
-      <div class="flex-1">
-        <div>Items:</div>
-        <pre>{{ items }}</pre>
-      </div>
-
-      <div>
-        <div>Query:</div>
-        <pre>{{ query }}</pre>
-      </div>
-    </div>
+    <slot>
+      <ListTableView
+        v-model:query="query"
+        :data="items"
+        :loading
+      />
+    </slot>
 
     <footer
       v-if="hasItems"
@@ -75,11 +77,6 @@
 
 <script setup>
 const props = defineProps({
-  columns: {
-    type: Object,
-    default: () => ({})
-  },
-
   items: {
     type: Array,
     default: () => []
@@ -88,6 +85,11 @@ const props = defineProps({
   loading: {
     type: Boolean,
     default: false
+  },
+
+  properties: {
+    type: Object,
+    default: () => ({})
   },
 
   sizeOptions: {
@@ -117,12 +119,11 @@ const totalItems = computed(() =>
   props.total || props.items.length
 )
 
-// const pageItems = computed(() => {
-//   const start = (query.page - 1) * query.size
-//   const end = start + query.size
-
-//   return props.items.slice(start, end)
-// })
+// Views.
+const viewModel = defineModel('view', {
+  type: String,
+  default: ''
+})
 
 // Query.
 const queryModel = defineModel('query', {

@@ -1,14 +1,13 @@
 <template>
-  <!-- TODO: Ver sobre UI. -->
+  <!-- TODO: Ver sobre a prop UI. -->
   <AppPage
-    :actions
-    :title="t(`${entity}.title`)"
+    :actions="entity.actions"
+    :title="t(`${entityName}.title`)"
     :ui="{ body: 'pb-0 sm:pb-0' }"
   >
-    Total: {{ total }}
-
     <List
       v-model:query="query"
+      v-model:view="view"
       :items
       :loading="isLoading"
       :total
@@ -21,30 +20,45 @@
 const { t } = useI18n()
 const route = useRoute()
 
-const entity = computed(() =>
-  camelCase(route.params.entity)
+// Entity.
+const entityName = computed(() =>
+  camelCase(singularize(route.params.entity))
 )
 
-const views = useViews(entity.value, {
-  all: { type: 'table' }
-})
+const entity = useEntity(entityName)
 
-const actions = computed(() => [[
-  {
-    label: t(`${entity.value}.actions.create`),
-    icon: 'i-tabler-plus',
-    to: `/${entity.value}/new`
-  }
-]])
+// Views.
+const views = computed(() =>
+  entity.value.views || {}
+)
 
+const view = ref(
+  route.query.view || entity.value.display.view
+)
+
+const viewOptions = computed(() =>
+  views.value[view.value] || {}
+)
+
+const isDisplayView = computed(() =>
+  entity.value.display.view === view.value
+)
+
+// Query.
 const query = useRouteQuery({
+  view: isDisplayView.value ? undefined : view.value,
   page: 1,
   size: 25
 })
+
+const remoteQuery = computed(() => ({
+  ...viewOptions.value.query,
+  ...query.value
+}))
 
 // Fetch.
 const {
   list: { data: items, isLoading },
   count: { data: total }
-} = await useRemoteList(entity, query)
+} = await useRemoteList(entityName, remoteQuery)
 </script>

@@ -33,7 +33,7 @@
         class="space-y-2 p-4"
         :item="{ class: 'flex items-center gap-2' }"
       >
-        <template #default="{ item: sort, index, drag }">
+        <template #default="{ item: sort, drag }">
           <UIcon
             v-if="canDrag"
             v-bind="drag"
@@ -42,13 +42,14 @@
           />
 
           <USelectMenu
-            :model-value="getFieldByKey(sort.key)"
+            :model-value="sort.property"
             class="flex-1"
-            :items="getAvailableFieldsForSort(sort.key)"
+            :items="getAvailablePropertiesFor(sort.property)"
+            value-key="key"
             variant="soft"
             size="sm"
             :ui="{ content: 'min-w-fit' }"
-            @update:model-value="updateSortField(index, $event)"
+            @update:model-value="updateSortProperty(sort.property, $event)"
           />
 
           <USelect
@@ -57,7 +58,7 @@
             :model-value="sort.direction"
             variant="soft"
             size="sm"
-            @update:model-value="updateSortDirection(index, $event)"
+            @update:model-value="updateSortDirection(sort.property, $event)"
           />
 
           <UButton
@@ -65,13 +66,13 @@
             variant="ghost"
             size="sm"
             :icon="appConfig.ui.icons.close"
-            @click="removeSort(sort.key)"
+            @click="removeSort(sort.property)"
           />
         </template>
       </DraggableList>
 
       <footer
-        v-if="hasAvailableFields && canAddMore"
+        v-if="hasAvailableProperties && canAddMore"
         class="border-t border-default"
       >
         <USelectMenu
@@ -79,7 +80,7 @@
           :model-value="null"
           class="w-full rounded-t-none px-4 py-2"
           :icon="appConfig.ui.icons.plus"
-          :items="availableFields"
+          :items="availableProperties"
           placeholder="Adicionar ordenação"
           variant="ghost"
           :trailing-icon="false"
@@ -98,7 +99,7 @@
     v-else
     :content="{ align: 'end' }"
     :icon="buttonIcon"
-    :items="availableFields"
+    :items="availableProperties"
     :model-value="null"
     :placeholder="buttonLabel"
     :variant="buttonVariant"
@@ -116,9 +117,9 @@ const props = defineProps({
     validator: value => ['asc', 'desc'].includes(value)
   },
 
-  fields: {
-    type: Array,
-    default: () => []
+  properties: {
+    type: Object,
+    default: () => ({})
   },
 
   max: {
@@ -140,64 +141,45 @@ const appConfig = useAppConfig()
 const isSelectOpen = ref(false)
 
 // Sorts.
-const hasSorts = computed(() =>
-  model.value.length > 0
-)
+const sortsCount = computed(() => model.value.length)
+const hasSorts = computed(() => sortsCount.value > 0)
+const canAddMore = computed(() => sortsCount.value < props.max)
 
-const sortsCount = computed(() =>
-  model.value.length
-)
+function addSort(item) {
+  if (!item || !canAddMore.value) return
 
-const canAddMore = computed(() =>
-  model.value.length < props.max
-)
-
-function addSort(field) {
-  if (!field || !canAddMore.value) return
-
-  const exists = model.value.some(sort => sort.key === field.key)
+  const exists = model.value.some(sort => sort.property === item.key)
   if (exists) return
 
   model.value = [
     ...model.value,
-    { key: field.key, label: field.label, direction: props.defaultDirection }
+    { property: item.key, direction: props.defaultDirection }
   ]
 
   isSelectOpen.value = false
   openPopover()
 }
 
-function removeSort(key) {
-  model.value = model.value.filter(sort => sort.key !== key)
+function removeSort(property) {
+  model.value = model.value.filter(sort => sort.property !== property)
 }
 
 function clearSorts() {
   model.value = []
 }
 
-function updateSortField(index, field) {
-  if (!field) return
+function updateSortProperty(oldProperty, newProperty) {
+  if (!newProperty || oldProperty === newProperty) return
 
-  const newSorts = [...model.value]
-
-  newSorts[index] = {
-    ...newSorts[index],
-    key: field.key,
-    label: field.label
-  }
-
-  model.value = newSorts
+  model.value = model.value.map(sort =>
+    sort.property === oldProperty ? { ...sort, property: newProperty } : sort
+  )
 }
 
-function updateSortDirection(index, direction) {
-  const newSorts = [...model.value]
-
-  newSorts[index] = {
-    ...newSorts[index],
-    direction
-  }
-
-  model.value = newSorts
+function updateSortDirection(property, direction) {
+  model.value = model.value.map(sort =>
+    sort.property === property ? { ...sort, direction } : sort
+  )
 }
 
 // Drag.
@@ -205,29 +187,32 @@ const canDrag = computed(() =>
   sortsCount.value > 1
 )
 
-// Fields.
-const fieldsMap = computed(() =>
-  new Map(props.fields.map(field => [field.key, field]))
-)
+// Properties.
+const propertyItems = computed(() => {
+  const result = []
 
-function getFieldByKey(key) {
-  return fieldsMap.value.get(key) || null
-}
+  for (const key in props.properties) {
+    result.push({ key, label: props.properties[key].label })
+  }
 
-const availableFields = computed(() =>
-  props.fields.filter(field =>
-    !model.value.some(sort => sort.key === field.key)
+  return result
+})
+
+const availableProperties = computed(() =>
+  propertyItems.value.filter(item =>
+    !model.value.some(sort => sort.property === item.key)
   )
 )
 
-function getAvailableFieldsForSort(currentKey) {
-  return props.fields.filter(field =>
-    field.key === currentKey || !model.value.some(sort => sort.key === field.key)
+function getAvailablePropertiesFor(currentProperty) {
+  return propertyItems.value.filter(item =>
+    item.key === currentProperty
+    || !model.value.some(sort => sort.property === item.key)
   )
 }
 
-const hasAvailableFields = computed(() =>
-  availableFields.value.length > 0
+const hasAvailableProperties = computed(() =>
+  availableProperties.value.length > 0
 )
 
 // Button.
@@ -247,7 +232,8 @@ const buttonIcon = computed(() => {
 
 const buttonLabel = computed(() => {
   if (sortsCount.value === 1) {
-    return model.value[0].label
+    const { property } = model.value[0]
+    return props.properties[property]?.label || property
   }
 
   if (sortsCount.value > 1) {

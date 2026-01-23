@@ -2,16 +2,16 @@
   <component :is="tag">
     <TransitionGroup :name="transition">
       <div
-        v-for="(data, index) in internalList"
-        :key="getItemKey(data)"
+        v-for="(entry, index) in localItems"
+        :key="entry.id"
+        :class="{ 'opacity-50': draggedIndex === index }"
         v-bind="item"
-        @dragover.prevent
-        @dragenter.prevent="onDragEnter(index)"
+        @pointerenter="onDragOver(index)"
       >
         <slot
-          :drag="getDragAttrs(index)"
+          :item="entry.data"
           :index
-          :item="data"
+          :drag="getHandleAttrs(index)"
         />
       </div>
     </TransitionGroup>
@@ -37,88 +37,98 @@ const props = defineProps({
 
   throttle: {
     type: Number,
-    default: 150
+    default: 50
   }
 })
 
-const emit = defineEmits(['reorder'])
+const emit = defineEmits([
+  'reorder'
+])
 
-// Model.
 const model = defineModel({
   type: Array,
   default: () => []
 })
 
-// Internal list for visual reordering during drag.
-const internalList = ref([])
-const isDragging = ref(false)
-
-watch(model, (newValue) => {
-  if (!isDragging.value) {
-    internalList.value = [...newValue]
-  }
-}, { immediate: true })
-
-// Keys.
-const keyCounter = ref(0)
-const itemKeys = new Map()
-
-function getItemKey(item) {
-  if (!itemKeys.has(item)) {
-    itemKeys.set(item, keyCounter.value++)
-  }
-
-  return itemKeys.get(item)
+function toItems(value) {
+  return value.map((data, index) => ({ id: index, data }))
 }
 
-// Drag and Drop.
+function toModel(items) {
+  return items.map(item => item.data)
+}
+
+// Items.
+const localItems = ref(toItems(model.value))
+
+watch(model, (value) => {
+  if (draggedIndex.value !== null) return
+
+  const currentData = toModel(localItems.value)
+  const isSameData = JSON.stringify(currentData) === JSON.stringify(value)
+
+  if (isSameData) return
+
+  localItems.value = toItems(value)
+})
+
+// Drag.
 const draggedIndex = ref(null)
-const lastSwapTime = ref(0)
+const dragState = { lastTime: 0 }
 
-function onDragStart(index) {
-  isDragging.value = true
+function onDragStart(index, event) {
+  event.preventDefault()
+
+  localItems.value = toItems(model.value)
   draggedIndex.value = index
-  lastSwapTime.value = 0
+  dragState.lastTime = 0
+
+  document.addEventListener('pointerup', onDragEnd)
 }
 
-function onDragEnter(index) {
-  if (draggedIndex.value === null || draggedIndex.value === index) return
+function onDragOver(index) {
+  if ([null, index].includes(draggedIndex.value)) return
 
   const now = Date.now()
-  if (now - lastSwapTime.value < props.throttle) return
-  lastSwapTime.value = now
 
-  const newItems = [...internalList.value]
-  const [draggedItem] = newItems.splice(draggedIndex.value, 1)
-  newItems.splice(index, 0, draggedItem)
+  if (now - dragState.lastTime < props.throttle) return
 
-  internalList.value = newItems
+  dragState.lastTime = now
+
+  const list = [...localItems.value]
+  const [moved] = list.splice(draggedIndex.value, 1)
+
+  list.splice(index, 0, moved)
+  localItems.value = list
   draggedIndex.value = index
 }
 
 function onDragEnd() {
-  if (isDragging.value) {
-    model.value = [...internalList.value]
-    emit('reorder', internalList.value)
-  }
+  document.removeEventListener('pointerup', onDragEnd)
 
-  isDragging.value = false
+  if (draggedIndex.value === null) return
+
+  model.value = toModel(localItems.value)
   draggedIndex.value = null
-  lastSwapTime.value = 0
+
+  emit('reorder', model.value)
 }
 
-function getDragAttrs(index) {
+function getHandleAttrs(index) {
   return {
-    draggable: true,
-    onDragstart: () => onDragStart(index),
-    onDragend: () => onDragEnd()
+    class: 'cursor-grab active:cursor-grabbing touch-none select-none',
+    onPointerdown: event => onDragStart(index, event)
   }
 }
+
+onUnmounted(() => {
+  document.removeEventListener('pointerup', onDragEnd)
+})
 </script>
 
 <style>
 .drag-list-move {
-  transition: transform 0.2s ease;
+  transition: transform 0.15s ease-out;
 }
 
 .drag-list-enter-active,

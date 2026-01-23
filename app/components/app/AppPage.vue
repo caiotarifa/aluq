@@ -27,8 +27,8 @@
           <template #right>
             <div class="flex gap-2">
               <UButton
-                v-for="(action, index) in mainActions"
-                :key="index"
+                v-for="(action, key) in mainActions"
+                :key
                 color="neutral"
                 size="lg"
                 variant="soft"
