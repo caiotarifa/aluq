@@ -17,25 +17,28 @@
         <div class="flex gap-2">
           <ListSort
             v-model="query.sort"
-            :properties="{
-              name: {
-                label: 'Name',
-                type: 'text'
-              },
-
-              taxId: {
-                label: 'Tax ID',
-                type: 'text'
-              }
-            }"
+            :properties="sortableProperties"
           />
+
+          <UDropdownMenu
+            :content="{ align: 'end' }"
+            :items="adjustmentsMenu"
+          >
+            <UButton
+              class="bg-elevated/50 text-dimmed hover:bg-elevated"
+              color="neutral"
+              icon="i-tabler-adjustments-horizontal"
+              variant="soft"
+            />
+          </UDropdownMenu>
         </div>
       </div>
 
       <UTabs
+        v-if="viewItems.length > 1"
         v-model="viewModel"
         :content="false"
-        :items="views"
+        :items="viewItems"
         variant="link"
       />
     </header>
@@ -45,6 +48,7 @@
         v-model:query="query"
         :data="items"
         :loading
+        :properties="viewProperties"
       />
     </slot>
 
@@ -54,7 +58,7 @@
     >
       <div class="flex items-center gap-x-2">
         <span class="hidden text-sm md:inline">
-          {{ t('remoteList.perPage') }}
+          {{ t('list.perPage') }}
         </span>
 
         <USelect
@@ -72,11 +76,21 @@
         :total="totalItems"
       />
     </footer>
+
+    <ListImport
+      v-model:open="isImportOpen"
+      :entity
+    />
   </div>
 </template>
 
 <script setup>
 const props = defineProps({
+  entity: {
+    type: Object,
+    default: () => ({})
+  },
+
   items: {
     type: Array,
     default: () => []
@@ -87,11 +101,6 @@ const props = defineProps({
     default: false
   },
 
-  properties: {
-    type: Object,
-    default: () => ({})
-  },
-
   sizeOptions: {
     default: () => [5, 10, 25, 50, 100],
     type: Array
@@ -100,11 +109,6 @@ const props = defineProps({
   total: {
     type: Number,
     default: 0
-  },
-
-  views: {
-    type: Object,
-    default: () => ({})
   }
 })
 
@@ -124,6 +128,74 @@ const viewModel = defineModel('view', {
   type: String,
   default: ''
 })
+
+const viewItems = computed(() => {
+  const result = []
+
+  for (const key in props.entity.views) {
+    result.push({
+      value: key,
+      label: props.entity.views[key].label || key
+    })
+  }
+
+  return result
+})
+
+const viewConfig = computed(() =>
+  props.entity.views?.[viewModel.value] || {}
+)
+
+// Properties.
+const viewProperties = computed(() => {
+  const result = {}
+  const propertyKeys = viewConfig.value.properties || []
+
+  for (const key of propertyKeys) {
+    if (props.entity.properties?.[key]) {
+      result[key] = props.entity.properties[key]
+    }
+  }
+
+  return result
+})
+
+const sortableProperties = computed(() => {
+  const result = {}
+
+  for (const key in viewProperties.value) {
+    const property = viewProperties.value[key]
+
+    if (property.sortable !== false) {
+      result[key] = property
+    }
+  }
+
+  return result
+})
+
+// Import modal.
+const isImportOpen = ref(false)
+
+// Adjustments menu.
+const adjustmentsMenu = computed(() => [
+  {
+    label: t('list.importData'),
+    icon: 'i-tabler-file-import',
+    onSelect: () => isImportOpen.value = true
+  },
+  {
+    label: t('list.exportData'),
+    icon: 'i-tabler-file-export'
+  },
+  {
+    type: 'separator'
+  },
+  {
+    label: t('list.editView'),
+    icon: 'i-tabler-database-cog'
+  }
+])
 
 // Query.
 const queryModel = defineModel('query', {

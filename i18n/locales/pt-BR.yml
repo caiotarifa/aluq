@@ -2,6 +2,14 @@
 and: e
 of: de
 or: ou
+yes: Sim
+no: Não
+
+actions:
+  back: Voltar
+  cancel: Cancelar
+  create: Criar {0}
+  done: Concluir
 
 # Brand
 brand:
@@ -27,13 +35,97 @@ messages:
     invitationAccepted: 'Convite aceito com sucesso!'
     invitationRejected: 'Convite recusado.'
 
-# Copy Button
-copyButton:
-  copy: 'Copiar'
-  copied: 'Copiado!'
-
 # Components
+appOrganizationMenu:
+  createOrganization: Criar organização
+  manageOrganizations: Gerenciar organizações
+
+appUserMenu:
+  profile: Perfil
+  darkTheme: Tema escuro
+  lightTheme: Tema claro
+  signOut: Desconectar
+
+copyButton:
+  copy: Copiar
+  copied: Copiado!
+
+inputSearch:
+  placeholder: Buscar...
+
+list:
+  perPage: Itens por página
+
+  importData: Importar dados
+  exportData: Exportar dados
+  editView: Editar visualização
+
+listImport:
+  title: Importar dados
+  description: Importe registros a partir de uma planilha
+
+  actions:
+    import: Importar
+    review: Revisar
+
+  steps:
+    upload: Enviar arquivo
+    review: Revisar dados
+    importing: Importando
+
+  template:
+    title: Precisa de um modelo?
+    description: Baixe uma planilha com o formato correto.
+    download: Baixar modelo
+
+  upload:
+    label: Selecione ou arraste um arquivo
+    description: CSV, XLS, XLSX ou ODS
+  
+  review:
+    totalRows: '{count} linha(s) encontrada(s)'
+    moreRows: '...e mais {count} linha(s)'
+
+    errorTitle: Oops!
+    moreErrors: '...e mais {count} erro(s)'
+
+    emptyFile: O arquivo está vazio ou não possui dados.
+    parseError: Não foi possível processar o arquivo.
+    readError: Erro ao ler o arquivo.
+    rowError: 'Linha {row} [{field}]: {message}'
+    validationErrors: Alguns erros de validação foram encontrados.
+  
+  importing:
+    importingData: Importando dados...
+    importDone: Importação concluída!
+    progressStatus: '{current} de {total} registros processados'
+    progressCount: '{created} criado(s), {updated} atualizado(s), {failed} erro(s)'
+
+    entityNotFound: 'Entidade "{name}" não encontrada.'
+    rowError: 'Linha {row}: {message}'
+
+    success: '{created} registro(s) criado(s), {updated} atualizado(s)'
+    partialSuccess: '{success} importado(s), {failed} erro(s)'
+    partialImport: Alguns registros falharam durante a importação.
+    allImported: Todos os registros foram importados com sucesso.
 
 # Auth
 
-# Models
+# Entities
+businessUnit:
+  title: Empresas
+
+  actions:
+    create: '@:actions.create empresa'
+
+  views:
+    default: Todas
+
+  properties:
+    id: Código
+    isActive: Ativo?
+    name: Nome
+    legalName: Razão Social
+    taxId: Documento
+    createdAt: Criado em
+    updatedAt: Atualizado em

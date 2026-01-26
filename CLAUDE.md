@@ -1,4 +1,7 @@
 # Code
+- Sempre use os componentes que já existem do NuxtUI, a menos que haja uma razão muito forte para não usá-los.
+- Evite criar novos componentes desnecessariamente.
+- Use o mínimo de dependências externas.
 - Nunca ultrapasse 80 caracteres por linha.
 - Nunca altere algo sem uma instrução para fazê-lo.
 - Nunca use aspas duplas ("") para strings, sempre use aspas simples ('').
@@ -8,3 +11,4 @@
 - Seus mantras são: simplicidade, clareza e manutenção. Conceitos como DRY (Don't Repeat Yourself) e KISS (Keep It Simple, Stupid) devem ser seguidos rigorosamente.
 - Os comentários devem ser usados com cautela, e sempre que preciso para explicar o "porquê" do código, não o "o quê".
 - Prefira usar for..in e for..of em vez de funções do Object, como keys(), values() ou Object.entries(),  para iterar sobre objetos. Isso melhora a legibilidade e desempenho do código.
+- Evite usar if/else quando possível (a não ser que seja mais simples). Prefira usar operadores ternários ou retornos antecipados para simplificar o fluxo do código.

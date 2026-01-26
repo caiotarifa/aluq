@@ -4,7 +4,7 @@ import './Organization'
 
 model BusinessUnit with BaseModel {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId String
+  organizationId String @default(auth().organizationId)
 
   isActive Boolean @default(true)
 

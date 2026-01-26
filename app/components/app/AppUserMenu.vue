@@ -59,7 +59,7 @@ const props = defineProps({
 
 const appConfig = useAppConfig()
 const colorMode = useColorMode()
-const { locale, setLocale } = useI18n()
+const { locale, setLocale, t } = useI18n()
 
 const currentUser = computed(() => ({
   label: props.collapsed ? undefined : props.name,
@@ -70,14 +70,16 @@ const currentUser = computed(() => ({
   }
 }))
 
-const colorModeIcon = computed(() =>
+const isDarkMode = computed(() =>
   colorMode.value === 'dark'
-    ? appConfig.ui.icons.dark
-    : appConfig.ui.icons.light
+)
+
+const colorModeIcon = computed(() =>
+  isDarkMode.value ? appConfig.ui.icons.light : appConfig.ui.icons.dark
 )
 
 function toggleColorMode() {
-  colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
+  colorMode.preference = isDarkMode.value ? 'light' : 'dark'
 }
 
 const items = computed(() => [
@@ -91,7 +93,7 @@ const items = computed(() => [
 
   [
     {
-      label: 'Meus dados',
+      label: t('appUserMenu.profile'),
       icon: 'i-tabler-adjustments',
       to: '/users/me'
     }
@@ -100,7 +102,7 @@ const items = computed(() => [
   [
     {
       icon: colorModeIcon.value,
-      label: colorMode.value === 'dark' ? 'Tema escuro' : 'Tema claro',
+      label: t(`appUserMenu.${isDarkMode.value ? 'light' : 'dark'}Theme`),
       onSelect: toggleColorMode
     },
     {
@@ -112,7 +114,7 @@ const items = computed(() => [
 
   [
     {
-      label: 'Desconectar',
+      label: t('appUserMenu.signOut'),
       icon: 'i-tabler-logout',
       to: '/auth/logout'
     }

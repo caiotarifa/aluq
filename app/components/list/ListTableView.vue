@@ -1,5 +1,7 @@
 <template>
   <UTable
+    v-model:sorting="sorting"
+    :columns
     :data
     :loading
     sticky
@@ -12,7 +14,7 @@
 </template>
 
 <script setup>
-defineProps({
+const props = defineProps({
   data: {
     type: Array,
     default: () => []
@@ -21,6 +23,75 @@ defineProps({
   loading: {
     type: Boolean,
     default: false
+  },
+
+  properties: {
+    type: Object,
+    default: () => ({})
   }
 })
+
+const query = defineModel('query', {
+  type: Object,
+  default: () => ({ sort: [] })
+})
+
+// Sorting.
+const sorting = computed({
+  get() {
+    return query.value.sort.map(sort => ({
+      id: sort.property,
+      desc: sort.direction === 'desc'
+    }))
+  },
+
+  set(value) {
+    query.value.sort = value.map(sort => ({
+      property: sort.id,
+      direction: sort.desc ? 'desc' : 'asc'
+    }))
+  }
+})
+
+// Columns.
+const columns = computed(() => {
+  const results = []
+
+  for (const key in props.properties) {
+    const property = props.properties[key]
+
+    results.push({
+      accessorKey: key,
+      header: ({ column }) => getHeader(column, property)
+    })
+  }
+
+  return results
+})
+
+function getHeader(column, property) {
+  const nodes = []
+
+  // Sort button.
+  const isSorted = column.getIsSorted()
+  const canSort = property.sortable !== false
+
+  if (isSorted || canSort) {
+    nodes.push(h(UButton, {
+      class: '-ml-2',
+      color: 'neutral',
+      disabled: !canSort,
+      icon: isSorted
+        ? `i-tabler-sort-${isSorted}ending`
+        : 'i-tabler-arrows-sort',
+      size: 'xs',
+      variant: 'ghost',
+      onClick: () => column.toggleSorting()
+    }))
+  }
+
+  nodes.push(h('span', {}, property.label))
+
+  return h('div', { class: 'flex items-center gap-2' }, nodes)
+}
 </script>

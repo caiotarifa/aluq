@@ -8,10 +8,10 @@
     <List
       v-model:query="query"
       v-model:view="view"
+      :entity
       :items
       :loading="isLoading"
       :total
-      :views
     />
   </AppPage>
 </template>

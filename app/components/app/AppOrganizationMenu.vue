@@ -44,6 +44,8 @@ const model = defineModel({
   required: false
 })
 
+const { t } = useI18n()
+
 const organizationItems = computed(() =>
   props.organizations.map(organization => ({
     label: organization.name,
@@ -72,11 +74,11 @@ const items = computed(() => [
 
   [
     {
-      label: 'Criar organização',
+      label: t('appOrganizationMenu.createOrganization'),
       icon: 'i-tabler-plus'
     },
     {
-      label: 'Gerenciar organizações',
+      label: t('appOrganizationMenu.manageOrganizations'),
       icon: 'i-tabler-settings'
     }
   ]

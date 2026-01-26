@@ -451,11 +451,13 @@ export class SchemaType implements SchemaDef {
                     name: "organization",
                     type: "Organization",
                     attributes: [{ name: "@relation", args: [{ name: "fields", value: ExpressionUtils.array([ExpressionUtils.field("organizationId")]) }, { name: "references", value: ExpressionUtils.array([ExpressionUtils.field("id")]) }, { name: "onDelete", value: ExpressionUtils.literal("Cascade") }] }],
-                    relation: { opposite: "businessUnits", fields: ["organizationId"], references: ["id"], onDelete: "Cascade" }
+                    relation: { opposite: "businessUnits", fields: ["organizationId"], references: ["id"], onDelete: "Cascade", hasDefault: true }
                 },
                 organizationId: {
                     name: "organizationId",
                     type: "String",
+                    attributes: [{ name: "@default", args: [{ name: "value", value: ExpressionUtils.member(ExpressionUtils.call("auth"), ["organizationId"]) }] }],
+                    default: ExpressionUtils.member(ExpressionUtils.call("auth"), ["organizationId"]),
                     foreignKeyFor: [
                         "organization"
                     ]
