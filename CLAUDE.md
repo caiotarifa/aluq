@@ -2,7 +2,7 @@
 - Sempre use os componentes que já existem do NuxtUI, a menos que haja uma razão muito forte para não usá-los.
 - Evite criar novos componentes desnecessariamente.
 - Use o mínimo de dependências externas.
-- Nunca ultrapasse 80 caracteres por linha.
+- Nunca ultrapasse 80 caracteres por linha no <script> mas no <template> pode se for uma interpolação longa.
 - Nunca altere algo sem uma instrução para fazê-lo.
 - Nunca use aspas duplas ("") para strings, sempre use aspas simples ('').
 - Evite abreviações em nomes de variáveis e funções, use nomes completos e descritivos.
@@ -12,3 +12,4 @@
 - Os comentários devem ser usados com cautela, e sempre que preciso para explicar o "porquê" do código, não o "o quê".
 - Prefira usar for..in e for..of em vez de funções do Object, como keys(), values() ou Object.entries(),  para iterar sobre objetos. Isso melhora a legibilidade e desempenho do código.
 - Evite usar if/else quando possível (a não ser que seja mais simples). Prefira usar operadores ternários ou retornos antecipados para simplificar o fluxo do código.
+- Prefira const sempre que possível. Use let apenas quando a variável precisar ser reatribuída em casos específicos.

@@ -3,8 +3,8 @@
     v-model:open="open"
     class="min-w-1/2"
     :description="t('listImport.description')"
-    :close="!importing"
-    :dismissible="!importing"
+    :close="!isImporting"
+    :dismissible="!isImporting"
     :title="t('listImport.title')"
     :ui="{ footer: 'flex gap-2' }"
     @after:leave="resetFile"
@@ -129,41 +129,15 @@
               </table>
             </div>
 
-            <UAlert
+            <AlertList
               v-else
               color="error"
+              :description="parseError || t('listImport.review.validationErrors')"
               icon="i-tabler-alert-triangle"
+              :items="validationErrors"
               :title="t('listImport.review.errorTitle')"
               variant="subtle"
-            >
-              <template #description>
-                {{ fileError || t('listImport.review.validationErrors') }}
-
-                <ul
-                  v-if="validationErrors.length > 0"
-                  class="mt-2 space-y-1 text-xs"
-                >
-                  <li
-                    v-for="(error, index) in validationErrors.slice(0, 5)"
-                    :key="index"
-                    class="flex items-start gap-2"
-                  >
-                    <UIcon
-                      class="mt-px size-3.5 shrink-0"
-                      name="i-tabler-point"
-                    />
-                    <span>{{ error }}</span>
-                  </li>
-
-                  <li
-                    v-if="validationErrors.length > 5"
-                    class="opacity-50"
-                  >
-                    {{ t('listImport.review.moreErrors', { count: validationErrors.length - 5 }) }}
-                  </li>
-                </ul>
-              </template>
-            </UAlert>
+            />
           </div>
 
           <div
@@ -174,13 +148,13 @@
               <div class="mx-auto flex size-18 items-center justify-center rounded-full bg-primary/10">
                 <UIcon
                   class="size-8 text-primary"
-                  :class="importing ? 'animate-spin' : ''"
-                  :name="importDone ? 'i-tabler-circle-check' : 'i-tabler-loader-2'"
+                  :class="isImporting ? 'animate-spin' : ''"
+                  :name="isComplete ? 'i-tabler-circle-check' : 'i-tabler-loader-2'"
                 />
               </div>
 
               <h4 class="mt-4 text-lg font-medium">
-                {{ importDone ? t('listImport.importing.importDone') : t('listImport.importing.importingData') }}
+                {{ isComplete ? t('listImport.importing.importDone') : t('listImport.importing.importingData') }}
               </h4>
 
               <p class="mt-1 text-sm text-dimmed">
@@ -189,54 +163,28 @@
             </header>
 
             <div class="mx-auto max-w-100 space-y-2">
-              <UProgress
-                :model-value="importingPercent || null"
-              />
+              <UProgress :model-value="progressPercent || null" />
 
               <div class="flex justify-between text-xs text-dimmed">
                 <span>
                   {{ t('listImport.importing.progressCount', { created: progress.created, updated: progress.updated, failed: progress.failed }) }}
                 </span>
 
-                <span>
-                  {{ importingPercent }}%
-                </span>
+                <span>{{ progressPercent }}%</span>
               </div>
             </div>
 
-            <UAlert
+            <AlertList
               v-if="importErrors.length > 0"
               color="warning"
               icon="i-tabler-alert-triangle"
+              :items="importErrors"
               :title="t('listImport.importing.partialImport')"
               variant="subtle"
-            >
-              <template #description>
-                <ul class="mt-2 space-y-1 text-xs">
-                  <li
-                    v-for="(error, index) in importErrors.slice(0, 5)"
-                    :key="index"
-                    class="flex items-start gap-2"
-                  >
-                    <UIcon
-                      class="mt-px size-3.5 shrink-0"
-                      name="i-tabler-point"
-                    />
-                    <span>{{ error }}</span>
-                  </li>
-
-                  <li
-                    v-if="importErrors.length > 5"
-                    class="opacity-50"
-                  >
-                    {{ t('listImport.importing.moreErrors', { count: importErrors.length - 5 }) }}
-                  </li>
-                </ul>
-              </template>
-            </UAlert>
+            />
 
             <UAlert
-              v-else-if="importDone"
+              v-else-if="isComplete"
               color="success"
               icon="i-tabler-circle-check"
               :title="t('listImport.importing.allImported')"
@@ -270,9 +218,9 @@
 
         <UButton
           v-if="isStep('upload')"
-          :disabled="!file || reviewing"
+          :disabled="!file || isReviewing"
           :label="t('listImport.actions.review')"
-          :loading="reviewing"
+          :loading="isReviewing"
           @click="startReview"
         />
 
@@ -286,7 +234,7 @@
 
         <UButton
           v-if="isStep('importing')"
-          :disabled="importing"
+          :disabled="isImporting"
           :label="t('actions.done')"
           @click="closeModal"
         />
@@ -303,11 +251,17 @@ import { useClientQueries } from '@zenstackhq/tanstack-query/vue'
 import { schema } from '../../../zenstack/schema'
 
 const { t } = useI18n()
+const { notifyError, notifySuccess } = useNotify()
 
 const props = defineProps({
   entity: {
     type: Object,
     default: () => ({})
+  },
+
+  maxRows: {
+    type: Number,
+    default: 1000
   }
 })
 
@@ -316,14 +270,19 @@ const open = defineModel('open', {
   default: false
 })
 
+const client = useClientQueries(schema)
+
+const abortController = ref(null)
+
+onUnmounted(() => {
+  abortController.value?.abort()
+  abortController.value = null
+})
+
+// Modal.
 function closeModal() {
   open.value = false
 }
-
-// Entity.
-const entityName = computed(() =>
-  props.entity?.name
-)
 
 // Stepper.
 const step = ref('upload')
@@ -335,14 +294,12 @@ const steps = computed(() => [
     disabled: !isStep('review'),
     value: 'upload'
   },
-
   {
     title: t('listImport.steps.review'),
     icon: 'i-tabler-file-check',
     disabled: true,
     value: 'review'
   },
-
   {
     title: t('listImport.steps.importing'),
     icon: 'i-tabler-file-upload',
@@ -366,7 +323,11 @@ function downloadTemplate() {
   const workbook = XLSX.utils.book_new()
 
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Template')
-  XLSX.writeFile(workbook, t(`${entityName.value}.title`) + ' - Template.xlsx')
+
+  XLSX.writeFile(
+    workbook,
+    t(`${props.entity?.name}.title`) + ' - Template.xlsx'
+  )
 }
 
 const templateActions = computed(() => [
@@ -380,10 +341,13 @@ const templateActions = computed(() => [
   }
 ])
 
-// Upload.
+// File.
 const file = ref(null)
 
 function resetFile() {
+  abortController.value?.abort()
+  abortController.value = null
+
   resetImport()
   resetReview()
 
@@ -393,35 +357,36 @@ function resetFile() {
 }
 
 // Review.
-const reviewing = ref(false)
+const isReviewing = ref(false)
+const parseError = ref(null)
 
 const headers = ref([])
 const rows = ref([])
-
-const fileError = ref(null)
 
 const previewRows = computed(() =>
   rows.value.slice(0, 5)
 )
 
 function startReview() {
-  reviewing.value = true
+  isReviewing.value = true
   parseFile()
 }
 
-function doneReview() {
-  reviewing.value = false
+function finishReview() {
+  isReviewing.value = false
   goToStep('review')
 }
 
 function resetReview() {
   headers.value = []
   rows.value = []
-  reviewing.value = false
-  fileError.value = null
+  isReviewing.value = false
+  parseError.value = null
 }
 
 function parseFile() {
+  if (!file.value) return
+
   resetReview()
 
   const reader = new FileReader()
@@ -434,7 +399,16 @@ function parseFile() {
       const jsonData = XLSX.utils.sheet_to_json(firstSheet)
 
       if (jsonData.length === 0) {
-        fileError.value = t('listImport.review.emptyFile')
+        parseError.value = t('listImport.review.emptyFile')
+        return
+      }
+
+      if (jsonData.length > props.maxRows) {
+        parseError.value = t(
+          'listImport.review.tooManyRows',
+          { max: props.maxRows }
+        )
+
         return
       }
 
@@ -444,16 +418,16 @@ function parseFile() {
       validateRows()
     }
     catch {
-      fileError.value = t('listImport.review.parseError')
+      parseError.value = t('listImport.review.parseError')
     }
     finally {
-      doneReview()
+      finishReview()
     }
   })
 
   reader.addEventListener('error', () => {
-    fileError.value = t('listImport.review.readError')
-    doneReview()
+    parseError.value = t('listImport.review.readError')
+    finishReview()
   })
 
   reader.readAsArrayBuffer(file.value)
@@ -461,6 +435,10 @@ function parseFile() {
 
 // Validation.
 const validationErrors = ref([])
+
+const canImport = computed(() =>
+  !parseError.value && validationErrors.value.length === 0
+)
 
 function validateRows() {
   validationErrors.value = []
@@ -485,14 +463,12 @@ function validateRows() {
   }
 }
 
-const canImport = computed(() =>
-  !fileError.value && validationErrors.value.length === 0
-)
+// Import.
+const isImporting = ref(false)
+const isComplete = ref(false)
+const importErrors = ref([])
 
-// Importing.
-const importing = ref(false)
-
-const progress = ref({
+const initialProgress = () => ({
   current: 0,
   total: 0,
   created: 0,
@@ -500,7 +476,12 @@ const progress = ref({
   failed: 0
 })
 
-const importingPercent = computed(() => {
+const progress = ref(initialProgress())
+
+const createMutation = client[props.entity.name]?.useCreate()
+const updateMutation = client[props.entity.name]?.useUpdate()
+
+const progressPercent = computed(() => {
   if (progress.value.total === 0) return 0
 
   return Math.round(
@@ -508,52 +489,50 @@ const importingPercent = computed(() => {
   )
 })
 
-// Import.
-const importDone = ref(false)
-const importErrors = ref([])
-
-const client = useClientQueries(schema)
-
-const createMutation = client[props.entity.name]?.useCreate()
-const updateMutation = client[props.entity.name]?.useUpdate()
-
 function resetImport() {
-  importing.value = false
-
-  progress.value = {
-    current: 0,
-    total: rows.value.length,
-    created: 0,
-    updated: 0,
-    failed: 0
-  }
-
-  importDone.value = false
+  isImporting.value = false
+  isComplete.value = false
   importErrors.value = []
+  progress.value = { ...initialProgress(), total: rows.value.length }
+}
+
+function startImport() {
+  goToStep('importing')
+  importData()
 }
 
 async function importData() {
   if (!canImport.value) return
 
-  // Reset import state.
   resetImport()
 
-  // Check mutations.
   if (!createMutation || !updateMutation) {
     importErrors.value.push(
       t('listImport.importing.entityNotFound', { name: props.entity.name })
     )
 
-    importing.value = false
-    importDone.value = true
-
+    isComplete.value = true
     return
   }
 
-  // Handle import.
+  isImporting.value = true
+  abortController.value = new AbortController()
+
+  const allowedFields = Object.keys(props.entity.properties)
+
   for (const index in rows.value) {
+    if (abortController.value.signal.aborted) break
+
     const row = rows.value[index]
     const rowNumber = Number(index) + 2
+
+    const sanitizedData = {}
+
+    for (const field of allowedFields) {
+      if (field in row) {
+        sanitizedData[field] = row[field]
+      }
+    }
 
     try {
       const hasId = row.id && String(row.id).trim() !== ''
@@ -561,13 +540,13 @@ async function importData() {
       if (hasId) {
         await updateMutation.mutateAsync({
           where: { id: row.id },
-          data: row
+          data: sanitizedData
         })
 
         progress.value.updated++
       }
       else {
-        await createMutation.mutateAsync({ data: row })
+        await createMutation.mutateAsync({ data: sanitizedData })
         progress.value.created++
       }
     }
@@ -585,8 +564,8 @@ async function importData() {
     progress.value.current++
   }
 
-  importing.value = false
-  importDone.value = true
+  isImporting.value = false
+  isComplete.value = true
 
   if (importErrors.value.length === 0) {
     return notifySuccess({
@@ -603,10 +582,5 @@ async function importData() {
       failed: progress.value.failed
     })
   })
-}
-
-function startImport() {
-  goToStep('importing')
-  importData()
 }
 </script>

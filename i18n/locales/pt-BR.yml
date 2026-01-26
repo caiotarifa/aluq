@@ -46,6 +46,9 @@ appUserMenu:
   lightTheme: Tema claro
   signOut: Desconectar
 
+alertList:
+  more: '...e mais {count} item(s)'
+
 copyButton:
   copy: Copiar
   copied: Copiado!
@@ -87,9 +90,9 @@ listImport:
     moreRows: '...e mais {count} linha(s)'
 
     errorTitle: Oops!
-    moreErrors: '...e mais {count} erro(s)'
 
     emptyFile: O arquivo está vazio ou não possui dados.
+    tooManyRows: 'O arquivo excede o limite de {max} linhas.'
     parseError: Não foi possível processar o arquivo.
     readError: Erro ao ler o arquivo.
     rowError: 'Linha {row} [{field}]: {message}'
