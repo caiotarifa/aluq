@@ -144,23 +144,12 @@
             v-else-if="item.value === 'importing'"
             class="space-y-8"
           >
-            <header class="text-center">
-              <div class="mx-auto flex size-18 items-center justify-center rounded-full bg-primary/10">
-                <UIcon
-                  class="size-8 text-primary"
-                  :class="isImporting ? 'animate-spin' : ''"
-                  :name="isComplete ? 'i-tabler-circle-check' : 'i-tabler-loader-2'"
-                />
-              </div>
-
-              <h4 class="mt-4 text-lg font-medium">
-                {{ isComplete ? t('listImport.importing.importDone') : t('listImport.importing.importingData') }}
-              </h4>
-
-              <p class="mt-1 text-sm text-dimmed">
-                {{ t('listImport.importing.progressStatus', { current: progress.current, total: progress.total }) }}
-              </p>
-            </header>
+            <AvatarHeader
+              :color="isComplete ? 'success' : 'primary'"
+              :description="t('listImport.importing.progressStatus', { current: progress.current, total: progress.total })"
+              :loading="isImporting && !isComplete"
+              :title="isComplete ? t('listImport.importing.importDone') : t('listImport.importing.importingData')"
+            />
 
             <div class="mx-auto max-w-100 space-y-2">
               <UProgress :model-value="progressPercent || null" />
@@ -180,14 +169,6 @@
               icon="i-tabler-alert-triangle"
               :items="importErrors"
               :title="t('listImport.importing.partialImport')"
-              variant="subtle"
-            />
-
-            <UAlert
-              v-else-if="isComplete"
-              color="success"
-              icon="i-tabler-circle-check"
-              :title="t('listImport.importing.allImported')"
               variant="subtle"
             />
           </div>
@@ -269,6 +250,10 @@ const open = defineModel('open', {
   type: Boolean,
   default: false
 })
+
+const emit = defineEmits([
+  'imported'
+])
 
 const client = useClientQueries(schema)
 
@@ -396,7 +381,7 @@ function parseFile() {
       const data = new Uint8Array(event.target.result)
       const workbook = XLSX.read(data, { type: 'array' })
       const firstSheet = workbook.Sheets[workbook.SheetNames[0]]
-      const jsonData = XLSX.utils.sheet_to_json(firstSheet)
+      const jsonData = XLSX.utils.sheet_to_json(firstSheet, { defval: '' })
 
       if (jsonData.length === 0) {
         parseError.value = t('listImport.review.emptyFile')
@@ -478,8 +463,9 @@ const initialProgress = () => ({
 
 const progress = ref(initialProgress())
 
-const createMutation = client[props.entity.name]?.useCreate()
-const updateMutation = client[props.entity.name]?.useUpdate()
+const mutationOptions = { invalidateQueries: false }
+const createMutation = client[props.entity.name]?.useCreate(mutationOptions)
+const updateMutation = client[props.entity.name]?.useUpdate(mutationOptions)
 
 const progressPercent = computed(() => {
   if (progress.value.total === 0) return 0
@@ -530,7 +516,8 @@ async function importData() {
 
     for (const field of allowedFields) {
       if (field in row) {
-        sanitizedData[field] = row[field]
+        const value = row[field]
+        sanitizedData[field] = value === '' ? null : value
       }
     }
 
@@ -566,6 +553,10 @@ async function importData() {
 
   isImporting.value = false
   isComplete.value = true
+
+  if (progress.value.created > 0 || progress.value.updated > 0) {
+    emit('imported')
+  }
 
   if (importErrors.value.length === 0) {
     return notifySuccess({

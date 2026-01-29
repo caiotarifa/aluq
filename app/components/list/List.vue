@@ -80,6 +80,13 @@
     <ListImport
       v-model:open="isImportOpen"
       :entity
+      @imported="emit('refetch')"
+    />
+
+    <ListExport
+      v-model:open="isExportOpen"
+      :entity
+      :items
     />
   </div>
 </template>
@@ -111,6 +118,10 @@ const props = defineProps({
     default: 0
   }
 })
+
+const emit = defineEmits([
+  'refetch'
+])
 
 const { t } = useI18n()
 
@@ -177,6 +188,9 @@ const sortableProperties = computed(() => {
 // Import modal.
 const isImportOpen = ref(false)
 
+// Export modal.
+const isExportOpen = ref(false)
+
 // Adjustments menu.
 const adjustmentsMenu = computed(() => [
   {
@@ -186,7 +200,8 @@ const adjustmentsMenu = computed(() => [
   },
   {
     label: t('list.exportData'),
-    icon: 'i-tabler-file-export'
+    icon: 'i-tabler-file-export',
+    onSelect: () => isExportOpen.value = true
   },
   {
     type: 'separator'

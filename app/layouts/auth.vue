@@ -1,16 +1,16 @@
 <template>
-  <div class="flex items-center min-h-screen justify-center p-4">
+  <div class="flex min-h-screen items-center justify-center p-4">
     <div class="landing-grid absolute inset-0 z-[-1] mask-[radial-gradient(100%_100%_at_top_right,white,transparent)]" />
 
     <div
-      class="flex flex-col space-y-8 w-full"
+      class="flex w-full flex-col space-y-8"
       :class="wide ? 'max-w-3xl' : 'max-w-md'"
     >
       <header class="mb-16">
         <NuxtLink to="/">
           <UColorModeImage
             :alt="t('brand.name')"
-            class="h-8 mx-auto"
+            class="mx-auto h-8"
             dark="/images/dark/aluq.svg"
             light="/images/light/aluq.svg"
           />
@@ -18,7 +18,7 @@
       </header>
 
       <main class="relative">
-        <div class="absolute blur-2xl bg-radial from-(--ui-primary)/10 rounded-full size-full -z-10" />
+        <div class="absolute -z-10 size-full rounded-full bg-radial from-(--ui-primary)/10 blur-2xl" />
 
         <Transition
           mode="out-in"
@@ -28,8 +28,8 @@
         </Transition>
       </main>
 
-      <footer class="flex justify-between items-center">
-        <div class="text-center text-dimmed text-xs">
+      <footer class="flex items-center justify-between">
+        <div class="text-center text-xs text-dimmed">
           © {{ currentYear }}, <strong>{{ t('brand.name') }}</strong>.
         </div>
 

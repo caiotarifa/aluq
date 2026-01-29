@@ -110,7 +110,35 @@ listImport:
     success: '{created} registro(s) criado(s), {updated} atualizado(s)'
     partialSuccess: '{success} importado(s), {failed} erro(s)'
     partialImport: Alguns registros falharam durante a importação.
-    allImported: Todos os registros foram importados com sucesso.
+
+listExport:
+  title: Exportar dados
+  description: Baixe os registros em um arquivo
+
+  actions:
+    export: Exportar
+
+  source:
+    current: Exportar apenas o que está na tela
+    currentDescription: '{count} registro(s) visível(is) agora'
+    all: Exportar todos os dados
+    allDescription: Exporta tudo, mesmo os registros que não aparecem na tela
+
+  format:
+    label: Formato do arquivo
+
+  headers:
+    label: Tipo do cabeçalho
+    translated: Normal (recomendado)
+    keys: Chaves para importação
+
+  exporting:
+    exportingData: Exportando dados...
+    exportDone: Exportação concluída!
+    exportCancelled: Exportação cancelada
+    progressStatus: '{current} de {total} registros processados'
+    success: '{count} registro(s) exportado(s) com sucesso'
+    cancelled: 'Exportação cancelada com {count} registro(s)'
 
 # Auth
 

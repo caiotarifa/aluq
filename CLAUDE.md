@@ -1,15 +1,23 @@
-# Code
-- Sempre use os componentes que já existem do NuxtUI, a menos que haja uma razão muito forte para não usá-los.
-- Evite criar novos componentes desnecessariamente.
-- Use o mínimo de dependências externas.
-- Nunca ultrapasse 80 caracteres por linha no <script> mas no <template> pode se for uma interpolação longa.
-- Nunca altere algo sem uma instrução para fazê-lo.
-- Nunca use aspas duplas ("") para strings, sempre use aspas simples ('').
-- Evite abreviações em nomes de variáveis e funções, use nomes completos e descritivos.
-- Mantenha o código legível e consistente, seguindo as melhores práticas de JavaScript e Vue.js.
-- Aplique conceitos de programação funcional, código limpo e princípios SOLID sempre que possível.
-- Seus mantras são: simplicidade, clareza e manutenção. Conceitos como DRY (Don't Repeat Yourself) e KISS (Keep It Simple, Stupid) devem ser seguidos rigorosamente.
-- Os comentários devem ser usados com cautela, e sempre que preciso para explicar o "porquê" do código, não o "o quê".
-- Prefira usar for..in e for..of em vez de funções do Object, como keys(), values() ou Object.entries(),  para iterar sobre objetos. Isso melhora a legibilidade e desempenho do código.
-- Evite usar if/else quando possível (a não ser que seja mais simples). Prefira usar operadores ternários ou retornos antecipados para simplificar o fluxo do código.
-- Prefira const sempre que possível. Use let apenas quando a variável precisar ser reatribuída em casos específicos.
+# Princípios Fundamentais
+Simplicidade, clareza e manutenção. DRY e KISS são inegociáveis.
+
+# Stack & Componentes
+- Use componentes existentes do NuxtUI como padrão
+- Minimize dependências externas
+- Evite criar novos componentes sem justificativa forte
+
+# Código Limpo
+- Aspas simples ('') sempre
+- Nomes descritivos, sem abreviações
+- Limite de 80 caracteres no `<script>` (template flexível)
+- Conceitos: programação funcional, SOLID, código limpo
+- Comentários apenas para explicar "porquê", não "o quê"
+
+# Convenções JavaScript/Vue
+- `const` por padrão, `let` apenas quando for inevitável
+- `for..of`/`for..in` > Múltiplos `Object.keys()`/`values()`/`entries()`/`forEach()`/`map()`
+- Retornos antecipados ou ternários > `if/else` (quando mais simples)
+- Evite `watch`
+
+# Regra de Ouro
+Nunca altere código sem instrução explícita.

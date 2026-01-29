@@ -34,9 +34,9 @@ export default {
     id: v.optional(v.string()),
 
     isActive: v.optional(v.boolean(), true),
-    name: v.pipe(v.string(), v.minLength(1)),
-    legalName: v.optional(v.pipe(v.string(), v.minLength(1))),
-    taxId: v.optional(v.pipe(v.string(), v.minLength(1)))
+    name: v.string(),
+    legalName: v.optional(v.string()),
+    taxId: v.optional(v.string())
   }),
 
   views: {
