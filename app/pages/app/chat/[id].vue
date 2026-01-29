@@ -1,35 +1,59 @@
 <template>
   <AppChat>
-    <UContainer>
+    <UContainer class="flex min-h-0 flex-1 flex-col gap-4 sm:gap-6">
       <UChatMessages
         should-auto-scroll
-        :messages
-      />
+        class="min-h-0 flex-1 overflow-y-auto"
+        :assistant="assistantConfig"
+        :messages="chat.messages"
+        :status="chat.status"
+        :ui="{ viewport: 'top-[calc(100%-150px)]' }"
+      >
+        <template #content="{ message }">
+          <template
+            v-for="(part, index) in message.parts"
+            :key="`${message.id}-${index}`"
+          >
+            <div
+              v-if="part.type === 'reasoning'"
+              class="text-dimmed italic"
+            >
+              {{ part.text || 'Pensando...' }}
+            </div>
+
+            <MDCCached
+              v-else-if="part.type === 'text' && message.role === 'assistant'"
+              :cache-key="`${message.id}-${index}`"
+              class="*:first:mt-0 *:last:mb-0"
+              :parser-options="{ highlight: false }"
+              :value="part.text"
+            />
+
+            <p
+              v-else-if="part.type === 'text'"
+              class="whitespace-pre-wrap"
+            >
+              {{ part.text }}
+            </p>
+          </template>
+        </template>
+      </UChatMessages>
 
       <div class="sticky bottom-0 z-10">
-        <UChatPrompt
-          :maxrows="10"
-          variant="soft"
-        >
-          <template #footer>
-            <USelectMenu
-              v-model="model"
-              :icon="modelItem.icon"
-              :items="models"
-              size="sm"
-              value-key="value"
-              variant="ghost"
-            />
-
-            <UChatPromptSubmit
-              color="primary"
-              size="sm"
-            />
-          </template>
-        </UChatPrompt>
+        <ChatPrompt
+          v-model="input"
+          v-model:model="model"
+          :models="models"
+          :model-item="modelConfig"
+          :placeholder="t('chat.placeholder')"
+          :status="chat.status"
+          @submit="onSubmit"
+          @stop="chat.stop()"
+          @reload="onReload"
+        />
 
         <div class="bg-default py-4 text-center text-xs text-dimmed">
-          A inteligência artificial pode cometer erros. Revise informações importantes.
+          {{ t('chat.disclaimer') }}
         </div>
       </div>
     </UContainer>
@@ -37,316 +61,122 @@
 </template>
 
 <script setup>
-// Models.
-const models = [
-  {
-    label: 'GPT-5 Nano',
-    icon: 'i-simple-icons-openai',
-    value: 'openai/gpt-5-nano'
-  },
+import { Chat } from '@ai-sdk/vue'
+import { DefaultChatTransport } from 'ai'
+import { useClipboard } from '@vueuse/core'
+import { getTextFromMessage } from '@nuxt/ui/utils/ai'
 
-  {
-    label: 'Claude Haiku 4.5',
-    icon: 'i-simple-icons-anthropic',
-    value: 'anthropic/claude-haiku-4.5'
-  },
+// Route and i18n.
+const route = useRoute()
+const { t } = useI18n()
 
-  {
-    label: 'Gemini 2.5 Flash',
-    icon: 'i-simple-icons-google',
-    value: 'google/gemini-2.5-flash'
-  }
-]
-
-const model = useCookie('chat-model', {
-  default: () => models[0]
-})
-
-const modelItem = computed(() =>
-  models.find(m => m.value === model.value)
+const chatId = computed(() =>
+  route.params.id
 )
 
-// Mock data.
-const messages = ref([
-  {
-    id: '6045235a-a435-46b8-989d-2df38ca2eb47',
-    role: 'user',
-    parts: [
-      {
-        type: 'text',
-        text: 'Hello, how are you?'
-      }
-    ]
-  },
-  {
-    id: '7a92b3c1-d5f8-4e76-b8a9-3c1e5fb2e0d8',
-    role: 'assistant',
-    parts: [
-      {
-        type: 'text',
-        text: 'I am doing well, thank you for asking! How can I assist you today?'
-      }
-    ]
-  },
-  {
-    id: '9c84d6a7-8b23-4f12-a1d5-e7f3b9c05e2a',
-    role: 'user',
-    parts: [
-      {
-        type: 'text',
-        text: 'What is the current weather in Tokyo?'
-      }
-    ]
-  },
-  {
-    id: 'b2e5f8c3-a1d9-4e67-b3f2-c9d8e7a6b5f4',
-    role: 'assistant',
-    parts: [
-      {
-        type: 'text',
-        text: 'Based on the latest data, Tokyo is currently experiencing sunny weather with temperatures around 24°C (75°F). It\'s a beautiful day with clear skies.'
-      }
-    ]
-  },
-  {
-    id: '6045235a-a435-46b8-989d-2df38ca2eb47',
-    role: 'user',
-    parts: [
-      {
-        type: 'text',
-        text: 'Hello, how are you?'
-      }
-    ]
-  },
-  {
-    id: '7a92b3c1-d5f8-4e76-b8a9-3c1e5fb2e0d8',
-    role: 'assistant',
-    parts: [
-      {
-        type: 'text',
-        text: 'I am doing well, thank you for asking! How can I assist you today?'
-      }
-    ]
-  },
-  {
-    id: '9c84d6a7-8b23-4f12-a1d5-e7f3b9c05e2a',
-    role: 'user',
-    parts: [
-      {
-        type: 'text',
-        text: 'What is the current weather in Tokyo?'
-      }
-    ]
-  },
-  {
-    id: 'b2e5f8c3-a1d9-4e67-b3f2-c9d8e7a6b5f4',
-    role: 'assistant',
-    parts: [
-      {
-        type: 'text',
-        text: 'Based on the latest data, Tokyo is currently experiencing sunny weather with temperatures around 24°C (75°F). It\'s a beautiful day with clear skies.'
-      }
-    ]
-  },
-  {
-    id: '6045235a-a435-46b8-989d-2df38ca2eb47',
-    role: 'user',
-    parts: [
-      {
-        type: 'text',
-        text: 'Hello, how are you?'
-      }
-    ]
-  },
-  {
-    id: '7a92b3c1-d5f8-4e76-b8a9-3c1e5fb2e0d8',
-    role: 'assistant',
-    parts: [
-      {
-        type: 'text',
-        text: 'I am doing well, thank you for asking! How can I assist you today?'
-      }
-    ]
-  },
-  {
-    id: '9c84d6a7-8b23-4f12-a1d5-e7f3b9c05e2a',
-    role: 'user',
-    parts: [
-      {
-        type: 'text',
-        text: 'What is the current weather in Tokyo?'
-      }
-    ]
-  },
-  {
-    id: 'b2e5f8c3-a1d9-4e67-b3f2-c9d8e7a6b5f4',
-    role: 'assistant',
-    parts: [
-      {
-        type: 'text',
-        text: 'Based on the latest data, Tokyo is currently experiencing sunny weather with temperatures around 24°C (75°F). It\'s a beautiful day with clear skies.'
-      }
-    ]
-  },
-  {
-    id: '6045235a-a435-46b8-989d-2df38ca2eb47',
-    role: 'user',
-    parts: [
-      {
-        type: 'text',
-        text: 'Hello, how are you?'
-      }
-    ]
-  },
-  {
-    id: '7a92b3c1-d5f8-4e76-b8a9-3c1e5fb2e0d8',
-    role: 'assistant',
-    parts: [
-      {
-        type: 'text',
-        text: 'I am doing well, thank you for asking! How can I assist you today?'
-      }
-    ]
-  },
-  {
-    id: '9c84d6a7-8b23-4f12-a1d5-e7f3b9c05e2a',
-    role: 'user',
-    parts: [
-      {
-        type: 'text',
-        text: 'What is the current weather in Tokyo?'
-      }
-    ]
-  },
-  {
-    id: 'b2e5f8c3-a1d9-4e67-b3f2-c9d8e7a6b5f4',
-    role: 'assistant',
-    parts: [
-      {
-        type: 'text',
-        text: 'Based on the latest data, Tokyo is currently experiencing sunny weather with temperatures around 24°C (75°F). It\'s a beautiful day with clear skies.'
-      }
-    ]
-  },
-  {
-    id: '6045235a-a435-46b8-989d-2df38ca2eb47',
-    role: 'user',
-    parts: [
-      {
-        type: 'text',
-        text: 'Hello, how are you?'
-      }
-    ]
-  },
-  {
-    id: '7a92b3c1-d5f8-4e76-b8a9-3c1e5fb2e0d8',
-    role: 'assistant',
-    parts: [
-      {
-        type: 'text',
-        text: 'I am doing well, thank you for asking! How can I assist you today?'
-      }
-    ]
-  },
-  {
-    id: '9c84d6a7-8b23-4f12-a1d5-e7f3b9c05e2a',
-    role: 'user',
-    parts: [
-      {
-        type: 'text',
-        text: 'What is the current weather in Tokyo?'
-      }
-    ]
-  },
-  {
-    id: 'b2e5f8c3-a1d9-4e67-b3f2-c9d8e7a6b5f4',
-    role: 'assistant',
-    parts: [
-      {
-        type: 'text',
-        text: 'Based on the latest data, Tokyo is currently experiencing sunny weather with temperatures around 24°C (75°F). It\'s a beautiful day with clear skies.'
-      }
-    ]
-  },
-  {
-    id: '6045235a-a435-46b8-989d-2df38ca2eb47',
-    role: 'user',
-    parts: [
-      {
-        type: 'text',
-        text: 'Hello, how are you?'
-      }
-    ]
-  },
-  {
-    id: '7a92b3c1-d5f8-4e76-b8a9-3c1e5fb2e0d8',
-    role: 'assistant',
-    parts: [
-      {
-        type: 'text',
-        text: 'I am doing well, thank you for asking! How can I assist you today?'
-      }
-    ]
-  },
-  {
-    id: '9c84d6a7-8b23-4f12-a1d5-e7f3b9c05e2a',
-    role: 'user',
-    parts: [
-      {
-        type: 'text',
-        text: 'What is the current weather in Tokyo?'
-      }
-    ]
-  },
-  {
-    id: 'b2e5f8c3-a1d9-4e67-b3f2-c9d8e7a6b5f4',
-    role: 'assistant',
-    parts: [
-      {
-        type: 'text',
-        text: 'Based on the latest data, Tokyo is currently experiencing sunny weather with temperatures around 24°C (75°F). It\'s a beautiful day with clear skies.'
-      }
-    ]
-  },
-  {
-    id: '6045235a-a435-46b8-989d-2df38ca2eb47',
-    role: 'user',
-    parts: [
-      {
-        type: 'text',
-        text: 'Hello, how are you?'
-      }
-    ]
-  },
-  {
-    id: '7a92b3c1-d5f8-4e76-b8a9-3c1e5fb2e0d8',
-    role: 'assistant',
-    parts: [
-      {
-        type: 'text',
-        text: 'I am doing well, thank you for asking! How can I assist you today?'
-      }
-    ]
-  },
-  {
-    id: '9c84d6a7-8b23-4f12-a1d5-e7f3b9c05e2a',
-    role: 'user',
-    parts: [
-      {
-        type: 'text',
-        text: 'What is the current weather in Tokyo?'
-      }
-    ]
-  },
-  {
-    id: 'b2e5f8c3-a1d9-4e67-b3f2-c9d8e7a6b5f4',
-    role: 'assistant',
-    parts: [
-      {
-        type: 'text',
-        text: 'Based on the latest data, Tokyo is currently experiencing sunny weather with temperatures around 24°C (75°F). It\'s a beautiful day with clear skies.'
-      }
-    ]
+// Load chat data.
+const { data } = await useFetch(`/api/chat/${chatId.value}`, {
+  cache: 'force-cache'
+})
+
+if (!data.value) {
+  throw createError({
+    status: 404,
+    statusText: t('chat.notFound')
+  })
+}
+
+// Models.
+const { models, model, modelConfig } = useChatModels()
+
+// Select last used model.
+if (data.value.model) {
+  const exists = models.find(item => item.value === data.value.model)
+
+  if (exists) {
+    model.value = data.value.model
   }
-])
+}
+
+// Create chat instance.
+const { notifyError } = useNotify()
+const { client } = useRemote()
+
+const updateTitleMutation = client.chat.useUpdate({
+  optimisticUpdate: true
+})
+
+const chat = new Chat({
+  id: data.value.id,
+  messages: data.value.messages,
+
+  transport: new DefaultChatTransport({
+    api: `/api/chat/${data.value.id}`,
+    body: { model: model.value }
+  }),
+
+  onData: (eventData) => {
+    if (eventData?.type === 'data-title') {
+      console.log('Received new title from stream:', eventData.data.title)
+
+      updateTitleMutation.mutate({
+        where: { id: chatId.value },
+        data: { title: eventData.data.title }
+      })
+    }
+  },
+
+  onError: (error) => {
+    // TODO: better error handling.
+    console.error('Chat error:', error)
+
+    notifyError({
+      title: t('chat.error.title'),
+      description: error.message || t('chat.error.description')
+    })
+  }
+})
+
+// Auto-start streaming for new chats.
+onMounted(() => {
+  if (data.value?.messages.length === 1) {
+    chat.regenerate()
+  }
+})
+
+// Input.
+const input = ref('')
+
+function onSubmit() {
+  const text = input.value.trim()
+
+  if (!text) return
+
+  chat.sendMessage({ text })
+  input.value = ''
+}
+
+function onReload() {
+  chat.clearError()
+  chat.regenerate()
+}
+
+// Assistant.
+const { copy, copied } = useClipboard()
+
+const assistantConfig = computed(() => {
+  if (chat.status !== 'streaming') {
+    return {
+      actions: [{
+        color: copied.value ? 'primary' : 'neutral',
+        icon: copied.value ? 'i-tabler-copy-check' : 'i-tabler-copy',
+        label: t(`copyButton.${copied.value ? 'copied' : 'copy'}`),
+        variant: 'link',
+        onClick: (event, message) => copy(getTextFromMessage(message))
+      }]
+    }
+  }
+
+  return { actions: [] }
+})
 </script>

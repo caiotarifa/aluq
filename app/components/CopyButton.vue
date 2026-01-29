@@ -56,7 +56,6 @@ const props = defineProps({
 const { t } = useI18n()
 
 const { copy, copied } = useClipboard({
-  legacy: true,
   source: props.text
 })
 </script>

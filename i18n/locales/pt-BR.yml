@@ -142,6 +142,42 @@ listExport:
 
 # Auth
 
+# Chat
+chat:
+  title: Chat
+  newChat: Novo Chat
+  untitled: Sem título
+  placeholder: Comece uma conversa...
+  disclaimer: A inteligência artificial pode cometer erros. Revise informações importantes.
+  error: Erro ao processar mensagem.
+  notFound: Conversa não encontrada.
+  quotaExceeded: Você excedeu sua cota atual. Verifique seu plano e detalhes de cobrança.
+  apiError: Erro na API do provedor de IA.
+  deleteConfirm: Tem certeza que deseja excluir esta conversa?
+  deleted: Conversa excluída com sucesso.
+  welcomeTitle: Como posso ajudar hoje?
+  welcomeSubtitle: Descreva o que você precisa ou escolha um prompt sugerido.
+
+  suggestions:
+    - title: Criar um orçamento rápido
+      description: Descreva itens, quantidades e período.
+      prompt: Gere um orçamento com 2 refletores LED e 1 tripé por 3 dias.
+    - title: Montar proposta para cliente
+      description: Resuma objetivo, data e condições.
+      prompt: Monte uma proposta para locação de equipamentos de áudio no dia 20/02.
+    - title: Checar disponibilidade
+      description: Pergunte sobre itens e datas.
+      prompt: Tenho 5 microfones sem fio disponíveis de 10 a 12/02?
+    - title: Escrever mensagem de follow-up
+      description: Crie um texto curto e educado.
+      prompt: Escreva um follow-up para um orçamento enviado ontem.
+
+  groups:
+    today: Hoje
+    yesterday: Ontem
+    lastWeek: Esta semana
+    lastMonth: Este mês
+
 # Entities
 businessUnit:
   title: Empresas

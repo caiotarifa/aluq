@@ -1,0 +1,18 @@
+import '../types/BaseModel'
+
+import './Chat'
+
+model ChatMessage with BaseModel {
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId String
+
+  role String
+  parts String
+  model String?
+
+  // Policies.
+  @@allow('all', chat.organization.id == auth().organizationId && auth().userId == chat.userId)
+
+  @@map('chatMessage')
+  @@index([chatId])
+}

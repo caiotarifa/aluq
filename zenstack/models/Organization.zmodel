@@ -3,6 +3,7 @@ import '../types/BaseModel'
 import './Member'
 import './Invitation'
 import './BusinessUnit'
+import './Chat'
 
 model Organization with BaseModel {
   name String
@@ -17,6 +18,7 @@ model Organization with BaseModel {
   members Member[]
   invitations Invitation[]
   businessUnits BusinessUnit[]
+  chats         Chat[]
 
   @@map('organization')
 }

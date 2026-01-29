@@ -28,6 +28,12 @@ export default defineNuxtConfig({
     '~/assets/css/main.css'
   ],
 
+  runtimeConfig: {
+    openaiApiKey: '',
+    anthropicApiKey: '',
+    googleApiKey: ''
+  },
+
   routeRules: {
     '/': { prerender: true },
 

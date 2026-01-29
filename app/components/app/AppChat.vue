@@ -2,9 +2,11 @@
   <NuxtLayout name="app">
     <UDashboardPanel
       class="relative"
-      :ui="{ body: 'pb-0 sm:pb-0' }"
+      :ui="{ body: 'pb-0 sm:pb-0 flex h-full min-h-0 flex-col' }"
     >
-      <slot />
+      <template #body>
+        <slot />
+      </template>
     </UDashboardPanel>
 
     <UDashboardSidebar
@@ -16,9 +18,10 @@
         <UButton
           block
           :icon="appConfig.ui.icons.plus"
+          to="/app/chat"
           variant="soft"
         >
-          Novo Chat
+          {{ t('chat.newChat') }}
         </UButton>
       </template>
 
@@ -32,49 +35,30 @@
 
 <script setup>
 const appConfig = useAppConfig()
+const route = useRoute()
+const { t, d } = useI18n()
 
-// Chats.
-const chats = computed(() => [
-  {
-    id: 'chat-0',
-    label: 'Sem título',
-    updatedAt: '2026-01-28T12:00:00Z'
+// Fetch chats.
+const { client } = useRemote()
+
+const { data: chats } = client.chat.useFindMany(() => ({
+  orderBy: {
+    updatedAt: 'desc'
   },
-  {
-    id: 'chat-1',
-    label: 'Planejamento de Viagem',
-    updatedAt: '2026-01-28T10:15:00Z'
-  },
-  {
-    id: 'chat-2',
-    label: 'Ideias para Blog',
-    updatedAt: '2026-01-27T09:30:00Z'
-  },
-  {
-    id: 'chat-3',
-    label: 'Projeto de Aplicativo',
-    updatedAt: '2026-01-18T08:45:00Z'
-  },
-  {
-    id: 'chat-4',
-    label: 'Lista de Compras',
-    updatedAt: '2026-01-01T14:20:00Z'
-  },
-  {
-    id: 'chat-5',
-    label: 'Pesquisa de Mercado',
-    updatedAt: '2025-12-15T11:10:00Z'
-  },
-  {
-    id: 'chat-6',
-    label: 'Roteiro de Filme',
-    updatedAt: '2025-11-30T10:00:00Z'
+
+  select: {
+    id: true,
+    title: true,
+    updatedAt: true,
+    createdAt: true
   }
-])
+}))
 
+// Group chats by date.
 const groupedChats = computed(() => {
-  const now = new Date()
+  if (!chats.value) return []
 
+  const now = new Date()
   const today = new Date(now)
   today.setHours(0, 0, 0, 0)
 
@@ -86,40 +70,48 @@ const groupedChats = computed(() => {
     )
 
     if (diff === 0) {
-      return { id: 'today', label: 'Hoje' }
+      return {
+        id: 'today',
+        label: t('chat.groups.today')
+      }
     }
 
     if (diff === 1) {
-      return { id: 'yesterday', label: 'Ontem' }
+      return {
+        id: 'yesterday',
+        label: t('chat.groups.yesterday')
+      }
     }
 
     if (diff <= 7) {
-      return { id: 'last-week', label: 'Esta semana' }
+      return {
+        id: 'last-week',
+        label: t('chat.groups.lastWeek')
+      }
     }
 
     if (diff <= 30) {
-      return { id: 'last-month', label: 'Este mês' }
+      return {
+        id: 'last-month',
+        label: t('chat.groups.lastMonth')
+      }
     }
 
-    const year = chatDate.getFullYear()
-    const month = chatDate.getMonth()
-
-    const monthName = chatDate.toLocaleDateString('pt-BR', {
-      month: 'long',
-      year: 'numeric'
-    })
-
-    const capitalizedMonth = monthName.charAt(0).toUpperCase()
-      + monthName.slice(1)
-
     return {
-      id: `${year}-${String(month + 1).padStart(2, '0')}`,
-      label: capitalizedMonth
+      id: `${chatDate.getFullYear()}-${String(chatDate.getMonth() + 1).padStart(2, '0')}`,
+      label: d(chatDate, 'monthYear')
     }
   }
 
-  for (const chat of chats.value) {
-    const chatDate = new Date(chat.updatedAt)
+  const sortedChats = [...chats.value].sort((a, b) => {
+    const aTime = new Date(a.updatedAt || a.createdAt).getTime()
+    const bTime = new Date(b.updatedAt || b.createdAt).getTime()
+
+    return bTime - aTime
+  })
+
+  for (const chat of sortedChats) {
+    const chatDate = new Date(chat.updatedAt || chat.createdAt)
     chatDate.setHours(0, 0, 0, 0)
 
     const { id, label } = getGroupKey(chatDate)
@@ -134,17 +126,20 @@ const groupedChats = computed(() => {
   return Array.from(groupsMap.values())
 })
 
-const navigationItems = computed(() => groupedChats.value?.flatMap(group => [
-  {
-    label: group.label,
-    type: 'label'
-  },
+const navigationItems = computed(() =>
+  groupedChats.value.flatMap(group => [
+    {
+      label: group.label,
+      type: 'label'
+    },
 
-  ...group.items.map(item => ({
-    ...item,
-    slot: 'chat',
-    icon: undefined,
-    class: item.label === 'Sem título' ? 'italic' : ''
-  }))
-]))
+    ...group.items.map(item => ({
+      label: item.title || t('chat.untitled'),
+      title: item.title || t('chat.untitled'),
+      to: `/app/chat/${item.id}`,
+      class: !item.title ? 'italic opacity-50' : '',
+      active: route.params.id === item.id
+    }))
+  ])
+)
 </script>
