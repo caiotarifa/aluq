@@ -10,7 +10,10 @@ import {
 import { auth } from '#server/utils/auth'
 import { authDb, db } from '#server/utils/db'
 import { resolveModel } from '#server/utils/ai'
+
 import { buildSystemPrompt } from '#server/utils/systemPrompt'
+
+import { createEmailTool } from '#server/utils/ai/tools/email'
 import { createListTool } from '#server/utils/ai/tools/list'
 
 export default defineEventHandler(async (event) => {
@@ -88,6 +91,7 @@ export default defineEventHandler(async (event) => {
 
   // Build tools.
   const tools = {
+    email: createEmailTool(),
     list: createListTool(authDb, session)
   }
 

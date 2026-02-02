@@ -12,7 +12,7 @@
         <template #content="{ message }">
           <template
             v-for="(part, index) in message.parts"
-            :key="`${message.id}-${index}`"
+            :key="`${message.id}-${part.type}-${index}${'state' in part ? `-${part.state}` : ''}`"
           >
             <ChatReasoning
               v-if="part.type === 'reasoning'"
@@ -29,11 +29,16 @@
             />
 
             <p
-              v-else-if="part.type === 'text'"
+              v-else-if="part.type === 'text' && message.role === 'user'"
               class="whitespace-pre-wrap"
             >
               {{ part.text }}
             </p>
+
+            <ChatToolEmail
+              v-else-if="part.type === 'tool-email'"
+              :invocation="part"
+            />
 
             <!-- <ChatDataTable
               v-else-if="part.type === 'tool-findRecords'"

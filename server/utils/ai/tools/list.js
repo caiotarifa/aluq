@@ -1,5 +1,6 @@
 import { tool, zodSchema } from 'ai'
 import { z } from 'zod'
+import { DbNull } from '@zenstackhq/orm'
 
 import {
   describeEntities,
@@ -44,6 +45,21 @@ function hasAggregateRequest(input) {
   return Boolean(
     input._count || input._sum || input._avg || input._min || input._max
   )
+}
+
+// Normalize null values to DbNull for ZenStack compatibility.
+function normalizeNullValues(value) {
+  if (value === null) return DbNull
+  if (Array.isArray(value)) return value.map(normalizeNullValues)
+  if (typeof value !== 'object') return value
+
+  const result = {}
+
+  for (const key in value) {
+    result[key] = normalizeNullValues(value[key])
+  }
+
+  return result
 }
 
 // Descriptions.
@@ -268,7 +284,6 @@ function buildAllowedKeySet(entity) {
 
 // Execute list tool.
 async function executeList(db, input) {
-  console.log('Executing list tool with input:', input)
   const startedAt = Date.now()
   const requestedAt = nowIso()
 
@@ -339,7 +354,7 @@ async function executeList(db, input) {
   }
 
   if (input.where) {
-    findQuery.where = input.where
+    findQuery.where = normalizeNullValues(input.where)
   }
 
   if (input.orderBy) {
@@ -356,7 +371,7 @@ async function executeList(db, input) {
 
   if (wantsAggregate) {
     if (input.where) {
-      aggregateQuery.where = input.where
+      aggregateQuery.where = normalizeNullValues(input.where)
     }
 
     if (input._count !== undefined) {

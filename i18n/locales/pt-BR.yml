@@ -182,6 +182,18 @@ chat:
     lastWeek: Esta semana
     lastMonth: Este mês
 
+chatToolEmail:
+  title: E-mail
+  to: Para
+  subject: Assunto
+  actions:
+    copy: Copiar
+    send: Enviar e-mail
+  providers:
+    gmail: Gmail
+    outlook: Outlook
+    default: Aplicativo de e-mail padrão
+
 # Entities
 businessUnit:
   title: Empresas
