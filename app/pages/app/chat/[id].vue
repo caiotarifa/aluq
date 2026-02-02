@@ -14,12 +14,11 @@
             v-for="(part, index) in message.parts"
             :key="`${message.id}-${index}`"
           >
-            <div
+            <ChatReasoning
               v-if="part.type === 'reasoning'"
-              class="text-dimmed italic"
-            >
-              {{ part.text || 'Pensando...' }}
-            </div>
+              :streaming="part.state !== 'done'"
+              :text="part.text"
+            />
 
             <MDCCached
               v-else-if="part.type === 'text' && message.role === 'assistant'"
@@ -35,6 +34,11 @@
             >
               {{ part.text }}
             </p>
+
+            <!-- <ChatDataTable
+              v-else-if="part.type === 'tool-findRecords'"
+              :part="part"
+            /> -->
           </template>
         </template>
       </UChatMessages>
@@ -61,8 +65,8 @@
 </template>
 
 <script setup>
-import { Chat } from '@ai-sdk/vue'
 import { DefaultChatTransport } from 'ai'
+import { Chat } from '@ai-sdk/vue'
 import { useClipboard } from '@vueuse/core'
 import { getTextFromMessage } from '@nuxt/ui/utils/ai'
 
@@ -117,8 +121,6 @@ const chat = new Chat({
 
   onData: (eventData) => {
     if (eventData?.type === 'data-title') {
-      console.log('Received new title from stream:', eventData.data.title)
-
       updateTitleMutation.mutate({
         where: { id: chatId.value },
         data: { title: eventData.data.title }

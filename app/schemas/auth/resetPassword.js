@@ -1,11 +1,7 @@
-import * as v from 'valibot'
+import { z } from 'zod'
 import * as f from '~/schemas/fields'
 
-export default v.object({
-  token: v.pipe(
-    v.string(),
-    v.minLength(1)
-  ),
-
+export default z.object({
+  token: z.string().min(1),
   newPassword: f.password
 })

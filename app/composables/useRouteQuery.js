@@ -1,21 +1,14 @@
-import * as v from 'valibot'
+import { z } from 'zod'
 
 // Pagination.
-const positiveNumber = v.pipe(
-  v.union([v.string(), v.number()]),
-  v.transform(Number),
-  v.integer(),
-  v.minValue(1)
-)
+const positiveNumber = z.union([z.string(), z.number()])
+  .transform(Number)
+  .pipe(z.int().min(1))
 
 // Sorting.
-const sortItem = v.object({
-  property: v.string(),
-
-  direction: v.union([
-    v.literal('asc'),
-    v.literal('desc')
-  ])
+const sortItem = z.object({
+  property: z.string(),
+  direction: z.union([z.literal('asc'), z.literal('desc')])
 })
 
 function sortTransform(input) {
@@ -33,44 +26,40 @@ function sortSerialize(items) {
 }
 
 // Parsing.
-const parseSchema = v.object({
-  page: v.optional(positiveNumber),
-  size: v.optional(positiveNumber),
-  sort: v.optional(v.pipe(
-    v.string(),
-    v.transform(sortTransform),
-    v.array(sortItem)
-  ))
+const parseSchema = z.object({
+  page: positiveNumber.optional(),
+  size: positiveNumber.optional(),
+  sort: z.string().transform(sortTransform).pipe(z.array(sortItem)).optional()
 })
 
 function parseQuery(query) {
-  const result = v.safeParse(parseSchema, query)
+  const result = parseSchema.safeParse(query)
   if (!result.success) return {}
 
   const filtered = {}
 
-  for (const key in result.output) {
-    if (result.output[key] != null) filtered[key] = result.output[key]
+  for (const key in result.data) {
+    if (result.data[key] != null) filtered[key] = result.data[key]
   }
 
   return filtered
 }
 
 // Serialization.
-const serializeSchema = v.object({
-  page: v.optional(positiveNumber),
-  size: v.optional(positiveNumber),
-  sort: v.optional(v.array(sortItem))
+const serializeSchema = z.object({
+  page: positiveNumber.optional(),
+  size: positiveNumber.optional(),
+  sort: z.array(sortItem).optional()
 })
 
 function serializeQuery(query, defaults = {}) {
-  const result = v.safeParse(serializeSchema, query)
+  const result = serializeSchema.safeParse(query)
   if (!result.success) return {}
 
   const filtered = {}
 
-  for (const key in result.output) {
-    const value = result.output[key]
+  for (const key in result.data) {
+    const value = result.data[key]
 
     if (value == null || value === defaults[key]) {
       filtered[key] = undefined

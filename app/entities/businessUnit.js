@@ -1,4 +1,4 @@
-import * as v from 'valibot'
+import { z } from 'zod'
 
 export default {
   name: 'businessUnit',
@@ -30,13 +30,12 @@ export default {
     }
   },
 
-  schema: v.object({
-    id: v.optional(v.string()),
-
-    isActive: v.optional(v.boolean(), true),
-    name: v.string(),
-    legalName: v.optional(v.string()),
-    taxId: v.optional(v.string())
+  schema: z.object({
+    id: z.string().optional(),
+    isActive: z.boolean().optional().default(true),
+    name: z.string(),
+    legalName: z.string().optional(),
+    taxId: z.string().optional()
   }),
 
   views: {

@@ -1,5 +1,3 @@
-import * as v from 'valibot'
-
 import { createOrganizationSchema } from '~/schemas/organization'
 
 /**
@@ -118,8 +116,7 @@ export function useOrganization() {
   async function createOrganization(data) {
     isCreatingOrganization.value = true
 
-    const validatedData = v.parse(
-      createOrganizationSchema,
+    const validatedData = createOrganizationSchema.parse(
       data
     )
 

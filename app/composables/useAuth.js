@@ -1,6 +1,5 @@
 import { createAuthClient } from 'better-auth/vue'
 import { organizationClient, adminClient } from 'better-auth/client/plugins'
-import * as v from 'valibot'
 
 import {
   authSignInByEmailSchema,
@@ -117,8 +116,7 @@ export function useAuth() {
   async function signInByEmail(credentials) {
     isSigningIn.value = true
 
-    const validatedCredentials = v.parse(
-      authSignInByEmailSchema,
+    const validatedCredentials = authSignInByEmailSchema.parse(
       credentials
     )
 
@@ -160,8 +158,7 @@ export function useAuth() {
   async function signUpByEmail(credentials) {
     isSigningUp.value = true
 
-    const validatedCredentials = v.parse(
-      authSignUpByEmailSchema,
+    const validatedCredentials = authSignUpByEmailSchema.parse(
       credentials
     )
 
@@ -233,8 +230,7 @@ export function useAuth() {
   async function forgotPassword(data) {
     isSendingResetEmail.value = true
 
-    const { email } = v.parse(
-      authForgotPasswordSchema,
+    const { email } = authForgotPasswordSchema.parse(
       data
     )
 
@@ -274,8 +270,7 @@ export function useAuth() {
   async function resetPassword(data) {
     isResettingPassword.value = true
 
-    const validatedData = v.parse(
-      authResetPasswordSchema,
+    const validatedData = authResetPasswordSchema.parse(
       data
     )
 

@@ -158,6 +158,10 @@ chat:
   welcomeTitle: Como posso ajudar hoje?
   welcomeSubtitle: Descreva o que você precisa ou escolha um prompt sugerido.
 
+  reasoning:
+    show: Mostrar raciocínio
+    loading: Raciocinando...
+
   suggestions:
     - title: Criar um orçamento rápido
       description: Descreva itens, quantidades e período.

@@ -1,11 +1,7 @@
-import * as v from 'valibot'
+import { z } from 'zod'
 import { slug } from '~/schemas/fields'
 
-export default v.object({
-  name: v.pipe(
-    v.string(),
-    v.minLength(2)
-  ),
-
+export default z.object({
+  name: z.string().min(2),
   slug
 })

@@ -1,13 +1,9 @@
-import * as v from 'valibot'
+import { z } from 'zod'
 
-export default v.pipe(
-  v.string(),
-
-  v.minLength(8),
-  v.maxLength(64),
-
-  v.regex(/[a-z]/),
-  v.regex(/[A-Z]/),
-  v.regex(/[0-9]/),
-  v.regex(/[^A-Za-z0-9]/)
-)
+export default z.string()
+  .min(8)
+  .max(64)
+  .regex(/[a-z]/)
+  .regex(/[A-Z]/)
+  .regex(/[0-9]/)
+  .regex(/[^A-Za-z0-9]/)

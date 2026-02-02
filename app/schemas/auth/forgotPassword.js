@@ -1,6 +1,6 @@
-import * as v from 'valibot'
+import { z } from 'zod'
 import * as f from '~/schemas/fields'
 
-export default v.object({
+export default z.object({
   email: f.email
 })

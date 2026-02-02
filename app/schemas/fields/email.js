@@ -1,6 +1,3 @@
-import * as v from 'valibot'
+import { z } from 'zod'
 
-export default v.pipe(
-  v.string(),
-  v.email()
-)
+export default z.email()

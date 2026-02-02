@@ -225,7 +225,6 @@
 </template>
 
 <script setup>
-import * as v from 'valibot'
 import * as XLSX from 'xlsx'
 
 import { useClientQueries } from '@zenstackhq/tanstack-query/vue'
@@ -432,11 +431,11 @@ function validateRows() {
 
   for (const index in rows.value) {
     const value = rows.value[index]
-    const result = v.safeParse(props.entity.schema, value)
+    const result = props.entity.schema.safeParse(value)
 
     if (!result.success) {
-      for (const issue of result.issues) {
-        const field = issue.path?.map(p => p.key).join('.') || ''
+      for (const issue of result.error.issues) {
+        const field = issue.path?.join('.') || ''
         const row = Number(index) + 2
 
         validationErrors.value.push(t(
