@@ -9,6 +9,7 @@ actions:
   back: Voltar
   cancel: Cancelar
   create: Criar {0}
+  delete: Excluir
   done: Concluir
 
 # Brand
@@ -153,10 +154,14 @@ chat:
   notFound: Conversa não encontrada.
   quotaExceeded: Você excedeu sua cota atual. Verifique seu plano e detalhes de cobrança.
   apiError: Erro na API do provedor de IA.
-  deleteConfirm: Tem certeza que deseja excluir esta conversa?
-  deleted: Conversa excluída com sucesso.
   welcomeTitle: Como posso ajudar hoje?
   welcomeSubtitle: Descreva o que você precisa ou escolha um prompt sugerido.
+
+  delete:
+    title: Excluir conversa
+    description: Tem certeza que deseja excluir esta conversa?
+    success: Conversa excluída com sucesso.
+    error: Não foi possível excluir a conversa.
 
   reasoning:
     show: Mostrar raciocínio

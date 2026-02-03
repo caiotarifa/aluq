@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   if (!sessionResult) {
     throw createError({
       statusCode: 401,
-      statusMessage: 'Unauthorized'
+      message: 'Unauthorized'
     })
   }
 

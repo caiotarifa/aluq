@@ -3,6 +3,11 @@
     <UContainer class="flex flex-1 items-center justify-center">
       <div class="w-full max-w-2xl">
         <header class="mb-8 text-center">
+          <UIcon
+            class="size-12 text-primary"
+            name="i-tabler-sparkles"
+          />
+
           <h1 class="text-3xl font-semibold">
             {{ t('chat.welcomeTitle') }}
           </h1>

@@ -6,7 +6,7 @@
         :assistant="assistantConfig"
         :messages="chat.messages"
         should-auto-scroll
-        :spacing-offset="160"
+        :spacing-offset="190"
         :status="chat.status"
         :ui="{ viewport: 'top-[calc(100%-150px)]' }"
       >
@@ -80,14 +80,35 @@ const chatId = computed(() =>
 )
 
 // Load chat data.
-const { data } = await useFetch(`/api/chat/${chatId.value}`, {
-  cache: 'force-cache'
-})
+const { notifyError } = useNotify()
+const { client } = useRemote()
+
+const { data, suspense } = client.chat.useFindUnique(() => ({
+  where: { id: chatId.value },
+
+  include: {
+    messages: {
+      orderBy: { createdAt: 'asc' }
+    }
+  }
+}))
+
+await suspense()
 
 if (!data.value) {
   throw createError({
     status: 404,
     statusText: t('chat.notFound')
+  })
+}
+
+function parseMessages(messages) {
+  return messages.map((message) => {
+    if (typeof message.parts === 'string') {
+      return { ...message, parts: JSON.parse(message.parts) }
+    }
+
+    return message
   })
 }
 
@@ -103,17 +124,13 @@ if (data.value.model) {
   }
 }
 
-// Create chat instance.
-const { notifyError } = useNotify()
-const { client } = useRemote()
-
 const updateTitleMutation = client.chat.useUpdate({
   optimisticUpdate: true
 })
 
 const chat = new Chat({
   id: data.value.id,
-  messages: data.value.messages,
+  messages: parseMessages(data.value.messages),
 
   transport: new DefaultChatTransport({
     api: `/api/chat/${data.value.id}`,

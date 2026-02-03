@@ -265,6 +265,16 @@ const menu = [
 
 const links = [
   {
+    class: 'group',
+    label: 'Aluq Magic',
+    icon: 'i-tabler-sparkles',
+    to: '/app/chat',
+    ui: {
+      linkLabel: 'text-primary',
+      linkLeadingIcon: 'text-primary group-hover:text-primary group-hover:-rotate-12 group-hover:scale-110 transition-transform duration-200'
+    }
+  },
+  {
     label: 'Assinatura',
     icon: 'i-tabler-crown',
     to: '/app/subscription'

@@ -23,7 +23,7 @@ export function resolveModel(modelId) {
   if (!factory) {
     throw createError({
       statusCode: 400,
-      statusMessage: `Unknown provider: ${provider}`
+      message: `Unknown provider: ${provider}`
     })
   }
 
