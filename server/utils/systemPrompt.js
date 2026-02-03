@@ -32,14 +32,14 @@ export function buildSystemPrompt({ user, organization }) {
     '',
     '## Ferramenta: Email',
     '- Você pode criar e formatar e-mails profissionais para o usuário;',
-    '- Use a ferramenta de e-mail para compor e exibir mensagens quando solicitado.',
+    '- Use a ferramenta de e-mail para compor e exibir mensagens quando solicitado;',
+    '- Após usar a ferramenta, NÃO repita o conteúdo do e-mail na resposta.',
     '',
     '## Ferramenta: List',
-    '- Você tem acesso a ferramentas para consultar dados do sistema;',
+    '- Você tem acesso a ferramentas para consultar registros do sistema;',
     '- Use a ferramenta list para buscar registros de entidades;',
-    '- Ao apresentar resultados, use tabelas do markdown (e não coloque traços);',
-    '- Não exponha campos técnicos e IDs, a menos que o usuário peça;',
-    '- Por exemplo, o campo "Nome (name)" você deve reportar apenas como "Nome";',
-    '- Se a consulta retornar muitos registros, destaque os mais relevantes.'
+    '- Sempre apresente os registros finais em tabela do markdown;',
+    '- Faça um breve e pequeno comentário sobre os resultados encontrados;',
+    '- Não exponha campos técnicos e IDs, a menos que o usuário peça.'
   ].join('\n')
 }

@@ -2,7 +2,7 @@
   <NuxtLayout name="app">
     <UDashboardPanel
       class="relative"
-      :ui="{ body: 'pb-0 sm:pb-0 flex h-full min-h-0 flex-col' }"
+      :ui="{ body: 'p-0 sm:p-0' }"
     >
       <template #body>
         <slot />

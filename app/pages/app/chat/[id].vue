@@ -1,11 +1,12 @@
 <template>
   <AppChat>
-    <UContainer class="flex min-h-0 flex-1 flex-col gap-4 sm:gap-6">
+    <UContainer class="flex flex-1 flex-col gap-4 sm:gap-6">
       <UChatMessages
-        should-auto-scroll
-        class="min-h-0 flex-1 overflow-y-auto"
+        class="pb-4 sm:pb-6 lg:pt-(--ui-header-height)"
         :assistant="assistantConfig"
         :messages="chat.messages"
+        should-auto-scroll
+        :spacing-offset="160"
         :status="chat.status"
         :ui="{ viewport: 'top-[calc(100%-150px)]' }"
       >
@@ -39,16 +40,11 @@
               v-else-if="part.type === 'tool-email'"
               :invocation="part"
             />
-
-            <!-- <ChatDataTable
-              v-else-if="part.type === 'tool-findRecords'"
-              :part="part"
-            /> -->
           </template>
         </template>
       </UChatMessages>
 
-      <div class="sticky bottom-0 z-10">
+      <div class="sticky bottom-0 z-10 px-2.5">
         <ChatPrompt
           v-model="input"
           v-model:model="model"
@@ -61,7 +57,7 @@
           @reload="onReload"
         />
 
-        <div class="bg-default py-4 text-center text-xs text-dimmed">
+        <div class="bg-default py-2.5 text-center text-xs text-dimmed/75">
           {{ t('chat.disclaimer') }}
         </div>
       </div>

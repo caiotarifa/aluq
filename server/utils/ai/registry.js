@@ -68,7 +68,7 @@ export function describeEntities() {
   const lines = ['# Entities']
 
   for (const [, entity] of entityRegistry) {
-    lines.push('', `## ${entity.label} (${entity.name})`)
+    lines.push('', `## ${entity.name} (${entity.label})`)
 
     // List properties.
     const properties = Object.entries(entity.properties) || []
@@ -79,7 +79,7 @@ export function describeEntities() {
 
     for (const key in entity.properties) {
       const property = entity.properties[key]
-      lines.push(`- ${property.label} (${key}): ${property.type}`)
+      lines.push(`- ${key} (${property.label}): ${property.type}`)
     }
 
     // List relations.

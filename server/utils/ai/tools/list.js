@@ -70,17 +70,28 @@ function buildDescription() {
     '',
     '## Guardrails',
     '- You MUST use only entities listed below.',
-    '- The "entity" must match an entity in the registry; unknown entities are rejected.',
+    '- The "model" must match an entity in the registry; unknown entities are rejected.',
+    '- NEVER translate the model. Use the exact registry name.',
     '',
     '## Features',
-    '- where: filters (AND/OR/NOT + common operators like equals/in/gt/contains/etc).',
-    '- orderBy: sorting (supports nested relations).',
-    '- select: projection (supports nested relation selects).',
-    '- skip/take: pagination.',
-    '- _count/_sum/_avg/_min/_max: aggregates returned under meta.aggregate.',
-    '- aggregates use the full where filter (ignore skip/take), so they may differ from data.',
+    '- model: Entity name from inside parentheses in the registry (e.g., "businessUnit").',
+    '- where: Filters with AND/OR/NOT and operators like equals, in, gt, contains, etc.',
+    '- orderBy: Sorting (supports nested relations).',
+    '- select: Projection (supports nested relation selects).',
+    '- skip/take: Pagination.',
+    '- _count/_sum/_avg/_min/_max: Aggregates returned under meta.aggregate.',
+    '- Aggregates use the full where filter (ignore skip/take), so they may differ from data.',
     '',
     `Limits: take is 1..${MAX_TAKE}. Default take is ${DEFAULT_TAKE}.`,
+    '',
+    '## Important',
+    '- The records should be rendered in markdown table.',
+    '- Just provide a brief explanation about the results.',
+    '',
+    '## Language mapping',
+    '- The user may speak in PT-BR using the displayed label.',
+    '- The "model" must be the technical registry name.',
+    '- If there is ambiguity between two entities, ask a question.',
     '',
     describeEntities()
   ].join('\n')
@@ -410,6 +421,9 @@ async function executeList(db, input) {
       aggregatePromise
     ])
 
+    const allowedKeys = getAllowedDataKeys(entity, input.select)
+    const filteredData = data.map(record => pick(record, allowedKeys))
+
     const meta = {
       model: entityName,
       label: entity.label,
@@ -426,7 +440,7 @@ async function executeList(db, input) {
     return {
       status: 'success',
       meta,
-      data
+      data: filteredData
     }
   }
   catch (error) {
@@ -459,6 +473,23 @@ function buildProperties(entity, select) {
   }
 
   return properties
+}
+
+// Get allowed keys from entity schema.
+function getAllowedDataKeys(entity, select) {
+  if (select && typeof select === 'object') {
+    const keys = []
+
+    for (const key in select) {
+      if (entity.properties[key] || entity.relations[key]) {
+        keys.push(key)
+      }
+    }
+
+    return keys
+  }
+
+  return entity.propertyKeys
 }
 
 // Tool factory.
