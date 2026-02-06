@@ -72,14 +72,14 @@ const props = defineProps({
     default: () => []
   },
 
-  breadcrumb: {
-    type: Array,
-    default: () => []
-  },
-
   badge: {
     type: [Number, String],
     default: ''
+  },
+
+  breadcrumb: {
+    type: Array,
+    default: () => []
   },
 
   menuItems: {

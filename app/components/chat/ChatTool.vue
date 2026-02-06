@@ -6,8 +6,8 @@
     >
       <slot
         :actions
-        :title
         name="header"
+        :title
       >
         <h3
           v-if="title"
@@ -40,7 +40,7 @@
 </template>
 
 <script setup>
-const props = defineProps({
+defineProps({
   actions: {
     type: Array,
     default: () => []

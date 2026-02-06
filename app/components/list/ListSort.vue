@@ -31,6 +31,7 @@
       <DraggableList
         v-model="model"
         class="space-y-2 p-4"
+        item-key="property"
         :item="{ class: 'flex items-center gap-2' }"
       >
         <template #default="{ item: sort, drag }">
@@ -43,7 +44,7 @@
 
           <USelectMenu
             :model-value="sort.property"
-            class="flex-1"
+            class="w-full flex-1"
             :items="getAvailablePropertiesFor(sort.property)"
             value-key="key"
             variant="soft"

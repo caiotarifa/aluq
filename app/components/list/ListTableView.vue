@@ -25,6 +25,11 @@ const props = defineProps({
     default: false
   },
 
+  pinned: {
+    type: Object,
+    default: () => ({ left: [], right: [] })
+  },
+
   properties: {
     type: Object,
     default: () => ({})
@@ -56,13 +61,24 @@ const sorting = computed({
 // Columns.
 const columns = computed(() => {
   const results = []
+  const pinnedLeft = props.pinned?.left || []
+  const pinnedRight = props.pinned?.right || []
 
   for (const key in props.properties) {
     const property = props.properties[key]
 
+    let pinned = false
+
+    if (pinnedLeft.includes(key)) {
+      pinned = 'left'
+    } else if (pinnedRight.includes(key)) {
+      pinned = 'right'
+    }
+
     results.push({
       accessorKey: key,
-      header: ({ column }) => getHeader(column, property)
+      header: ({ column }) => getHeader(column, property),
+      ...(pinned && { pinned })
     })
   }
 

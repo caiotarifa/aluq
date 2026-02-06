@@ -30,6 +30,11 @@ const props = defineProps({
     default: () => ({})
   },
 
+  itemKey: {
+    type: String,
+    default: null
+  },
+
   transition: {
     type: String,
     default: 'drag-list'
@@ -50,8 +55,22 @@ const model = defineModel({
   default: () => []
 })
 
+// Need stable IDs for items.
+const itemIds = new WeakMap()
+const id = { next: 0 }
+
 function toItems(value) {
-  return value.map((data, index) => ({ id: index, data }))
+  return value.map((data) => {
+    if (props.itemKey) {
+      return { id: data[props.itemKey], data }
+    }
+
+    if (!itemIds.has(data)) {
+      itemIds.set(data, id.next++)
+    }
+
+    return { id: itemIds.get(data), data }
+  })
 }
 
 function toModel(items) {
@@ -128,25 +147,6 @@ onUnmounted(() => {
 
 <style>
 .drag-list-move {
-  transition: transform 0.15s ease-out;
-}
-
-.drag-list-enter-active,
-.drag-list-leave-active {
-  transition: all 0.2s ease;
-}
-
-.drag-list-enter-from {
-  opacity: 0;
-  transform: translateX(-10px);
-}
-
-.drag-list-leave-to {
-  opacity: 0;
-  transform: translateX(10px);
-}
-
-.drag-list-leave-active {
-  position: absolute;
+  transition: transform 150ms ease-out;
 }
 </style>

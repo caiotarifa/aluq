@@ -48,6 +48,7 @@
         v-model:query="query"
         :data="items"
         :loading
+        :pinned="pinnedColumns"
         :properties="viewProperties"
       />
     </slot>
@@ -88,6 +89,13 @@
       :entity
       :items
     />
+
+    <ListEditView
+      v-model:open="isEditViewOpen"
+      :entity
+      :view="viewModel"
+      @update="onViewUpdate"
+    />
   </div>
 </template>
 
@@ -120,7 +128,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits([
-  'refetch'
+  'refetch',
+  'view-update'
 ])
 
 const { t } = useI18n()
@@ -185,11 +194,22 @@ const sortableProperties = computed(() => {
   return result
 })
 
+const pinnedColumns = computed(() =>
+  viewConfig.value.ui?.pinned || { left: [], right: [] }
+)
+
 // Import modal.
 const isImportOpen = ref(false)
 
 // Export modal.
 const isExportOpen = ref(false)
+
+// Edit view slideover.
+const isEditViewOpen = ref(false)
+
+function onViewUpdate(payload) {
+  emit('view-update', payload)
+}
 
 // Adjustments menu.
 const adjustmentsMenu = computed(() => [
@@ -208,7 +228,8 @@ const adjustmentsMenu = computed(() => [
   },
   {
     label: t('list.editView'),
-    icon: 'i-tabler-database-cog'
+    icon: 'i-tabler-database-cog',
+    onSelect: () => isEditViewOpen.value = true
   }
 ])
 

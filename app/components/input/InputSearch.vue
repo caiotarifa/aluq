@@ -31,9 +31,7 @@
 </template>
 
 <script setup>
-import {
-  useDebounceFn
-} from '@vueuse/core'
+import { useDebounceFn } from '@vueuse/core'
 
 const props = defineProps({
   debounceTime: {
@@ -73,7 +71,6 @@ const localModel = computed({
   }
 })
 
-// --------
 const appConfig = useAppConfig()
 const { t } = useI18n()
 
