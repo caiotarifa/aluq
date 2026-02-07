@@ -81,7 +81,7 @@
     <UButton
       v-if="model.length"
       color="neutral"
-      variant="ghost"
+      variant="link"
       size="sm"
       :label="t('listFilter.clearFilters')"
       @click="clearFilters"
@@ -90,7 +90,6 @@
 </template>
 
 <script setup>
-// import UInput from '#ui/components/Input.vue'
 import { InputFilterText } from '#components'
 
 const props = defineProps({

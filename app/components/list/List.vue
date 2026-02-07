@@ -1,8 +1,8 @@
 <template>
   <div class="relative space-y-4 sm:space-y-6">
     <header class="space-y-2 sm:space-y-4">
-      <div class="flex w-full justify-between">
-        <div class="flex gap-2">
+      <div class="flex w-full items-start justify-between gap-4">
+        <div class="flex items-start gap-2">
           <USkeleton
             v-if="loading"
             class="h-8 w-61.25"

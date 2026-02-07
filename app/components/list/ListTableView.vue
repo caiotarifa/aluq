@@ -103,7 +103,19 @@ function getHeader(column, property) {
         : 'i-tabler-arrows-sort',
       size: 'xs',
       variant: 'ghost',
-      onClick: () => column.toggleSorting()
+      onClick: () => {
+        const currentDirection = column.getIsSorted()
+
+        if (!currentDirection) {
+          return column.toggleSorting(true, true)
+        }
+
+        if (currentDirection === 'desc') {
+          return column.toggleSorting(false, true)
+        }
+
+        return column.clearSorting()
+      }
     }))
   }
 

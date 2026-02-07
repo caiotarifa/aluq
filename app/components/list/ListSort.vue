@@ -43,9 +43,10 @@
           />
 
           <USelectMenu
-            :model-value="sort.property"
             class="w-full flex-1"
+            :icon="entity.properties[sort.property]?.icon"
             :items="getAvailablePropertiesFor(sort.property)"
+            :model-value="sort.property"
             value-key="key"
             variant="soft"
             size="sm"
@@ -55,6 +56,7 @@
 
           <USelect
             class="w-30"
+            :icon="directions.find(direction => direction.value === sort.direction)?.icon"
             :items="directions"
             :model-value="sort.direction"
             variant="soft"
@@ -64,9 +66,9 @@
 
           <UButton
             color="neutral"
+            :icon="appConfig.ui.icons.close"
             variant="ghost"
             size="sm"
-            :icon="appConfig.ui.icons.close"
             @click="removeSort(sort.property)"
           />
         </template>
