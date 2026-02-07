@@ -22,8 +22,8 @@
           class="text-muted"
           color="neutral"
           label="Limpar"
-          variant="ghost"
           size="xs"
+          variant="ghost"
           @click="clearSorts"
         />
       </header>
@@ -31,15 +31,15 @@
       <DraggableList
         v-model="model"
         class="space-y-2 p-4"
-        item-key="property"
         :item="{ class: 'flex items-center gap-2' }"
+        item-key="property"
       >
         <template #default="{ item: sort, drag }">
           <UIcon
             v-if="canDrag"
             v-bind="drag"
-            :name="appConfig.ui.icons.drag"
             class="size-4 cursor-grab text-dimmed active:cursor-grabbing"
+            :name="appConfig.ui.icons.drag"
           />
 
           <USelectMenu
@@ -47,10 +47,10 @@
             :icon="entity.properties[sort.property]?.icon"
             :items="getAvailablePropertiesFor(sort.property)"
             :model-value="sort.property"
-            value-key="key"
-            variant="soft"
             size="sm"
             :ui="{ content: 'min-w-fit' }"
+            value-key="key"
+            variant="soft"
             @update:model-value="updateSortProperty(sort.property, $event)"
           />
 
@@ -59,16 +59,16 @@
             :icon="directions.find(direction => direction.value === sort.direction)?.icon"
             :items="directions"
             :model-value="sort.direction"
-            variant="soft"
             size="sm"
+            variant="soft"
             @update:model-value="updateSortDirection(sort.property, $event)"
           />
 
           <UButton
             color="neutral"
             :icon="appConfig.ui.icons.close"
-            variant="ghost"
             size="sm"
+            variant="ghost"
             @click="removeSort(sort.property)"
           />
         </template>
@@ -80,18 +80,18 @@
       >
         <USelectMenu
           v-model:open="isSelectOpen"
-          :model-value="null"
           class="w-full rounded-t-none px-4 py-2"
           :icon="appConfig.ui.icons.plus"
           :items="availableProperties"
+          :model-value="null"
           placeholder="Adicionar ordenação"
-          variant="ghost"
           :trailing-icon="false"
           :ui="{
             content: 'min-w-fit',
             trailingIcon: 'text-muted',
             placeholder: 'text-muted'
           }"
+          variant="ghost"
           @update:model-value="addSort"
         />
       </footer>
@@ -105,9 +105,9 @@
     :items="availableProperties"
     :model-value="null"
     :placeholder="buttonLabel"
-    :variant="buttonVariant"
     :trailing-icon="false"
     :ui="{ content: 'min-w-fit' }"
+    :variant="buttonVariant"
     @update:model-value="addSort"
   />
 </template>

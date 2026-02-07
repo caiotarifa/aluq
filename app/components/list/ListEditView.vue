@@ -17,8 +17,8 @@
           indicator="hidden"
           :items="viewTypeOptions"
           orientation="horizontal"
-          variant="card"
           :ui="{ label: 'text-dimmed', item: 'p-2 w-1/4' }"
+          variant="card"
         >
           <template #label="{ item }">
             <div
@@ -78,8 +78,8 @@
             >
               <UIcon
                 v-bind="drag"
-                :name="appConfig.ui.icons.drag"
                 class="size-4 text-dimmed"
+                :name="appConfig.ui.icons.drag"
               />
 
               <span class="flex-1 truncate text-sm">

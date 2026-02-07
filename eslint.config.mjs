@@ -15,5 +15,14 @@ export default withNuxt(
     rules: {
       'better-tailwindcss/enforce-consistent-line-wrapping': 'off'
     }
+  },
+
+  // Vue.
+  {
+    rules: {
+      'vue/attributes-order': ['error', {
+        alphabetical: true
+      }]
+    }
   }
 )

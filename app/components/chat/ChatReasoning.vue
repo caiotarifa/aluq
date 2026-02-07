@@ -7,10 +7,10 @@
     <UButton
       class="group p-0"
       color="neutral"
-      variant="link"
       :label="props.streaming ? t('chat.reasoning.loading') : t('chat.reasoning.show')"
       :trailing-icon="appConfig.ui.icons.chevronDown"
       :ui="{ trailingIcon }"
+      variant="link"
     />
 
     <template #content>

@@ -25,8 +25,8 @@
           <div class="flex items-center gap-2">
             <UIcon
               v-if="filter.property?.icon"
-              :name="filter.property.icon"
               class="size-4"
+              :name="filter.property.icon"
             />
 
             {{ filter.property?.label }}
@@ -36,8 +36,8 @@
             class="text-muted"
             color="neutral"
             :label="t('listFilter.remove')"
-            variant="ghost"
             size="xs"
+            variant="ghost"
             @click="removeFilter(filter.key)"
           />
         </header>
@@ -47,8 +47,8 @@
             :items="filter.operators"
             :model-value="filter?.operator"
             size="sm"
-            variant="soft"
             :ui="{ content: 'w-(--reka-dropdown-menu-trigger-width)' }"
+            variant="soft"
             @update:model-value="updateFilter(filter.key, { operator: $event })"
           />
 
@@ -72,18 +72,18 @@
       :items="availableProperties"
       :model-value="null"
       :placeholder="t('listFilter.filter')"
-      variant="soft"
       :trailing-icon="false"
       :ui="{ content: 'min-w-fit' }"
+      variant="soft"
       @update:model-value="addFilter"
     />
 
     <UButton
       v-if="model.length"
       color="neutral"
-      variant="link"
-      size="sm"
       :label="t('listFilter.clearFilters')"
+      size="sm"
+      variant="link"
       @click="clearFilters"
     />
   </div>

@@ -9,9 +9,9 @@
         @pointerenter="onDragOver(index)"
       >
         <slot
-          :item="entry.data"
-          :index
           :drag="getHandleAttrs(index)"
+          :index
+          :item="entry.data"
         />
       </div>
     </TransitionGroup>

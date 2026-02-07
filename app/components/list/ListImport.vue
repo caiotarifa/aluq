@@ -2,8 +2,8 @@
   <UModal
     v-model:open="open"
     class="min-w-1/2"
-    :description="t('listImport.description')"
     :close="!isImporting"
+    :description="t('listImport.description')"
     :dismissible="!isImporting"
     :title="t('listImport.title')"
     :ui="{ footer: 'flex gap-2' }"
@@ -208,8 +208,8 @@
         <UButton
           v-if="isStep('review')"
           :disabled="!canImport"
-          :label="t('listImport.actions.import')"
           icon="i-tabler-upload"
+          :label="t('listImport.actions.import')"
           @click="startImport"
         />
 

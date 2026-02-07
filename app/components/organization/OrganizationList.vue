@@ -4,15 +4,15 @@
       v-for="organization in organizations"
       :key="organization.id"
       class="cursor-pointer transition-opacity hover:outline hover:outline-primary"
-      variant="outline"
       :class="{ 'pointer-events-none cursor-not-allowed opacity-50': loading && !isSelected(organization) }"
+      variant="outline"
       @click="onSelect(organization)"
     >
       <div class="flex w-full items-center justify-between">
         <UUser
-          :name="organization.name"
-          :description="organization.slug"
           :avatar="{ alt: organization.name, src: organization.logo }"
+          :description="organization.slug"
+          :name="organization.name"
           size="xl"
         />
 

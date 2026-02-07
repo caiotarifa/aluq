@@ -17,8 +17,8 @@
         color="primary"
         size="sm"
         :status
-        @stop="emit('stop')"
         @reload="emit('reload')"
+        @stop="emit('stop')"
       />
     </template>
   </UChatPrompt>
