@@ -68,7 +68,7 @@
         </header>
 
         <DraggableList
-          v-model="localProperties"
+          v-model="draggableProperties"
           class="space-y-1"
         >
           <template #default="{ item: property, drag }">
@@ -220,10 +220,39 @@ function buildLocalProperties() {
     orderedProperties.push(property)
   }
 
-  return orderedProperties
+  return orderPropertiesByPinned(orderedProperties)
 }
 
 const localProperties = ref(buildLocalProperties())
+
+const draggableProperties = computed({
+  get() {
+    return localProperties.value
+  },
+
+  set(properties) {
+    localProperties.value = orderPropertiesByPinned(properties)
+  }
+})
+
+function orderPropertiesByPinned(properties) {
+  const pinnedProperties = []
+  const unpinnedProperties = []
+
+  for (const property of properties) {
+    if (property.pinned) {
+      pinnedProperties.push(property)
+      continue
+    }
+
+    unpinnedProperties.push(property)
+  }
+
+  return [
+    ...pinnedProperties,
+    ...unpinnedProperties
+  ]
+}
 
 // State.
 function resetState() {
@@ -271,12 +300,11 @@ function toggleVisibility(key) {
 }
 
 function togglePin(key) {
-  const property = localProperties.value.find(item =>
-    item.key === key
-  )
+  const property = localProperties.value.find(item => item.key === key)
 
   if (property) {
     property.pinned = !property.pinned
+    localProperties.value = orderPropertiesByPinned(localProperties.value)
   }
 }
 

@@ -55,7 +55,7 @@
           />
 
           <USelect
-            class="w-30"
+            class="w-34"
             :icon="directions.find(direction => direction.value === sort.direction)?.icon"
             :items="directions"
             :model-value="sort.direction"

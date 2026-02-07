@@ -82,6 +82,7 @@ const columnPinning = computed(() => ({
 
 function getHeader(column, property) {
   const nodes = []
+  const isPinned = Boolean(column.getIsPinned())
 
   // Sort button.
   const isSorted = column.getIsSorted()
@@ -115,6 +116,13 @@ function getHeader(column, property) {
 
   nodes.push(h('span', {}, property.label))
 
-  return h('div', { class: 'flex items-center gap-2' }, nodes)
+  if (isPinned) {
+    nodes.push(h(UIcon, {
+      class: 'ml-auto size-4 text-primary',
+      name: 'i-tabler-pinned-filled'
+    }))
+  }
+
+  return h('div', { class: 'flex w-full items-center gap-2' }, nodes)
 }
 </script>
