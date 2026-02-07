@@ -55,6 +55,7 @@ const propertyTypes = {
   },
 
   code: {
+    icon: 'i-tabler-hash',
     extends: 'text',
 
     operators: [

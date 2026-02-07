@@ -118,9 +118,9 @@ const props = defineProps({
     validator: value => ['asc', 'desc'].includes(value)
   },
 
-  properties: {
+  entity: {
     type: Object,
-    default: () => ({})
+    required: true
   },
 
   max: {
@@ -189,11 +189,32 @@ const canDrag = computed(() =>
 )
 
 // Properties.
+const sortableProperties = computed(() => {
+  const result = {}
+
+  for (const key in props.entity.properties) {
+    const property = props.entity.properties[key]
+
+    if (property.sortable !== false) {
+      result[key] = property
+    }
+  }
+
+  return result
+})
+
 const propertyItems = computed(() => {
   const result = []
 
-  for (const key in props.properties) {
-    result.push({ key, label: props.properties[key].label })
+  for (const key in sortableProperties.value) {
+    const property = sortableProperties.value[key]
+    const propertyType = resolvePropertyType(property.type)
+
+    result.push({
+      key,
+      label: property.label,
+      icon: propertyType?.icon
+    })
   }
 
   return result
@@ -234,7 +255,7 @@ const buttonIcon = computed(() => {
 const buttonLabel = computed(() => {
   if (sortsCount.value === 1) {
     const { property } = model.value[0]
-    return props.properties[property]?.label || property
+    return sortableProperties.value[property]?.label || property
   }
 
   if (sortsCount.value > 1) {

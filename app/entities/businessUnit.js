@@ -28,7 +28,8 @@ export default {
     },
 
     taxId: {
-      type: 'text'
+      type: 'text',
+      icon: 'i-tabler-id'
     }
   },
 

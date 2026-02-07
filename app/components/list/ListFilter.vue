@@ -94,9 +94,9 @@
 import { InputFilterText } from '#components'
 
 const props = defineProps({
-  properties: {
+  entity: {
     type: Object,
-    default: () => ({})
+    required: true
   },
 
   max: {
@@ -114,6 +114,21 @@ const model = defineModel({
 // Composables.
 const appConfig = useAppConfig()
 const { t } = useI18n()
+
+// Properties.
+const filterableProperties = computed(() => {
+  const result = {}
+
+  for (const key in props.entity.properties) {
+    const property = props.entity.properties[key]
+
+    if (property.filterable !== false) {
+      result[key] = property
+    }
+  }
+
+  return result
+})
 
 // Component mapping.
 const componentMap = {
@@ -133,13 +148,13 @@ function isFunction(value) {
   return typeof value === 'function'
 }
 
-// Properties.
+// Available properties.
 const availableProperties = computed(() => {
   const usedKeys = model.value.map(filter => filter.key)
   const results = []
 
-  for (const key in props.properties) {
-    const property = props.properties[key]
+  for (const key in filterableProperties.value) {
+    const property = filterableProperties.value[key]
     const propertyType = usePropertyType(property.type)
 
     if (!usedKeys.includes(key)) {
@@ -158,7 +173,7 @@ const availableProperties = computed(() => {
 const operators = useOperators()
 
 const filters = computed(() => model.value.map((filter) => {
-  const property = props.properties[filter.key]
+  const property = filterableProperties.value[filter.key]
   const propertyType = usePropertyType(property.type)
 
   const operatorConfig = propertyType.value?.operators.find(
@@ -182,7 +197,7 @@ const filters = computed(() => model.value.map((filter) => {
 }))
 
 function addFilter(filter) {
-  const property = props.properties[filter.key]
+  const property = filterableProperties.value[filter.key]
   const propertyType = usePropertyType(property.type)
 
   model.value.push({

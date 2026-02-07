@@ -15,14 +15,14 @@
 
           <ListFilter
             v-model="query.filters"
-            :properties="filterableProperties"
+            :entity
           />
         </div>
 
         <div class="flex gap-2">
           <ListSort
             v-model="query.sort"
-            :properties="sortableProperties"
+            :entity
           />
 
           <UDropdownMenu
@@ -179,34 +179,6 @@ const viewProperties = computed(() => {
   for (const key of propertyKeys) {
     if (props.entity.properties?.[key]) {
       result[key] = props.entity.properties[key]
-    }
-  }
-
-  return result
-})
-
-const sortableProperties = computed(() => {
-  const result = {}
-
-  for (const key in viewProperties.value) {
-    const property = viewProperties.value[key]
-
-    if (property.sortable !== false) {
-      result[key] = property
-    }
-  }
-
-  return result
-})
-
-const filterableProperties = computed(() => {
-  const result = {}
-
-  for (const key in viewProperties.value) {
-    const property = viewProperties.value[key]
-
-    if (property.filterable !== false) {
-      result[key] = property
     }
   }
 
