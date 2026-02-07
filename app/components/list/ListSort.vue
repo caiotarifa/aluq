@@ -208,12 +208,11 @@ const propertyItems = computed(() => {
 
   for (const key in sortableProperties.value) {
     const property = sortableProperties.value[key]
-    const propertyType = resolvePropertyType(property.type)
 
     result.push({
       key,
       label: property.label,
-      icon: propertyType?.icon
+      icon: property.icon
     })
   }
 

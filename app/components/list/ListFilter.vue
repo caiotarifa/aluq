@@ -9,7 +9,7 @@
       <UButton
         :class="isEmpty(filter.value) ? 'bg-elevated/50 text-dimmed hover:bg-elevated' : ''"
         :color="isEmpty(filter.value) ? 'neutral' : 'primary'"
-        :icon="filter.propertyType?.icon"
+        :icon="filter.property?.icon"
         :trailing-icon="appConfig.ui.icons.chevronDown"
         :variant="isEmpty(filter.value) ? 'soft' : 'subtle'"
       >
@@ -155,13 +155,12 @@ const availableProperties = computed(() => {
 
   for (const key in filterableProperties.value) {
     const property = filterableProperties.value[key]
-    const propertyType = usePropertyType(property.type)
 
     if (!usedKeys.includes(key)) {
       results.push({
         key,
         label: property.label,
-        icon: propertyType.value?.icon
+        icon: property.icon
       })
     }
   }
@@ -170,13 +169,10 @@ const availableProperties = computed(() => {
 })
 
 // Filters.
-const operators = useOperators()
-
 const filters = computed(() => model.value.map((filter) => {
   const property = filterableProperties.value[filter.key]
-  const propertyType = usePropertyType(property.type)
 
-  const operatorConfig = propertyType.value?.operators.find(
+  const operatorConfig = property.operators?.find(
     operator => operator.value === filter.operator
   )
 
@@ -186,24 +182,20 @@ const filters = computed(() => model.value.map((filter) => {
       : operatorConfig.mask(property.label, filter.value),
 
     property,
-    propertyType: { icon: propertyType.value?.icon },
 
-    operators: propertyType.value?.operators.map(operator =>
-      operators.value[operator.value]
-    ),
+    operators: property.operators,
 
-    component: propertyType.value?.resolveFilterInput?.(filter)
+    component: property.resolveFilterInput?.(filter)
   })
 }))
 
 function addFilter(filter) {
   const property = filterableProperties.value[filter.key]
-  const propertyType = usePropertyType(property.type)
 
   model.value.push({
     key: filter.key,
-    operator: propertyType.value?.defaultOperator,
-    value: propertyType.value?.defaultValue
+    operator: property.defaultOperator,
+    value: property.defaultValue
   })
 }
 

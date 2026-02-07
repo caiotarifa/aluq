@@ -1,3 +1,6 @@
+import { operators } from '~/registry/operators.js'
+import { resolvePropertyType } from '~/registry/propertyTypes.js'
+
 const entities = import.meta.glob('~/entities/*.js', { eager: true })
 
 export function useEntity(name) {
@@ -12,11 +15,22 @@ export function useEntity(name) {
 
       const entity = entities[key].default
 
+      // Operators.
+      for (const operatorKey in operators) {
+        operators[operatorKey].label = t(`operators.${operators[operatorKey].value}`)
+      }
+
       // Properties.
       for (const propKey in entity.properties) {
-        entity.properties[propKey].label = t(
-          `${entityName}.properties.${propKey}`
-        )
+        const property = entity.properties[propKey]
+        const propertyType = resolvePropertyType(property.type)
+
+        property.label = t(`${entityName}.properties.${propKey}`)
+        property.propertyType = propertyType
+
+        for (const field in propertyType) {
+          property[field] ??= propertyType[field]
+        }
       }
 
       // Views.
