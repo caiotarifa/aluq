@@ -1,6 +1,7 @@
 <template>
   <UTable
     v-model:sorting="sorting"
+    :column-pinning="columnPinning"
     :columns
     :data
     :loading
@@ -61,30 +62,23 @@ const sorting = computed({
 // Columns.
 const columns = computed(() => {
   const results = []
-  const pinnedLeft = props.pinned?.left || []
-  const pinnedRight = props.pinned?.right || []
 
   for (const key in props.properties) {
     const property = props.properties[key]
 
-    let pinned = false
-
-    if (pinnedLeft.includes(key)) {
-      pinned = 'left'
-    }
-    else if (pinnedRight.includes(key)) {
-      pinned = 'right'
-    }
-
     results.push({
       accessorKey: key,
-      header: ({ column }) => getHeader(column, property),
-      ...(pinned && { pinned })
+      header: ({ column }) => getHeader(column, property)
     })
   }
 
   return results
 })
+
+const columnPinning = computed(() => ({
+  left: props.pinned?.left || [],
+  right: props.pinned?.right || []
+}))
 
 function getHeader(column, property) {
   const nodes = []
