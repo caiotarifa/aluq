@@ -64,6 +64,37 @@ list:
   exportData: Exportar dados
   editView: Editar visualização
 
+operators:
+  equals: igual a
+  notEquals: diferente de
+  in: está em
+  notIn: não está em
+  contains: contém
+  notContains: não contém
+  startsWith: começa com
+  notStartsWith: não começa com
+  endsWith: termina com
+  notEndsWith: não termina com
+  lessThan: menor que
+  lessThanOrEqual: menor ou igual a
+  greaterThan: maior que
+  greaterThanOrEqual: maior ou igual a
+  between: entre
+  isEmpty: está vazio
+  isNotEmpty: não está vazio
+  some: possui algum
+  every: todos possuem
+  none: nenhum possui
+  is: é
+
+listFilter:
+  filter: Filtrar
+  remove: Remover
+  clearFilters: Limpar
+  addValue: Adicionar valor
+  noValue: Sem valor
+  relationField: Campo
+
 listImport:
   title: Importar dados
   description: Importe registros a partir de uma planilha
@@ -140,6 +171,25 @@ listExport:
     progressStatus: '{current} de {total} registros processados'
     success: '{count} registro(s) exportado(s) com sucesso'
     cancelled: 'Exportação cancelada com {count} registro(s)'
+
+listEditView:
+  title: Editar visualização
+  description: Personalize como os dados são exibidos
+
+  viewType: Tipo de visualização
+  viewTypes:
+    table: Tabela
+
+  properties: Propriedades
+  showAll: Mostrar todas
+  hideAll: Ocultar todas
+  pin: Fixar coluna
+  unpin: Desafixar coluna
+
+  apply: Aplicar
+
+inputFilterText:
+  placeholder: Digite um valor
 
 # Auth
 

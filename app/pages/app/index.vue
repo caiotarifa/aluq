@@ -2,6 +2,39 @@
   <NuxtLayout name="app">
     <div>
       Index
+
+      <div>
+        <InputDate
+          v-model="date"
+        />
+
+        <pre>{{ date }}</pre>
+      </div>
+
+      <div>
+        <InputDate
+          v-model="dateRange"
+          range
+        />
+
+        <pre>{{ dateRange }}</pre>
+      </div>
+
+      <div>
+        <InputTime
+          v-model="time"
+        />
+
+        <pre>{{ time }}</pre>
+      </div>
+
+      <!-- <div>
+        <InputDateTime
+          v-model="dateTime"
+        />
+
+        <pre>{{ dateTime }}</pre>
+      </div> -->
     </div>
     <!-- <div class="p-6 space-y-6">
       <div>
@@ -55,6 +88,11 @@
 definePageMeta({
   auth: { only: 'user' }
 })
+
+const date = ref('2024-06-15')
+const dateRange = ref([null, null])
+const time = ref('')
+const dateTime = ref('')
 
 // const { activeOrganizationId, client } = useAuth()
 // const { organizations, fetchOrganizations } = useOrganization()

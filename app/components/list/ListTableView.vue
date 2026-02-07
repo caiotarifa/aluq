@@ -71,7 +71,8 @@ const columns = computed(() => {
 
     if (pinnedLeft.includes(key)) {
       pinned = 'left'
-    } else if (pinnedRight.includes(key)) {
+    }
+    else if (pinnedRight.includes(key)) {
       pinned = 'right'
     }
 

@@ -4,7 +4,8 @@ import { schema } from '../../zenstack/schema'
 const QUERY_DEFAULTS = {
   page: 1,
   size: 25,
-  sort: []
+  sort: [],
+  select: null
 }
 
 const OPTIONS_DEFAULTS = {
@@ -20,7 +21,7 @@ export function useRemoteList(entity, query = {}, options = {}) {
   }
 
   function queryHandler() {
-    const { page, size: take, sort } = {
+    const { page, size: take, sort, select } = {
       ...QUERY_DEFAULTS,
       ...toValue(query)
     }
@@ -29,11 +30,20 @@ export function useRemoteList(entity, query = {}, options = {}) {
       { [property]: direction }
     ))
 
-    return {
+    const result = {
       skip: (page - 1) * take,
       take,
       orderBy
     }
+
+    if (select && Array.isArray(select) && select.length > 0) {
+      result.select = select.reduce((acc, field) => {
+        acc[field] = true
+        return acc
+      }, {})
+    }
+
+    return result
   }
 
   function optionsHandler() {

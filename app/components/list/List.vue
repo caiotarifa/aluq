@@ -12,6 +12,11 @@
             v-else
             v-model="query.search"
           />
+
+          <ListFilter
+            v-model="query.filters"
+            :properties="filterableProperties"
+          />
         </div>
 
         <div class="flex gap-2">
@@ -187,6 +192,20 @@ const sortableProperties = computed(() => {
     const property = viewProperties.value[key]
 
     if (property.sortable !== false) {
+      result[key] = property
+    }
+  }
+
+  return result
+})
+
+const filterableProperties = computed(() => {
+  const result = {}
+
+  for (const key in viewProperties.value) {
+    const property = viewProperties.value[key]
+
+    if (property.filterable !== false) {
       result[key] = property
     }
   }

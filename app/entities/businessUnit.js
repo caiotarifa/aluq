@@ -3,6 +3,8 @@ import { z } from 'zod'
 export default {
   name: 'businessUnit',
 
+  aiDescription: 'A business unit represents a distinct part of a company, such as a department or division, that operates semi-independently.',
+
   display: {
     property: 'name',
     view: 'default'

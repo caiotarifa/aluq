@@ -1,0 +1,216 @@
+<template>
+  <div class="flex flex-wrap items-center gap-2">
+    <UPopover
+      v-for="filter in filters"
+      :key="filter.key"
+      :content="{ align: 'start' }"
+      :ui="{ content: 'text-sm min-w-72' }"
+    >
+      <UButton
+        :class="isEmpty(filter.value) ? 'bg-elevated/50 text-dimmed hover:bg-elevated' : ''"
+        :color="isEmpty(filter.value) ? 'neutral' : 'primary'"
+        :icon="filter.propertyType?.icon"
+        :trailing-icon="appConfig.ui.icons.chevronDown"
+        :variant="isEmpty(filter.value) ? 'soft' : 'subtle'"
+      >
+        <MDC
+          tag="span"
+          unwrap="p"
+          :value="filter.label"
+        />
+      </UButton>
+
+      <template #content>
+        <header class="flex justify-between border-b border-default px-4 py-2 font-semibold">
+          <div class="flex items-center gap-2">
+            <UIcon
+              v-if="filter.property?.icon"
+              :name="filter.property.icon"
+              class="size-4"
+            />
+
+            {{ filter.property?.label }}
+          </div>
+
+          <UButton
+            class="text-muted"
+            color="neutral"
+            :label="t('listFilter.remove')"
+            variant="ghost"
+            size="xs"
+            @click="removeFilter(filter.key)"
+          />
+        </header>
+
+        <div class="space-x-2 p-4">
+          <USelect
+            :items="filter.operators"
+            :model-value="filter?.operator"
+            size="sm"
+            variant="soft"
+            :ui="{ content: 'w-(--reka-dropdown-menu-trigger-width)' }"
+            @update:model-value="updateFilter(filter.key, { operator: $event })"
+          />
+
+          <component
+            :is="getComponent(filter.component?.componentName)"
+            autofocus
+            :model-value="filter.value"
+            size="sm"
+            variant="soft"
+            v-bind="filter.component?.props"
+            @update:model-value="updateFilter(filter.key, { value: $event })"
+          />
+        </div>
+      </template>
+    </UPopover>
+
+    <USelectMenu
+      v-if="availableProperties.length && model.length < max"
+      :content="{ align: 'start' }"
+      :icon="appConfig.ui.icons.plus"
+      :items="availableProperties"
+      :model-value="null"
+      :placeholder="t('listFilter.filter')"
+      variant="soft"
+      :trailing-icon="false"
+      :ui="{ content: 'min-w-fit' }"
+      @update:model-value="addFilter"
+    />
+
+    <UButton
+      v-if="model.length"
+      color="neutral"
+      variant="ghost"
+      size="sm"
+      :label="t('listFilter.clearFilters')"
+      @click="clearFilters"
+    />
+  </div>
+</template>
+
+<script setup>
+// import UInput from '#ui/components/Input.vue'
+import { InputFilterText } from '#components'
+
+const props = defineProps({
+  properties: {
+    type: Object,
+    default: () => ({})
+  },
+
+  max: {
+    type: Number,
+    default: Infinity
+  }
+})
+
+// Model.
+const model = defineModel({
+  type: Array,
+  default: () => []
+})
+
+// Composables.
+const appConfig = useAppConfig()
+const { t } = useI18n()
+
+// Component mapping.
+const componentMap = {
+  InputFilterText
+}
+
+function getComponent(name) {
+  return componentMap[name] || 'div'
+}
+
+// Utils.
+function isEmpty(value) {
+  return [null, undefined, ''].includes(value)
+}
+
+function isFunction(value) {
+  return typeof value === 'function'
+}
+
+// Properties.
+const availableProperties = computed(() => {
+  const usedKeys = model.value.map(filter => filter.key)
+  const results = []
+
+  for (const key in props.properties) {
+    const property = props.properties[key]
+    const propertyType = usePropertyType(property.type)
+
+    if (!usedKeys.includes(key)) {
+      results.push({
+        key,
+        label: property.label,
+        icon: propertyType.value?.icon
+      })
+    }
+  }
+
+  return results
+})
+
+// Filters.
+const operators = useOperators()
+
+const filters = computed(() => model.value.map((filter) => {
+  const property = props.properties[filter.key]
+  const propertyType = usePropertyType(property.type)
+
+  const operatorConfig = propertyType.value?.operators.find(
+    operator => operator.value === filter.operator
+  )
+
+  return Object.assign(filter, {
+    label: isEmpty(filter.value) || !isFunction(operatorConfig?.mask)
+      ? property.label
+      : operatorConfig.mask(property.label, filter.value),
+
+    property,
+    propertyType: { icon: propertyType.value?.icon },
+
+    operators: propertyType.value?.operators.map(operator =>
+      operators.value[operator.value]
+    ),
+
+    component: propertyType.value?.resolveFilterInput?.(filter)
+  })
+}))
+
+function addFilter(filter) {
+  const property = props.properties[filter.key]
+  const propertyType = usePropertyType(property.type)
+
+  model.value.push({
+    key: filter.key,
+    operator: propertyType.value?.defaultOperator,
+    value: propertyType.value?.defaultValue
+  })
+}
+
+function updateFilter(key, updates) {
+  const index = model.value.findIndex(filter => filter.key === key)
+
+  if (~index) {
+    for (const key in updates) {
+      model.value[index][key] = updates[key]
+    }
+  }
+}
+
+function removeFilter(key) {
+  const index = model.value.findIndex(filter => filter.key === key)
+
+  if (~index) {
+    model.value.splice(index, 1)
+  }
+}
+
+function clearFilters() {
+  model.value = []
+}
+</script>

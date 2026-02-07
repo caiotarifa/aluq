@@ -70,6 +70,10 @@ export function describeEntities() {
   for (const [, entity] of entityRegistry) {
     lines.push('', `## ${entity.name} (${entity.label})`)
 
+    if (entity.aiDescription) {
+      lines.push('', entity.aiDescription)
+    }
+
     // List properties.
     const properties = Object.entries(entity.properties) || []
 
