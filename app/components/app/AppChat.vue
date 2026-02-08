@@ -173,8 +173,7 @@ async function onDeleteChat(id) {
     await refetchChats()
   }
 
-  catch (error) {
-    console.log(error)
+  catch {
     notifyError({
       title: t('chat.delete.error')
     })

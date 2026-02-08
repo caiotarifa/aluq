@@ -37,24 +37,24 @@ const props = defineProps({
   }
 })
 
-const query = defineModel('query', {
-  type: Object,
-  default: () => ({ sort: [] })
+const sort = defineModel('sort', {
+  type: Array,
+  default: () => []
 })
 
 // Sorting.
 const sorting = computed({
   get() {
-    return query.value.sort.map(sort => ({
-      id: sort.property,
-      desc: sort.direction === 'desc'
+    return sort.value.map(item => ({
+      id: item.property,
+      desc: item.direction === 'desc'
     }))
   },
 
   set(value) {
-    query.value.sort = value.map(sort => ({
-      property: sort.id,
-      direction: sort.desc ? 'desc' : 'asc'
+    sort.value = value.map(item => ({
+      property: item.id,
+      direction: item.desc ? 'desc' : 'asc'
     }))
   }
 })

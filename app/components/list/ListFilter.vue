@@ -2,14 +2,14 @@
   <div class="flex flex-wrap items-center gap-2">
     <UPopover
       v-for="filter in filters"
-      :key="filter.key"
+      :key="filter.property"
       :content="{ align: 'start' }"
       :ui="{ content: 'text-sm min-w-72' }"
     >
       <UButton
         :class="isEmpty(filter.value) ? 'bg-elevated/50 text-dimmed hover:bg-elevated' : ''"
         :color="isEmpty(filter.value) ? 'neutral' : 'primary'"
-        :icon="filter.property?.icon"
+        :icon="filter.propertyConfig?.icon"
         :trailing-icon="appConfig.ui.icons.chevronDown"
         :variant="isEmpty(filter.value) ? 'soft' : 'subtle'"
       >
@@ -24,12 +24,12 @@
         <header class="flex justify-between border-b border-default px-4 py-2 font-semibold">
           <div class="flex items-center gap-2">
             <UIcon
-              v-if="filter.property?.icon"
+              v-if="filter.propertyConfig?.icon"
               class="size-4"
-              :name="filter.property.icon"
+              :name="filter.propertyConfig.icon"
             />
 
-            {{ filter.property?.label }}
+            {{ filter.propertyConfig?.label }}
           </div>
 
           <UButton
@@ -38,7 +38,7 @@
             :label="t('listFilter.remove')"
             size="xs"
             variant="ghost"
-            @click="removeFilter(filter.key)"
+            @click="removeFilter(filter.property)"
           />
         </header>
 
@@ -49,7 +49,7 @@
             size="sm"
             :ui="{ content: 'w-(--reka-dropdown-menu-trigger-width)' }"
             variant="soft"
-            @update:model-value="updateFilter(filter.key, { operator: $event })"
+            @update:model-value="updateFilter(filter.property, { operator: $event })"
           />
 
           <component
@@ -59,7 +59,7 @@
             size="sm"
             variant="soft"
             v-bind="filter.component?.props"
-            @update:model-value="updateFilter(filter.key, { value: $event })"
+            @update:model-value="updateFilter(filter.property, { value: $event })"
           />
         </div>
       </template>
@@ -149,13 +149,13 @@ function isFunction(value) {
 
 // Available properties.
 const availableProperties = computed(() => {
-  const usedKeys = model.value.map(filter => filter.key)
+  const usedProperties = model.value.map(filter => filter.property)
   const results = []
 
   for (const key in filterableProperties.value) {
     const property = filterableProperties.value[key]
 
-    if (!usedKeys.includes(key)) {
+    if (!usedProperties.includes(key)) {
       results.push({
         key,
         label: property.label,
@@ -169,47 +169,47 @@ const availableProperties = computed(() => {
 
 // Filters.
 const filters = computed(() => model.value.map((filter) => {
-  const property = filterableProperties.value[filter.key]
+  const propertyConfig = filterableProperties.value[filter.property]
 
-  const operatorConfig = property.operators?.find(
+  const operatorConfig = propertyConfig.operators?.find(
     operator => operator.value === filter.operator
   )
 
   return Object.assign(filter, {
     label: isEmpty(filter.value) || !isFunction(operatorConfig?.mask)
-      ? property.label
-      : operatorConfig.mask(property.label, filter.value),
+      ? propertyConfig.label
+      : operatorConfig.mask(propertyConfig.label, filter.value),
 
-    property,
+    propertyConfig,
 
-    operators: property.operators,
+    operators: propertyConfig.operators,
 
-    component: property.resolveFilterInput?.(filter)
+    component: propertyConfig.resolveFilterInput?.(filter)
   })
 }))
 
-function addFilter(filter) {
-  const property = filterableProperties.value[filter.key]
+function addFilter(item) {
+  const propertyConfig = filterableProperties.value[item.key]
 
   model.value.push({
-    key: filter.key,
-    operator: property.defaultOperator,
-    value: property.defaultValue
+    property: item.key,
+    operator: propertyConfig.defaultOperator,
+    value: propertyConfig.defaultValue
   })
 }
 
-function updateFilter(key, updates) {
-  const index = model.value.findIndex(filter => filter.key === key)
+function updateFilter(property, updates) {
+  const index = model.value.findIndex(filter => filter.property === property)
 
   if (~index) {
-    for (const key in updates) {
-      model.value[index][key] = updates[key]
+    for (const field in updates) {
+      model.value[index][field] = updates[field]
     }
   }
 }
 
-function removeFilter(key) {
-  const index = model.value.findIndex(filter => filter.key === key)
+function removeFilter(property) {
+  const index = model.value.findIndex(filter => filter.property === property)
 
   if (~index) {
     model.value.splice(index, 1)

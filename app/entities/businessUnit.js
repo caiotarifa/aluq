@@ -20,16 +20,19 @@ export default {
     },
 
     name: {
-      type: 'text'
+      type: 'text',
+      searchable: true
     },
 
     legalName: {
-      type: 'text'
+      type: 'text',
+      searchable: true
     },
 
     taxId: {
       type: 'text',
-      icon: 'i-tabler-id'
+      icon: 'i-tabler-id',
+      searchable: true
     }
   },
 
@@ -57,6 +60,28 @@ export default {
       },
 
       query: {
+        sort: [{ property: 'name', direction: 'asc' }]
+      }
+    },
+
+    inactive: {
+      type: 'table',
+
+      properties: [
+        'name',
+        'legalName',
+        'taxId'
+      ],
+
+      ui: {
+        pinned: { left: ['isActive', 'name'] }
+      },
+
+      query: {
+        filter: [
+          { property: 'isActive', operator: 'equals', value: false }
+        ],
+
         sort: [{ property: 'name', direction: 'asc' }]
       }
     }

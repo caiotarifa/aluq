@@ -1,72 +1,92 @@
 const operators = {
   equals: {
     value: 'equals',
-    mask: (k, v) => `${k} = ${v}`
+    mask: (k, v) => `${k} = ${v}`,
+    where: (k, v) => ({ [k]: { equals: v } })
   },
 
   notEquals: {
     value: 'notEquals',
-    mask: (k, v) => `${k} ≠ ${v}`
+    mask: (k, v) => `${k} ≠ ${v}`,
+    where: (k, v) => ({ [k]: { not: { equals: v } } })
   },
 
   in: {
     value: 'in',
-    mask: (k, v) => `${k} ∈ [${v}]`
+    mask: (k, v) => `${k} ∈ [${v}]`,
+    where: (k, v) => ({ [k]: { in: v } })
   },
 
   notIn: {
     value: 'notIn',
-    mask: (k, v) => `${k} ∉ [${v}]`
+    mask: (k, v) => `${k} ∉ [${v}]`,
+    where: (k, v) => ({ [k]: { notIn: v } })
   },
 
   contains: {
     value: 'contains',
-    mask: (k, v) => `${k}: ${v}`
+    mask: (k, v) => `${k}: ${v}`,
+    where: (k, v) => ({ [k]: { contains: v, mode: 'insensitive' } })
   },
 
   notContains: {
     value: 'notContains',
-    mask: (k, v) => `${k}: ~~${v}~~`
+    mask: (k, v) => `${k}: ~~${v}~~`,
+    where: (k, v) => ({
+      [k]: { not: { contains: v, mode: 'insensitive' } }
+    })
   },
 
   startsWith: {
     value: 'startsWith',
-    mask: (k, v) => `${k}: ${v}…`
+    mask: (k, v) => `${k}: ${v}…`,
+    where: (k, v) => ({ [k]: { startsWith: v, mode: 'insensitive' } })
   },
 
   notStartsWith: {
     value: 'notStartsWith',
-    mask: (k, v) => `${k}: ~~${v}~~…`
+    mask: (k, v) => `${k}: ~~${v}~~…`,
+    where: (k, v) => ({
+      [k]: { not: { startsWith: v, mode: 'insensitive' } }
+    })
   },
 
   endsWith: {
     value: 'endsWith',
-    mask: (k, v) => `${k}: …${v}`
+    mask: (k, v) => `${k}: …${v}`,
+    where: (k, v) => ({ [k]: { endsWith: v, mode: 'insensitive' } })
   },
 
   notEndsWith: {
     value: 'notEndsWith',
-    mask: (k, v) => `${k}: …~~${v}~~`
+    mask: (k, v) => `${k}: …~~${v}~~`,
+    where: (k, v) => ({
+      [k]: { not: { endsWith: v, mode: 'insensitive' } }
+    })
   },
 
   lessThan: {
     value: 'lessThan',
-    mask: (k, v) => `${k} < ${v}`
+    mask: (k, v) => `${k} < ${v}`,
+    where: (k, v) => ({ [k]: { lt: v } })
   },
 
   lessThanOrEqual: {
     value: 'lessThanOrEqual',
-    mask: (k, v) => `${k} ≤ ${v}`
+    mask: (k, v) => `${k} ≤ ${v}`,
+    where: (k, v) => ({ [k]: { lte: v } })
   },
 
   greaterThan: {
     value: 'greaterThan',
-    mask: (k, v) => `${k} > ${v}`
+    mask: (k, v) => `${k} > ${v}`,
+    where: (k, v) => ({ [k]: { gt: v } })
   },
 
   greaterThanOrEqual: {
     value: 'greaterThanOrEqual',
-    mask: (k, v) => `${k} ≥ ${v}`
+    mask: (k, v) => `${k} ≥ ${v}`,
+    where: (k, v) => ({ [k]: { gte: v } })
   },
 
   between: {
@@ -74,45 +94,58 @@ const operators = {
 
     mask: (k, v) => {
       if (!v?.[0] && !v?.[1]) return k
+      if (v?.[0] && v?.[1]) return `${k}: ${v[0]} – ${v[1]}`
 
-      if (v?.[0] && v?.[1]) {
-        return `${k}: ${v[0]} – ${v[1]}`
-      }
+      return v?.[0] ? `${k} ≥ ${v[0]}` : `${k} ≤ ${v[1]}`
+    },
 
-      return v?.[0]
-        ? `${k} ≥ ${v[0]}`
-        : `${k} ≤ ${v[1]}`
-    }
+    where: (k, v) => ({ [k]: { between: v } })
   },
 
   isEmpty: {
     value: 'isEmpty',
-    mask: k => `${k} ∅`
+    mask: k => `${k} ∅`,
+    where: k => ({
+      OR: [
+        { [k]: { equals: null } },
+        { [k]: { equals: '' } }
+      ]
+    })
   },
 
   isNotEmpty: {
     value: 'isNotEmpty',
-    mask: k => `${k} ≠ ∅`
+    mask: k => `${k} ≠ ∅`,
+    where: k => ({
+      AND: [
+        { [k]: { not: { equals: null } } },
+        { [k]: { not: { equals: '' } } }
+      ]
+    })
   },
 
   some: {
     value: 'some',
-    mask: (k, v) => `${k}: ${v}`
+    mask: (k, v) => `${k}: ${v}`,
+    where: (k, v) => ({ [k]: { some: v } })
   },
 
   every: {
     value: 'every',
-    mask: (k, v) => `${k}: ${v}`
+    mask: (k, v) => `${k}: ${v}`,
+    where: (k, v) => ({ [k]: { every: v } })
   },
 
   none: {
     value: 'none',
-    mask: (k, v) => `${k}: ${v}`
+    mask: (k, v) => `${k}: ${v}`,
+    where: (k, v) => ({ [k]: { none: v } })
   },
 
   is: {
     value: 'is',
-    mask: (k, v) => `${k}: ${v}`
+    mask: (k, v) => `${k}: ${v}`,
+    where: (k, v) => ({ [k]: { is: v } })
   }
 }
 

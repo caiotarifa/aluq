@@ -10,19 +10,22 @@
 
           <InputSearch
             v-else
-            v-model="query.search"
+            :model-value="queryModel.search"
+            @update:model-value="updateQuery({ search: $event })"
           />
 
           <ListFilter
-            v-model="query.filters"
             :entity
+            :model-value="queryModel.filter"
+            @update:model-value="updateQuery({ filter: $event })"
           />
         </div>
 
         <div class="flex gap-2">
           <ListSort
-            v-model="query.sort"
             :entity
+            :model-value="queryModel.sort"
+            @update:model-value="updateQuery({ sort: $event })"
           />
 
           <UDropdownMenu
@@ -41,20 +44,22 @@
 
       <UTabs
         v-if="viewItems.length > 1"
-        v-model="viewModel"
         :content="false"
         :items="viewItems"
+        :model-value="queryModel.view"
         variant="link"
+        @update:model-value="updateQuery({ view: $event, page: 1 })"
       />
     </header>
 
     <slot>
       <ListTableView
-        v-model:query="query"
         :data="items"
         :loading
         :pinned="pinnedColumns"
         :properties="viewProperties"
+        :sort="queryModel.sort"
+        @update:sort="updateQuery({ sort: $event })"
       />
     </slot>
 
@@ -68,18 +73,20 @@
         </span>
 
         <USelect
-          v-model="query.size"
           :items="sizeOptions"
+          :model-value="queryModel.size"
           size="sm"
+          @update:model-value="onSizeChange"
         />
       </div>
 
       <UPagination
-        v-model:page="query.page"
         active-variant="subtle"
-        :items-per-page="query.size"
+        :items-per-page="queryModel.size"
+        :page="queryModel.page"
         size="sm"
         :total="totalItems"
+        @update:page="updateQuery({ page: $event })"
       />
     </footer>
 
@@ -98,7 +105,7 @@
     <ListEditView
       v-model:open="isEditViewOpen"
       :entity
-      :view="viewModel"
+      :view="queryModel.view"
       @update="onViewUpdate"
     />
   </div>
@@ -139,6 +146,27 @@ const emit = defineEmits([
 
 const { t } = useI18n()
 
+// Query.
+const queryModel = defineModel('query', {
+  type: Object,
+  default: () => ({})
+})
+
+function updateQuery(patch) {
+  queryModel.value = { ...queryModel.value, ...patch }
+}
+
+function onSizeChange(newSize) {
+  const { page, size: oldSize } = queryModel.value
+  const firstVisible = (page - 1) * oldSize + 1
+  const maxPage = Math.ceil(totalItems.value / newSize) || 1
+
+  updateQuery({
+    size: newSize,
+    page: Math.min(Math.ceil(firstVisible / newSize), maxPage)
+  })
+}
+
 // Items.
 const hasItems = computed(() =>
   props.items.length > 0
@@ -149,11 +177,6 @@ const totalItems = computed(() =>
 )
 
 // Views.
-const viewModel = defineModel('view', {
-  type: String,
-  default: ''
-})
-
 const viewItems = computed(() => {
   const result = []
 
@@ -167,14 +190,14 @@ const viewItems = computed(() => {
   return result
 })
 
-const viewConfig = computed(() =>
-  props.entity.views?.[viewModel.value] || {}
-)
+function onViewUpdate(payload) {
+  emit('view-update', payload)
+}
 
 // Properties.
 const viewProperties = computed(() => {
   const result = {}
-  const propertyKeys = viewConfig.value.properties || []
+  const propertyKeys = queryModel.value.properties || []
 
   for (const key of propertyKeys) {
     if (props.entity.properties?.[key]) {
@@ -186,7 +209,7 @@ const viewProperties = computed(() => {
 })
 
 const pinnedColumns = computed(() =>
-  viewConfig.value.ui?.pinned || { left: [], right: [] }
+  queryModel.value.pinned || { left: [], right: [] }
 )
 
 // Import modal.
@@ -197,10 +220,6 @@ const isExportOpen = ref(false)
 
 // Edit view slideover.
 const isEditViewOpen = ref(false)
-
-function onViewUpdate(payload) {
-  emit('view-update', payload)
-}
 
 // Adjustments menu.
 const adjustmentsMenu = computed(() => [
@@ -223,32 +242,4 @@ const adjustmentsMenu = computed(() => [
     onSelect: () => isEditViewOpen.value = true
   }
 ])
-
-// Query.
-const queryModel = defineModel('query', {
-  type: Object,
-  default: () => ({})
-})
-
-const query = reactive(Object.assign({
-  page: 1,
-  size: 25,
-  sort: [],
-  search: '',
-  filters: []
-}, queryModel.value))
-
-// Adjust page when size changes to keep the first visible item.
-watch(() => query.size, (newSize, oldSize) => {
-  const firstVisibleItem = (query.page - 1) * oldSize + 1
-  const newPage = Math.ceil(firstVisibleItem / newSize)
-  const maxPage = Math.ceil(totalItems.value / newSize) || 1
-
-  query.page = Math.min(newPage, maxPage)
-})
-
-// Sync query model.
-watch(query, () => {
-  queryModel.value = toRaw(query)
-}, { deep: true, flush: 'post' })
 </script>

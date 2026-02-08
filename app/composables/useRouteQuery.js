@@ -1,92 +1,72 @@
-import { z } from 'zod'
+import { isEqual } from 'es-toolkit'
 
-// Pagination.
-const positiveNumber = z.union([z.string(), z.number()])
-  .transform(Number)
-  .pipe(z.int().min(1))
+const parseMap = {
+  page: value => Math.max(1, Number(value) || 1),
+  size: value => Math.max(1, Number(value) || 25),
 
-// Sorting.
-const sortItem = z.object({
-  property: z.string(),
-  direction: z.union([z.literal('asc'), z.literal('desc')])
-})
-
-function sortTransform(input) {
-  const items = input.split(',')
-
-  return items.map((item) => {
-    const [property, direction] = item.split(':')
+  sort: value => value.split(',').map((segment) => {
+    const [property, direction] = segment.split(':')
     return { property, direction }
-  })
+  }),
+
+  filter: value => JSON.parse(value),
+  properties: value => value.split(',').filter(Boolean),
+  pinned: value => JSON.parse(value)
 }
 
-function sortSerialize(items) {
-  if (!items || !Array.isArray(items) || items.length === 0) return undefined
-  return items.map(item => `${item.property}:${item.direction}`).join(',')
+const serializeMap = {
+  sort: value => value.map(s => `${s.property}:${s.direction}`).join(','),
+  filter: value => JSON.stringify(value),
+  properties: value => value.join(','),
+  pinned: value => JSON.stringify(value)
 }
 
-// Parsing.
-const parseSchema = z.object({
-  page: positiveNumber.optional(),
-  size: positiveNumber.optional(),
-  sort: z.string().transform(sortTransform).pipe(z.array(sortItem)).optional()
-})
+function parse(key, raw) {
+  if (raw == null || raw === '') return undefined
 
-function parseQuery(query) {
-  const result = parseSchema.safeParse(query)
-  if (!result.success) return {}
-
-  const filtered = {}
-
-  for (const key in result.data) {
-    if (result.data[key] != null) filtered[key] = result.data[key]
+  try {
+    return parseMap[key] ? parseMap[key](raw) : raw
   }
-
-  return filtered
-}
-
-// Serialization.
-const serializeSchema = z.object({
-  page: positiveNumber.optional(),
-  size: positiveNumber.optional(),
-  sort: z.array(sortItem).optional()
-})
-
-function serializeQuery(query, defaults = {}) {
-  const result = serializeSchema.safeParse(query)
-  if (!result.success) return {}
-
-  const filtered = {}
-
-  for (const key in result.data) {
-    const value = result.data[key]
-
-    if (value == null || value === defaults[key]) {
-      filtered[key] = undefined
-    }
-    else {
-      filtered[key] = key === 'sort' ? sortSerialize(value) : value
-    }
+  catch {
+    return undefined
   }
-
-  return filtered
 }
 
-export function useRouteQuery(defaults = {}) {
+function serialize(key, value) {
+  if (value == null) return undefined
+  if (Array.isArray(value) && value.length === 0) return undefined
+
+  return serializeMap[key] ? serializeMap[key](value) : value
+}
+
+export function useRouteQuery(defaults) {
   const route = useRoute()
   const router = useRouter()
 
-  const query = computed({
+  return computed({
     get() {
-      return { ...defaults, ...parseQuery(route.query) }
+      const result = { ...toValue(defaults) }
+
+      for (const key in route.query) {
+        const parsed = parse(key, route.query[key])
+        if (parsed !== undefined) result[key] = parsed
+      }
+
+      return result
     },
 
     set(value) {
-      router.replace({
-        query: { ...route.query, ...serializeQuery(value, defaults) }
-      })
+      const base = toValue(defaults)
+      const params = {}
+
+      for (const key in value) {
+        if (isEqual(value[key], base[key])) continue
+
+        const serialized = serialize(key, value[key])
+        if (serialized != null) params[key] = serialized
+      }
+
+      router.replace({ query: params })
     }
   })
-
-  return query
 }
