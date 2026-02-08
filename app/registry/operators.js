@@ -26,42 +26,42 @@ const operators = {
   contains: {
     value: 'contains',
     mask: (k, v) => `${k}: ${v}`,
-    where: (k, v) => ({ [k]: { contains: v, mode: 'insensitive' } })
+    where: (k, v) => ({ [k]: { contains: v } })
   },
 
   notContains: {
     value: 'notContains',
     mask: (k, v) => `${k}: ~~${v}~~`,
     where: (k, v) => ({
-      [k]: { not: { contains: v, mode: 'insensitive' } }
+      [k]: { not: { contains: v } }
     })
   },
 
   startsWith: {
     value: 'startsWith',
     mask: (k, v) => `${k}: ${v}…`,
-    where: (k, v) => ({ [k]: { startsWith: v, mode: 'insensitive' } })
+    where: (k, v) => ({ [k]: { startsWith: v } })
   },
 
   notStartsWith: {
     value: 'notStartsWith',
     mask: (k, v) => `${k}: ~~${v}~~…`,
     where: (k, v) => ({
-      [k]: { not: { startsWith: v, mode: 'insensitive' } }
+      [k]: { not: { startsWith: v } }
     })
   },
 
   endsWith: {
     value: 'endsWith',
     mask: (k, v) => `${k}: …${v}`,
-    where: (k, v) => ({ [k]: { endsWith: v, mode: 'insensitive' } })
+    where: (k, v) => ({ [k]: { endsWith: v } })
   },
 
   notEndsWith: {
     value: 'notEndsWith',
     mask: (k, v) => `${k}: …~~${v}~~`,
     where: (k, v) => ({
-      [k]: { not: { endsWith: v, mode: 'insensitive' } }
+      [k]: { not: { endsWith: v } }
     })
   },
 

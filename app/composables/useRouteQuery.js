@@ -11,14 +11,14 @@ const parseMap = {
 
   filter: value => JSON.parse(value),
   properties: value => value.split(',').filter(Boolean),
-  pinned: value => JSON.parse(value)
+  pinned: value => value.split(',').filter(Boolean)
 }
 
 const serializeMap = {
   sort: value => value.map(s => `${s.property}:${s.direction}`).join(','),
   filter: value => JSON.stringify(value),
   properties: value => value.join(','),
-  pinned: value => JSON.stringify(value)
+  pinned: value => value.join(',')
 }
 
 function parse(key, raw) {

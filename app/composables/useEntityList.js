@@ -1,4 +1,3 @@
-import { merge } from 'es-toolkit'
 import { useStorage } from '@vueuse/core'
 
 export function useEntityList(entityName) {
@@ -15,28 +14,38 @@ export function useEntityList(entityName) {
     initOnMounted: true
   })
 
-  // Active view name from URL (avoids circular dependency with query).
+  // Active view name from URL.
   const viewName = computed(() =>
     route.query.view || entity.value?.display?.view || 'default'
   )
 
   // Merge entity view config with persisted overrides.
-  const activeView = computed(() =>
-    merge(
-      {},
-      entity.value?.views?.[viewName.value] || {},
-      persistedViews.value?.[viewName.value] || {}
-    )
-  )
+  const activeView = computed(() => {
+    const base = entity.value?.views?.[viewName.value] || {}
+    const persisted = persistedViews.value?.[viewName.value] || {}
+
+    return {
+      ...base,
+      ...persisted,
+
+      ui: {
+        ...base.ui,
+        ...persisted.ui,
+
+        pinned: {
+          ...base.ui?.pinned,
+          ...persisted.ui?.pinned
+        }
+      }
+    }
+  })
 
   // Query defaults for the active view.
   const defaults = computed(() => ({
     view: entity.value?.display?.view || 'default',
     type: activeView.value.type || 'table',
     properties: activeView.value.properties || [],
-    sort: activeView.value.query?.sort || [],
-    filter: activeView.value.query?.filter || [],
-    pinned: { left: [], right: [], ...activeView.value.ui?.pinned },
+    pinned: activeView.value.ui?.pinned?.left || [],
     page: 1,
     size: 25,
     search: ''
@@ -57,28 +66,39 @@ export function useEntityList(entityName) {
   // Query synced with URL.
   const query = useRouteQuery(defaults)
 
+  // Remote query: merges user query with view defaults.
+  const remoteQuery = computed(() => ({
+    ...query.value,
+
+    sort: query.value.sort?.length
+      ? query.value.sort
+      : activeView.value.query?.sort || [],
+
+    filter: [
+      ...(activeView.value.query?.filter || []),
+      ...(query.value.filter || [])
+    ]
+  }))
+
   // Remote data.
   const {
     list: { data: items, isLoading, refetch },
     count: { data: total }
   } = useRemoteList(
     entityName,
-    query,
+    remoteQuery,
     computed(() => ({ searchFields: searchFields.value }))
   )
 
   // View update: persist overrides + update query.
   function onViewUpdate({ view: updatedView, config }) {
-    const pinned = config.ui?.pinned || { left: [], right: [] }
+    const pinnedLeft = config.ui?.pinned?.left || []
 
     query.value = {
       ...toRaw(query.value),
-
-      ...({
-        type: config.type || 'table',
-        properties: config.properties || [],
-        pinned
-      })
+      type: config.type || 'table',
+      properties: config.properties || [],
+      pinned: pinnedLeft
     }
 
     const stored = persistedViews.value[updatedView] || {}
@@ -88,7 +108,10 @@ export function useEntityList(entityName) {
       properties: config.properties || []
     })
 
-    Object.assign(stored.ui || (stored.ui = {}), { pinned })
+    Object.assign(
+      stored.ui || (stored.ui = {}),
+      { pinned: { left: pinnedLeft } }
+    )
 
     persistedViews.value[updatedView] = stored
   }

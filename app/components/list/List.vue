@@ -48,7 +48,7 @@
         :items="viewItems"
         :model-value="queryModel.view"
         variant="link"
-        @update:model-value="updateQuery({ view: $event, page: 1 })"
+        @update:model-value="queryModel = { view: $event }"
       />
     </header>
 
@@ -105,7 +105,7 @@
     <ListEditView
       v-model:open="isEditViewOpen"
       :entity
-      :view="queryModel.view"
+      :query="queryModel"
       @update="onViewUpdate"
     />
   </div>
@@ -208,9 +208,14 @@ const viewProperties = computed(() => {
   return result
 })
 
-const pinnedColumns = computed(() =>
-  queryModel.value.pinned || { left: [], right: [] }
-)
+const pinnedColumns = computed(() => {
+  const view = queryModel.value.view
+
+  return {
+    left: queryModel.value.pinned || [],
+    right: props.entity.views?.[view]?.ui?.pinned?.right || []
+  }
+})
 
 // Import modal.
 const isImportOpen = ref(false)

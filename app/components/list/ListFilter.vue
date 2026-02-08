@@ -66,7 +66,7 @@
     </UPopover>
 
     <USelectMenu
-      v-if="availableProperties.length && model.length < max"
+      v-if="availableProperties.length && localFilters.length < max"
       :content="{ align: 'start' }"
       :icon="appConfig.ui.icons.plus"
       :items="availableProperties"
@@ -79,7 +79,7 @@
     />
 
     <UButton
-      v-if="model.length"
+      v-if="localFilters.length"
       color="neutral"
       :label="t('listFilter.clearFilters')"
       size="sm"
@@ -90,9 +90,15 @@
 </template>
 
 <script setup>
+import { useDebounceFn } from '@vueuse/core'
 import { InputFilterText } from '#components'
 
 const props = defineProps({
+  debounceTime: {
+    type: Number,
+    default: 500
+  },
+
   entity: {
     type: Object,
     required: true
@@ -109,6 +115,16 @@ const model = defineModel({
   type: Array,
   default: () => []
 })
+
+const localFilters = ref(
+  model.value.map(f => ({ ...f }))
+)
+
+const syncModel = useDebounceFn(() => {
+  model.value = localFilters.value.map(
+    ({ property, operator, value }) => ({ property, operator, value })
+  )
+}, props.debounceTime)
 
 // Composables.
 const appConfig = useAppConfig()
@@ -149,7 +165,10 @@ function isFunction(value) {
 
 // Available properties.
 const availableProperties = computed(() => {
-  const usedProperties = model.value.map(filter => filter.property)
+  const usedProperties = localFilters.value.map(
+    filter => filter.property
+  )
+
   const results = []
 
   for (const key in filterableProperties.value) {
@@ -168,7 +187,7 @@ const availableProperties = computed(() => {
 })
 
 // Filters.
-const filters = computed(() => model.value.map((filter) => {
+const filters = computed(() => localFilters.value.map((filter) => {
   const propertyConfig = filterableProperties.value[filter.property]
 
   const operatorConfig = propertyConfig.operators?.find(
@@ -191,32 +210,45 @@ const filters = computed(() => model.value.map((filter) => {
 function addFilter(item) {
   const propertyConfig = filterableProperties.value[item.key]
 
-  model.value.push({
+  localFilters.value = [...localFilters.value, {
     property: item.key,
     operator: propertyConfig.defaultOperator,
     value: propertyConfig.defaultValue
-  })
+  }]
+
+  syncModel()
 }
 
 function updateFilter(property, updates) {
-  const index = model.value.findIndex(filter => filter.property === property)
+  const copy = localFilters.value.slice()
+  const index = copy.findIndex(
+    filter => filter.property === property
+  )
 
   if (~index) {
-    for (const field in updates) {
-      model.value[index][field] = updates[field]
-    }
+    Object.assign(copy[index], updates)
+    localFilters.value = copy
   }
+
+  syncModel()
 }
 
 function removeFilter(property) {
-  const index = model.value.findIndex(filter => filter.property === property)
+  const copy = localFilters.value.slice()
+  const index = copy.findIndex(
+    filter => filter.property === property
+  )
 
   if (~index) {
-    model.value.splice(index, 1)
+    copy.splice(index, 1)
+    localFilters.value = copy
   }
+
+  syncModel()
 }
 
 function clearFilters() {
-  model.value = []
+  localFilters.value = []
+  syncModel()
 }
 </script>

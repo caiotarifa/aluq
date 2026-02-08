@@ -139,8 +139,8 @@ const props = defineProps({
     required: true
   },
 
-  view: {
-    type: String,
+  query: {
+    type: Object,
     required: true
   }
 })
@@ -160,10 +160,6 @@ const appConfig = useAppConfig()
 const isSaving = ref(false)
 
 // Views.
-const viewConfig = computed(() =>
-  props.entity.views?.[props.view] || {}
-)
-
 const viewTypeOptions = [
   {
     value: 'table',
@@ -172,7 +168,7 @@ const viewTypeOptions = [
   }
 ]
 
-const localViewType = ref(viewConfig.value.type || 'table')
+const localViewType = ref(props.query.type || 'table')
 
 // Properties.
 const entityProperties = computed(() => {
@@ -189,45 +185,45 @@ const entityProperties = computed(() => {
   return result
 })
 
-function buildLocalProperties() {
-  const viewProperties = viewConfig.value.properties || []
-  const pinnedLeft = viewConfig.value.ui?.pinned?.left || []
+const initialProperties = computed(() => {
+  if (!open.value) return []
 
-  const propertyMap = new Map()
+  const viewProperties = props.query.properties || []
+  const pinnedLeft = props.query.pinned || []
 
-  for (const property of entityProperties.value) {
-    propertyMap.set(property.key, {
-      ...property,
+  const propertyMap = new Map(
+    entityProperties.value.map(property => [
+      property.key,
 
-      visible: viewProperties.includes(property.key),
-      pinned: pinnedLeft.includes(property.key)
-    })
-  }
+      {
+        ...property,
+        visible: viewProperties.includes(property.key),
+        pinned: pinnedLeft.includes(property.key)
+      }
+    ])
+  )
 
-  const orderedProperties = []
-
-  for (const key of viewProperties) {
-    if (propertyMap.has(key)) {
-      orderedProperties.push(
-        propertyMap.get(key)
-      )
-
-      propertyMap.delete(key)
-    }
-  }
-
-  for (const [, property] of propertyMap) {
-    orderedProperties.push(property)
-  }
+  const orderedProperties = [
+    ...viewProperties
+      .filter(key => propertyMap.has(key))
+      .map((key) => {
+        const prop = propertyMap.get(key)
+        propertyMap.delete(key)
+        return prop
+      }),
+    ...propertyMap.values()
+  ]
 
   return orderPropertiesByPinned(orderedProperties)
-}
+})
 
-const localProperties = ref(buildLocalProperties())
+const localProperties = ref([])
 
 const draggableProperties = computed({
   get() {
-    return localProperties.value
+    return localProperties.value.length
+      ? localProperties.value
+      : initialProperties.value
   },
 
   set(properties) {
@@ -256,43 +252,52 @@ function orderPropertiesByPinned(properties) {
 
 // State.
 function resetState() {
-  localViewType.value = viewConfig.value.type || 'table'
-  localProperties.value = buildLocalProperties()
+  localViewType.value = props.query.type || 'table'
+  localProperties.value = []
 }
 
 // Visibility.
 const allVisible = computed(() =>
-  localProperties.value.every(property => property.visible)
+  draggableProperties.value.every(property => property.visible)
 )
 
 const noneVisible = computed(() =>
-  localProperties.value.every(property => !property.visible)
+  draggableProperties.value.every(property => !property.visible)
 )
 
 const visibleCount = computed(() =>
-  localProperties.value.filter(property => property.visible).length
+  draggableProperties.value.filter(property => property.visible).length
 )
 
+function ensureLocalCopy() {
+  if (!localProperties.value.length) {
+    localProperties.value = [...initialProperties.value]
+  }
+}
+
 function showAll() {
+  ensureLocalCopy()
+
   for (const property of localProperties.value) {
     property.visible = true
   }
 }
 
 function hideAll() {
+  ensureLocalCopy()
+
   for (const property of localProperties.value) {
     property.visible = false
   }
 }
 
 function toggleVisibility(key) {
-  const property = localProperties.value.find(item =>
-    item.key === key
-  )
+  ensureLocalCopy()
 
-  if (property) {
-    property.visible = !property.visible
-  }
+  const property = localProperties.value.find(item => item.key === key)
+  if (!property) return
+
+  property.visible = !property.visible
 
   if (!property.visible) {
     property.pinned = false
@@ -300,12 +305,13 @@ function toggleVisibility(key) {
 }
 
 function togglePin(key) {
-  const property = localProperties.value.find(item => item.key === key)
+  ensureLocalCopy()
 
-  if (property) {
-    property.pinned = !property.pinned
-    localProperties.value = orderPropertiesByPinned(localProperties.value)
-  }
+  const property = localProperties.value.find(item => item.key === key)
+  if (!property) return
+
+  property.pinned = !property.pinned
+  localProperties.value = orderPropertiesByPinned(localProperties.value)
 }
 
 // Actions.
@@ -320,7 +326,7 @@ function apply() {
     const properties = []
     const pinnedLeft = []
 
-    for (const property of localProperties.value) {
+    for (const property of draggableProperties.value) {
       if (!property.visible) continue
 
       properties.push(property.key)
@@ -331,19 +337,14 @@ function apply() {
     }
 
     emit('update', {
-      view: props.view,
+      view: props.query.view,
 
       config: {
-        ...viewConfig.value,
-
         type: localViewType.value,
         properties,
 
         ui: {
-          ...viewConfig.value.ui,
-
           pinned: {
-            ...viewConfig.value.ui?.pinned,
             left: pinnedLeft
           }
         }

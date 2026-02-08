@@ -9,7 +9,7 @@ function isEmptyFilterValue(value) {
 }
 
 function buildFilterWhere(filter) {
-  if (!Array.isArray(filter) || filter.length === 0) return null
+  if (!Array.isArray(filter) || filter.length === 0) return undefined
 
   const conditions = []
 
@@ -22,27 +22,26 @@ function buildFilterWhere(filter) {
     if (condition) conditions.push(condition)
   }
 
-  if (conditions.length === 0) return null
+  if (conditions.length === 0) return undefined
   if (conditions.length === 1) return conditions[0]
 
   return { AND: conditions }
 }
 
 function buildSearchWhere(search, fields = []) {
-  if (!search || !Array.isArray(fields) || fields.length === 0) return null
+  if (!search || !Array.isArray(fields) || fields.length === 0) {
+    return undefined
+  }
 
   const conditions = []
 
   for (const field of fields) {
     conditions.push({
-      [field]: {
-        contains: search,
-        mode: 'insensitive'
-      }
+      [field]: { contains: search }
     })
   }
 
-  if (conditions.length === 0) return null
+  if (conditions.length === 0) return undefined
 
   return { OR: conditions }
 }
@@ -70,46 +69,88 @@ export function useRemoteList(entity, query = {}, options = {}) {
   const client = useClientQueries(schema)
   const key = singularize(toValue(entity))
 
+  const defaultQuery = {
+    page: 1,
+    size: 25,
+    sort: [],
+    search: '',
+    filter: [],
+    properties: []
+  }
+
   if (!client[key]) {
     throw new Error(`Entity "${key}" not found in schema`)
   }
 
-  function resolvedQuery() {
+  const resolvedOptions = computed(() =>
+    toValue(options) || {}
+  )
+
+  function resolveEntity() {
+    const resolvedKey = singularize(toValue(entity))
+
+    if (resolvedKey !== key) {
+      throw new Error(
+        `Entity changed from "${key}" to "${resolvedKey}" after initialization`
+      )
+    }
+  }
+
+  const resolvedQuery = computed(() => {
+    resolveEntity()
+
     const { page, size, sort, search, filter, properties } = Object.assign(
-      { page: 1, size: 25, sort: [], search: '', filter: [], properties: [] },
+      {},
+      defaultQuery,
       toValue(query)
     )
 
-    const orderBy = sort.map(({ property, direction }) => ({ [property]: direction }))
-    const searchWhere = buildSearchWhere(search, toValue(options)?.searchFields)
+    const safePage = Number.isFinite(page) ? Math.max(1, page) : 1
+    const safeSize = Number.isFinite(size) ? Math.max(1, size) : 25
+
+    const orderBy = sort.map(item => ({
+      [item.property]: item.direction
+    }))
+
+    const searchWhere = buildSearchWhere(
+      search,
+      resolvedOptions.value.searchFields
+    )
+
     const filterWhere = buildFilterWhere(filter)
     const where = mergeWhere([searchWhere, filterWhere])
     const select = buildSelect(properties)
 
     const result = {
-      skip: (page - 1) * size,
-      take: size,
+      skip: (safePage - 1) * safeSize,
+      take: safeSize,
       orderBy
     }
 
-    if (where) result.where = where
-    if (select) result.select = select
+    if (where) {
+      result.where = where
+    }
+
+    if (select) {
+      result.select = select
+    }
 
     return result
-  }
+  })
 
   const list = client[key].useFindMany(
-    () => resolvedQuery(),
-    () => toValue(options)
+    () => resolvedQuery.value,
+    () => resolvedOptions.value
   )
 
   const count = client[key].useCount(
     () => {
-      const { where } = resolvedQuery()
+      const { where } = resolvedQuery.value
       return where ? { where } : {}
     },
+
     () => {
-      const resolved = toValue(options)
+      const resolved = resolvedOptions.value
 
       return Object.assign({}, resolved, {
         enabled: resolved?.needsCount !== false
