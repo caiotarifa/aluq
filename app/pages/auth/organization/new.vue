@@ -16,9 +16,9 @@
         </header>
 
         <UForm
+          class="space-y-4"
           :schema="createOrganizationSchema"
           :state="formState"
-          class="space-y-4"
           @submit="onSubmit"
         >
           <UFormField
@@ -72,6 +72,7 @@
 </template>
 
 <script setup>
+import { deburr } from 'es-toolkit/string'
 import { createOrganizationSchema } from '~/schemas/organization'
 
 definePageMeta({
@@ -98,7 +99,7 @@ const formState = reactive({
 
 // Generate slug from name.
 function generateSlug(name) {
-  formState.slug = slugify(name)
+  formState.slug = deburr(name).toLowerCase().replace(/\s+/g, '-')
 }
 
 // Submit form.

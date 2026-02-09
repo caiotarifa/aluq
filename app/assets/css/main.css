@@ -5,6 +5,22 @@
   --font-sans: 'Public Sans', sans-serif;
 }
 
+/* Utilities */
+@layer utilities {
+  .bg-landing-grid {
+    background-size: 100px 100px;
+    background-image:
+      linear-gradient(to right, var(--ui-bg-accented) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--ui-bg-accented) 1px, transparent 1px);
+  }
+
+  .dark .bg-landing-grid {
+    background-image:
+      linear-gradient(to right, var(--ui-bg-elevated) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--ui-bg-elevated) 1px, transparent 1px);
+  }
+}
+
 /* Transitions */
 .slide-up-enter-active,
 .slide-up-leave-active {

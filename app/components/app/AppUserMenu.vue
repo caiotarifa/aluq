@@ -116,7 +116,7 @@ const items = computed(() => [
     {
       label: t('appUserMenu.signOut'),
       icon: 'i-tabler-logout',
-      to: '/auth/logout'
+      to: '/auth/sign-out'
     }
   ]
 ])

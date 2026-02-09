@@ -1,6 +1,6 @@
 <template>
   <div class="flex min-h-screen items-center justify-center p-4">
-    <div class="landing-grid absolute inset-0 z-[-1] mask-[radial-gradient(100%_100%_at_top_right,white,transparent)]" />
+    <div class="bg-landing-grid absolute inset-0 z-[-1] mask-[radial-gradient(100%_100%_at_top_right,white,transparent)]" />
 
     <div
       class="flex w-full flex-col space-y-8"
@@ -56,20 +56,3 @@ defineProps({
 const { t } = useI18n()
 const currentYear = new Date().getFullYear()
 </script>
-
-<style scoped>
-.landing-grid {
-  background-size: 100px 100px;
-  background-image:
-    linear-gradient(to right, var(--ui-bg-accented) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--ui-bg-accented) 1px, transparent 1px);
-}
-
-.dark {
-  .landing-grid {
-    background-image:
-      linear-gradient(to right, var(--ui-bg-elevated) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--ui-bg-elevated) 1px, transparent 1px);
-  }
-}
-</style>

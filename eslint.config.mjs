@@ -13,7 +13,10 @@ export default withNuxt(
     },
 
     rules: {
-      'better-tailwindcss/enforce-consistent-line-wrapping': 'off'
+      'better-tailwindcss/enforce-consistent-line-wrapping': 'off',
+      'better-tailwindcss/no-unknown-classes': ['error', {
+        ignore: ['bg-landing-grid']
+      }]
     }
   },
 

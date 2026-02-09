@@ -15,8 +15,8 @@
           Lembrou a senha?
 
           <NuxtLink
-            to="/auth/sign-in"
             class="text-primary hover:underline"
+            to="/auth/sign-in"
           >
             Voltar para o login.
           </NuxtLink>

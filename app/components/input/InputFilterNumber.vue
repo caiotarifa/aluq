@@ -4,8 +4,8 @@
     class="flex items-center gap-2"
   >
     <UInput
-      :model-value="rangeStart"
       autofocus
+      :model-value="rangeStart"
       :placeholder="t('operators.greaterThanOrEqual')"
       size="sm"
       type="number"

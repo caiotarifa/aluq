@@ -16,6 +16,8 @@
 </template>
 
 <script setup>
+import { camelCase } from 'es-toolkit/string'
+
 const { t } = useI18n()
 const route = useRoute()
 

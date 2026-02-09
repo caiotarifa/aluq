@@ -92,7 +92,7 @@ definePageMeta({
 const date = ref('2024-06-15')
 const dateRange = ref([null, null])
 const time = ref('')
-const dateTime = ref('')
+// const dateTime = ref('')
 
 // const { activeOrganizationId, client } = useAuth()
 // const { organizations, fetchOrganizations } = useOrganization()

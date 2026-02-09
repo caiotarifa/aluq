@@ -12,8 +12,8 @@
       >
         <template #footer>
           <NuxtLink
-            :to="forgotPasswordLink"
             class="text-primary hover:underline"
+            :to="forgotPasswordLink"
           >
             Esqueci minha senha
           </NuxtLink>
@@ -25,8 +25,8 @@
           Não tem uma conta?
 
           <NuxtLink
-            to="/auth/sign-up"
             class="text-primary hover:underline"
+            to="/auth/sign-up"
           >
             Cadastre-se aqui.
           </NuxtLink>

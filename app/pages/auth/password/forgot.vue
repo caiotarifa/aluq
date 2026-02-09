@@ -14,8 +14,8 @@
       <template v-else>
         <div class="text-center">
           <UIcon
-            name="i-tabler-mail-fast"
             class="size-12 text-primary"
+            name="i-tabler-mail-fast"
           />
 
           <h2 class="text-2xl font-bold">
@@ -33,8 +33,8 @@
           Lembrou a senha?
 
           <NuxtLink
-            to="/auth/sign-in"
             class="text-primary hover:underline"
+            to="/auth/sign-in"
           >
             Voltar para o login.
           </NuxtLink>

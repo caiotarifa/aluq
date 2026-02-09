@@ -15,8 +15,8 @@
           Já tem uma conta?
 
           <NuxtLink
-            to="/auth/sign-in"
             class="text-sm text-primary hover:underline"
+            to="/auth/sign-in"
           >
             Faça login.
           </NuxtLink>

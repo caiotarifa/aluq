@@ -2,8 +2,8 @@
   <AppChat>
     <UContainer class="flex flex-1 flex-col gap-4 sm:gap-6">
       <UChatMessages
-        class="pb-4 sm:pb-6 lg:pt-(--ui-header-height)"
         :assistant="assistantConfig"
+        class="pb-4 sm:pb-6 lg:pt-(--ui-header-height)"
         :messages="chat.messages"
         should-auto-scroll
         :spacing-offset="190"
@@ -48,13 +48,13 @@
         <ChatPrompt
           v-model="input"
           v-model:model="model"
-          :models="models"
           :model-item="modelConfig"
+          :models="models"
           :placeholder="t('chat.placeholder')"
           :status="chat.status"
-          @submit="onSubmit"
-          @stop="chat.stop()"
           @reload="onReload"
+          @stop="chat.stop()"
+          @submit="onSubmit"
         />
 
         <div class="bg-default py-2.5 text-center text-xs text-dimmed/75">

@@ -79,8 +79,8 @@
               >
                 <UInput
                   class="w-full"
-                  :value="userEmail"
                   readonly
+                  :value="userEmail"
                 />
 
                 <CopyButton

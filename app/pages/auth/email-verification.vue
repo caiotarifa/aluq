@@ -3,8 +3,8 @@
     <AuthCard>
       <div class="space-y-4 text-center">
         <UIcon
-          :name="currentStatus.icon"
           :class="['size-12', currentStatus.iconClass]"
+          :name="currentStatus.icon"
         />
 
         <h2 class="text-2xl font-bold">
@@ -38,8 +38,8 @@
           Quer usar outro e-mail?
 
           <NuxtLink
-            to="/auth/sign-out"
             class="text-primary hover:underline"
+            to="/auth/sign-out"
           >
             Sair e criar nova conta.
           </NuxtLink>

@@ -3,14 +3,14 @@
     <AuthCard class="text-center">
       <UIcon
         v-if="isSigningOut"
-        :name="appConfig.ui.icons.loading"
         class="size-12 animate-spin text-muted"
+        :name="appConfig.ui.icons.loading"
       />
 
       <UIcon
         v-else
-        :name="appConfig.ui.icons.success"
         class="size-12 text-green-500"
+        :name="appConfig.ui.icons.success"
       />
 
       <h2 class="text-2xl font-bold">
@@ -26,8 +26,8 @@
           Deseja entrar novamente?
 
           <NuxtLink
-            to="/auth/sign-in"
             class="text-primary hover:underline"
+            to="/auth/sign-in"
           >
             Fazer login.
           </NuxtLink>

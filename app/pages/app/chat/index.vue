@@ -20,8 +20,8 @@
         <ChatPrompt
           v-model="input"
           v-model:model="model"
-          :models
           :model-item="modelConfig"
+          :models
           :placeholder="t('chat.placeholder')"
           :status="isSubmitting ? 'submitted' : 'ready'"
           @submit="onSubmit"
@@ -31,10 +31,10 @@
           <UButton
             v-for="(suggestion, index) in tm('chat.suggestions')"
             :key="index"
-            icon="i-tabler-message"
             color="neutral"
-            variant="outline"
+            icon="i-tabler-message"
             :ui="{ leadingIcon: 'mr-1 size-6 text-dimmed' }"
+            variant="outline"
             @click="fillPrompt(rt(suggestion.prompt))"
           >
             <div class="text-left">
