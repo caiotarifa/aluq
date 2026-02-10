@@ -7,10 +7,21 @@ no: Não
 
 actions:
   back: Voltar
+
   cancel: Cancelar
+  canceling: Cancelando...
+
   create: Criar {0}
+  creating: Criando...
+
   delete: Excluir
+  deleting: Excluindo...
+
   done: Concluir
+  completing: Concluindo...
+
+  submit: Salvar
+  submiting: Salvando...
 
 # Brand
 brand:
@@ -18,7 +29,33 @@ brand:
 
 # Messages
 messages:
-  unexpectedError: 'Ocorreu um erro inesperado.'
+  fetchError:
+    title: Ops! Erro ao carregar.
+    description: Ocorreu um erro ao carregar {item}.
+
+  confirmDelete:
+    title: Tem certeza que deseja excluir {item}?
+    description: Essa ação não poderá ser desfeita.
+
+  deleteError:
+    title: Ops! Erro ao excluir.
+    description: Ocorreu um erro ao excluir {item}.
+
+  deleteSuccess:
+    title: Excluído!
+    description: Excluímos {item} com sucesso.
+
+  submitError:
+    title: Ops! Erro ao salvar.
+    description: Ocorreu um erro ao salvar {item}.
+
+  submitSuccess:
+    title: Tudo certo!
+    description: Salvamos {item} com sucesso.
+
+  unexpectedError:
+    title: Ops! Algo deu errado.
+    description: Ocorreu um erro inesperado. Tente novamente.
 
   auth:
     signedIn: 'Bem-vindo de volta!'
@@ -251,7 +288,8 @@ chatToolEmail:
 
 # Entities
 businessUnit:
-  title: Empresas
+  title: Empresa | Empresas
+  items: a empresa | as empresas
 
   actions:
     create: '@:actions.create empresa'
@@ -267,3 +305,6 @@ businessUnit:
     taxId: Documento
     createdAt: Criado em
     updatedAt: Atualizado em
+
+  fieldsets:
+    general: Dados gerais

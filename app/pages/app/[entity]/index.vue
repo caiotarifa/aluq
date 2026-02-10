@@ -1,7 +1,7 @@
 <template>
   <AppPage
     :actions="entity.actions"
-    :title="t(`${entityName}.title`)"
+    :title="t(`${entityName}.title`, 2)"
     :ui="{ body: 'pb-0 sm:pb-0' }"
   >
     <List

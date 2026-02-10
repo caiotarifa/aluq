@@ -1,5 +1,3 @@
-import { useClientQueries } from '@zenstackhq/tanstack-query/vue'
-import { schema } from '../../zenstack/schema'
 import { isEmptyOperator, operators } from '~/registry/operators.js'
 
 function isEmptyFilterValue(value) {
@@ -66,7 +64,7 @@ function mergeWhere(conditions = []) {
 }
 
 export function useRemoteList(entity, query = {}, options = {}) {
-  const client = useClientQueries(schema)
+  const { client } = useRemote()
   const key = singularize(toValue(entity))
 
   const defaultQuery = {

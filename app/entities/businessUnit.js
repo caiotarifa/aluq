@@ -87,6 +87,21 @@ export default {
     }
   },
 
+  form: {
+    fieldsets: [
+      {
+        name: 'general',
+        class: 'grid grid-cols-12 gap-4',
+        fields: [
+          { property: 'name', class: 'col-span-12 md:col-span-6' },
+          { property: 'legalName', class: 'col-span-12 md:col-span-6' },
+          { property: 'taxId', class: 'col-span-12 md:col-span-4' },
+          { property: 'isActive', class: 'col-span-12 md:col-span-2' }
+        ]
+      }
+    ]
+  },
+
   actions: [{
     create: {
       icon: 'i-tabler-plus',

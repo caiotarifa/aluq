@@ -8,11 +8,8 @@ const endings = {
   s: ''
 }
 
-const endingsKeys = Object.keys(endings).join('|')
+const pattern = new RegExp(`(${Object.keys(endings).join('|')})$`)
 
 export default function singularize(input) {
-  return input.replace(
-    new RegExp(`(${endingsKeys})$`),
-    r => endings[r]
-  )
+  return input.replace(pattern, r => endings[r])
 }
