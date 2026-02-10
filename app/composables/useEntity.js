@@ -27,19 +27,27 @@ function resolveOperators(t) {
   return resolvedOperators
 }
 
-function resolveProperties(properties, entityName, t) {
+function resolveProperties(properties, entityName, t, resolvedOperators) {
   const resolvedProperties = {}
 
   for (const propertyKey in properties || {}) {
     const property = properties[propertyKey]
     const propertyType = resolvePropertyType(property.type)
 
-    resolvedProperties[propertyKey] = {
+    const resolved = {
       ...propertyType,
       ...property,
       label: t(`${entityName}.properties.${propertyKey}`),
       propertyType
     }
+
+    if (propertyType.operators) {
+      resolved.operators = propertyType.operators.map(
+        operator => resolvedOperators[operator.value] || operator
+      )
+    }
+
+    resolvedProperties[propertyKey] = resolved
   }
 
   return resolvedProperties
@@ -110,10 +118,12 @@ export function useEntity(name) {
       throw new Error(`Entity "${entityName}" not found`)
     }
 
+    const resolvedOperators = resolveOperators(t)
+
     return {
       ...source,
-      operators: resolveOperators(t),
-      properties: resolveProperties(source.properties, entityName, t),
+      operators: resolvedOperators,
+      properties: resolveProperties(source.properties, entityName, t, resolvedOperators),
       views: resolveViews(source.views, entityName, t),
       actions: resolveActions(source.actions, entityName, t)
     }
