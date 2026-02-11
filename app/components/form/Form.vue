@@ -10,6 +10,7 @@
       :key="field.property"
       v-model="state[field.property]"
       :class="field.class"
+      :loading="fetching"
       :name="field.property"
       :property="entity.properties[field.property]"
     />
@@ -29,6 +30,7 @@
         :key="field.property"
         v-model="state[field.property]"
         :class="field.class"
+        :loading="fetching"
         :name="field.property"
         :property="entity.properties[field.property]"
       />

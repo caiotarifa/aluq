@@ -3,8 +3,14 @@
     :label="property.label"
     :name="name"
   >
+    <USkeleton
+      v-if="loading"
+      class="h-8 w-full"
+    />
+
     <component
       :is="inputComponent"
+      v-else
       v-model="model"
       class="w-full"
       v-bind="inputProps"
@@ -25,6 +31,11 @@ import {
 } from '#components'
 
 const props = defineProps({
+  loading: {
+    type: Boolean,
+    default: false
+  },
+
   name: {
     type: String,
     required: true

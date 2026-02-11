@@ -124,11 +124,11 @@ Quando a requisição de listagem falha (erro de rede, 500), nenhum feedback é 
 
 ---
 
-## 2. Experiência de Carregamento (Skeleton / Loading States)
+## 2. ✅ Experiência de Carregamento (Skeleton / Loading States)
 
 Garantir que todas as telas genéricas tenham feedback visual de loading.
 
-### 2.1 ⭐🟡 Implementar skeleton loading no List
+### 2.1 ✅ Implementar skeleton loading no List
 
 **Arquivos principais:** `app/components/list/List.vue`, `app/components/list/ListTableView.vue`
 
@@ -143,7 +143,7 @@ O `ListTableView` já recebe a prop `loading`, mas não renderiza skeletons na t
 
 ---
 
-### 2.2 ⭐🟡 Implementar skeleton loading no Form
+### 2.2 ✅ Implementar skeleton loading no Form
 
 **Arquivos principais:** `app/components/form/Form.vue`, `app/components/form/FormField.vue`, `app/components/input/`
 
