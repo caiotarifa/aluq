@@ -39,9 +39,9 @@ export default {
   schema: z.object({
     id: z.string().optional(),
     isActive: z.boolean().optional().default(true),
-    name: z.string(),
-    legalName: z.string().optional(),
-    taxId: z.string().optional()
+    name: z.string().trim().min(1),
+    legalName: z.string().trim().optional(),
+    taxId: z.string().trim().optional()
   }),
 
   views: {

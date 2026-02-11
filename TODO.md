@@ -12,6 +12,7 @@ Checklist estrutural para solidificar a base antes de escalar entidades.
 | 🟡 | Esforço médio — ~2h a ~6h |
 | 🔴 | Esforço alto — ~6h+ |
 | ⭐ | Bloqueia ou impacta diretamente a criação de novas entidades |
+| ✅ | Concluído |
 
 ---
 
@@ -19,7 +20,7 @@ Checklist estrutural para solidificar a base antes de escalar entidades.
 
 > Itens que impedem o uso correto do que já existe. Resolver antes de tudo.
 
-### 1.1 ⭐🟡 Redesenhar sistema de filtros na URL (legibilidade)
+### 1.1 ✅ Redesenhar sistema de filtros na URL (legibilidade)
 
 **Arquivos principais:** `app/composables/useRouteQuery.js`, `app/composables/useEntityList.js`, `app/components/list/ListFilter.vue`
 
@@ -38,7 +39,7 @@ O problema dos filtros não é um bug, mas sim um **erro de design**. Atualmente
 
 ---
 
-### 1.2 ⭐🟡 Forçar validação Zod ao submeter Form
+### 1.2 ✅ Forçar validação Zod ao submeter Form
 
 **Arquivos principais:** `app/components/form/Form.vue`, `app/entities/businessUnit.js`
 

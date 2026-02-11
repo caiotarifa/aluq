@@ -7,7 +7,7 @@ function buildInitialState(entity) {
     if (excludedProperties.includes(key)) continue
 
     const property = entity.properties[key]
-    state[key] = property.defaultValue ?? null
+    state[key] = property.defaultValue ?? undefined
   }
 
   return state
@@ -18,7 +18,9 @@ function buildPayload(state) {
 
   for (const field in state) {
     if (excludedProperties.includes(field)) continue
-    payload[field] = toRaw(state[field])
+
+    const value = toRaw(state[field])
+    payload[field] = value === undefined ? null : value
   }
 
   return payload
