@@ -131,6 +131,11 @@ const props = defineProps({
   total: {
     type: Number,
     default: 0
+  },
+
+  viewCounts: {
+    type: Object,
+    default: () => ({})
   }
 })
 
@@ -176,9 +181,12 @@ const viewItems = computed(() => {
   const result = []
 
   for (const key in props.entity.views) {
+    const count = props.viewCounts[key]
+
     result.push({
       value: key,
-      label: props.entity.views[key].label || key
+      label: props.entity.views[key].label || key,
+      badge: count != null ? String(count) : undefined
     })
   }
 

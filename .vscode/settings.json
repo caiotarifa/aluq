@@ -27,9 +27,15 @@
   "nuxtr.vueFiles.style.alwaysScoped": true,
   "nuxtr.vueFiles.style.defaultLanguage": "css",
 
-  "tailwindCSS.classAttributes": ["class", "ui"],
+  "tailwindCSS.classAttributes": [
+    "class",
+    "ui"
+  ],
 
   "tailwindCSS.experimental.classRegex": [
-    ["ui:\\s*{([^)]*)\\s*}", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+    [
+      "ui:\\s*{([^)]*)\\s*}",
+      "(?:'|\"|`)([^']*)(?:'|\"|`)"
+    ]
   ]
 }

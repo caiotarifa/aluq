@@ -81,14 +81,50 @@ export function useEntityList(entityName) {
   }))
 
   // Remote data.
-  const {
-    list: { data: items, isLoading, refetch },
-    count: { data: total }
-  } = useRemoteList(
+  const { data: items, isLoading, refetch } = useRemoteList(
     entityName,
     remoteQuery,
     computed(() => ({ searchFields: searchFields.value }))
   )
+
+  // View counts.
+  const counts = {}
+
+  for (const key in entity.value?.views || {}) {
+    const view = entity.value.views[key]
+    const viewFilter = view.query?.filter || []
+
+    counts[key] = useRemoteCount(
+      entityName,
+
+      computed(() => ({
+        filter: [...viewFilter, ...(query.value.filter || [])],
+        search: query.value.search
+      })),
+
+      computed(() => ({ searchFields: searchFields.value }))
+    )
+  }
+
+  const viewCounts = computed(() => {
+    const result = {}
+
+    for (const key in counts) {
+      result[key] = counts[key].data?.value ?? 0
+    }
+
+    return result
+  })
+
+  // Total for active view.
+  const total = computed(() =>
+    viewCounts.value[viewName.value] ?? 0
+  )
+
+  // Reset pagination when switching tabs.
+  watch(viewName, () => {
+    query.value = { ...query.value, page: 1, size: 25 }
+  })
 
   // View update: persist overrides + update query.
   function onViewUpdate({ view: updatedView, config }) {
@@ -123,6 +159,7 @@ export function useEntityList(entityName) {
     query,
     refetch,
     total,
+    viewCounts,
 
     onViewUpdate
   }

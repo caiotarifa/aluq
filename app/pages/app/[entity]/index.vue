@@ -10,6 +10,7 @@
       :items
       :loading="isLoading"
       :total
+      :view-counts
       @view-update="onViewUpdate"
     />
   </AppPage>
@@ -29,8 +30,10 @@ const {
   entity,
   isLoading,
   items,
-  onViewUpdate,
   query,
-  total
+  total,
+  viewCounts,
+
+  onViewUpdate
 } = useEntityList(entityName)
 </script>

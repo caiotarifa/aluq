@@ -155,11 +155,14 @@ const source = ref('current')
 // Remote list for paginated export.
 const exportQuery = ref({ page: 1, size: props.pageSize })
 
-const { list, count } = useRemoteList(
+const createRemote = composable => composable(
   () => props.entity.name,
   exportQuery,
   () => ({ enabled: isExporting.value && source.value === 'all' })
 )
+
+const list = createRemote(useRemoteList)
+const count = createRemote(useRemoteCount)
 
 // Modal.
 function closeModal() {
