@@ -9,7 +9,7 @@ model BusinessUnit with BaseModel {
   isActive Boolean @default(true)
 
   // Identity.
-  name String
+  name String @length(1)
   legalName String?
   taxId String?
 

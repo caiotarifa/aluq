@@ -3,14 +3,10 @@
     v-model:sorting="sorting"
     :column-pinning="columnPinning"
     :columns
-    :data
+    :data="tableData"
     :loading
     sticky
-    :ui="{
-      root: 'overflow-clip',
-      td: loading ? 'blur opacity-50 pointer-events-none' : '',
-      thead: '-top-4 sm:-top-6'
-    }"
+    :ui="{ root: 'overflow-clip', thead: '-top-4 sm:-top-6' }"
   />
 </template>
 
@@ -34,6 +30,11 @@ const props = defineProps({
   properties: {
     type: Object,
     default: () => ({})
+  },
+
+  size: {
+    type: Number,
+    default: 5
   }
 })
 
@@ -41,6 +42,29 @@ const sort = defineModel('sort', {
   type: Array,
   default: () => []
 })
+
+// Skeleton data.
+const USkeleton = resolveComponent('USkeleton')
+
+const skeletonData = computed(() => {
+  if (!props.loading || props.data.length > 0) return null
+
+  const keys = Object.keys(props.properties)
+
+  return Array.from({ length: props.size }, () => {
+    const row = { _skeleton: true }
+
+    for (const key of keys) {
+      row[key] = null
+    }
+
+    return row
+  })
+})
+
+const tableData = computed(() =>
+  skeletonData.value || props.data
+)
 
 // Sorting.
 const sorting = computed({
@@ -68,7 +92,16 @@ const columns = computed(() => {
 
     results.push({
       accessorKey: key,
-      header: ({ column }) => getHeader(column, property)
+
+      header: ({ column }) => getHeader(column, property),
+
+      cell: ({ row }) => {
+        if (row.original._skeleton) {
+          return h(USkeleton, { class: 'h-4 w-full max-w-48' })
+        }
+
+        return row.getValue(key)
+      }
     })
   }
 

@@ -3,13 +3,7 @@
     <header class="space-y-2 sm:space-y-4">
       <div class="flex w-full items-start justify-between gap-4">
         <div class="flex items-start gap-2">
-          <USkeleton
-            v-if="loading"
-            class="h-8 w-61.25"
-          />
-
           <InputSearch
-            v-else
             :model-value="queryModel.search"
             @update:model-value="updateQuery({ search: $event })"
           />
@@ -58,6 +52,7 @@
         :loading
         :pinned="pinnedColumns"
         :properties="viewProperties"
+        :size="queryModel.size"
         :sort="queryModel.sort"
         @update:sort="updateQuery({ sort: $event })"
       />
