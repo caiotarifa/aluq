@@ -49,8 +49,6 @@
 </template>
 
 <script setup>
-import { LazyModalConfirm } from '#components'
-
 const appConfig = useAppConfig()
 const route = useRoute()
 const { t, d } = useI18n()
@@ -137,53 +135,30 @@ const groupedChats = computed(() => {
 })
 
 // Delete.
-const overlay = useOverlay()
-const { notifySuccess, notifyError } = useNotify()
+const { confirmDialog } = useDialog()
+const { notifySuccess } = useNotify()
 const deleteChat = client.chat.useDelete()
 
-const isDeleting = ref(false)
-
-const deleteModal = overlay.create(LazyModalConfirm, {
-  props: {
+async function onDeleteChat(id) {
+  const result = await confirmDialog({
     title: t('chat.delete.title'),
     description: t('chat.delete.description'),
-    loading: isDeleting.value
-  }
-})
+    confirmLabel: t('actions.delete'),
 
-async function onDeleteChat(id) {
-  const instance = deleteModal.open()
-  const result = await instance.result
+    action: async () => {
+      await deleteChat.mutateAsync({
+        where: { id }
+      })
 
-  if (!result) {
-    return
-  }
+      notifySuccess({
+        title: t('chat.delete.success')
+      })
 
-  try {
-    isDeleting.value = true
+      await refetchChats()
+    }
+  })
 
-    await deleteChat.mutateAsync({
-      where: { id }
-    })
-
-    notifySuccess({
-      title: t('chat.delete.success')
-    })
-
-    await refetchChats()
-  }
-
-  catch {
-    notifyError({
-      title: t('chat.delete.error')
-    })
-  }
-
-  finally {
-    isDeleting.value = false
-  }
-
-  if (route.params.id === id) {
+  if (result && route.params.id === id) {
     navigateTo('/app/chat')
   }
 }

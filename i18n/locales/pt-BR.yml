@@ -11,6 +11,9 @@ actions:
   cancel: Cancelar
   canceling: Cancelando...
 
+  confirm: Confirmar
+  confirming: Confirmando...
+
   create: Criar {0}
   creating: Criando...
 
@@ -19,6 +22,8 @@ actions:
 
   done: Concluir
   completing: Concluindo...
+
+  ok: Ok!
 
   submit: Salvar
   submiting: Salvando...

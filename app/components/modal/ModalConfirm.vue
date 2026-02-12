@@ -2,15 +2,16 @@
   <UModal
     :close="false"
     :description
-    :dismissible="false"
+    :dismissible="!loading"
     :title
     :ui="{ footer: 'flex-row-reverse justify-start' }"
   >
     <template #footer>
       <UButton
-        :label="t('actions.delete')"
+        color="error"
+        :label="confirmLabel || t('actions.confirm')"
         :loading
-        @click="emit('close', true)"
+        @click="onConfirm"
       />
 
       <UButton
@@ -27,15 +28,20 @@
 <script setup>
 const { t } = useI18n()
 
-defineProps({
-  description: {
+const props = defineProps({
+  action: {
+    type: Function,
+    default: null
+  },
+
+  confirmLabel: {
     type: String,
     default: ''
   },
 
-  loading: {
-    type: Boolean,
-    default: false
+  description: {
+    type: String,
+    default: ''
   },
 
   title: {
@@ -47,4 +53,23 @@ defineProps({
 const emit = defineEmits([
   'close'
 ])
+
+const loading = ref(false)
+
+async function onConfirm() {
+  if (!props.action) {
+    emit('close', true)
+    return
+  }
+
+  try {
+    loading.value = true
+    await props.action()
+    emit('close', true)
+  }
+
+  finally {
+    loading.value = false
+  }
+}
 </script>

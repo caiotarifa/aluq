@@ -411,9 +411,9 @@ O projeto usa apenas pt-BR. Existem inconsistências nas chaves de tradução e 
 
 ---
 
-## 7. Refatoração Técnica
+## 7. ✅ Refatoração Técnica
 
-### 7.1 🟡 Refatorar `useRemoteList` para buscar contadores das abas separadamente
+### 7.1 ✅ Refatorar `useRemoteList` para buscar contadores das abas separadamente
 
 **Arquivos principais:** `app/composables/useRemoteList.js`, `app/composables/useEntityList.js`, `app/components/list/List.vue`
 
@@ -670,7 +670,7 @@ Quando a lista não tem registros, não existe nenhuma UI de empty state.
 
 ---
 
-### 12.3 🟢 Confirmação de ações destrutivas (ModalConfirm e ModalAlert)
+### 12.3 ✅ Confirmação de ações destrutivas (ModalConfirm e ModalAlert)
 
 **Arquivos principais:** `app/components/modal/ModalConfirm.vue`, `app/components/modal/ModalAlert.vue` (novo), `app/composables/useConfirm.js` (novo), `app/composables/useAlert.js` (novo)
 
