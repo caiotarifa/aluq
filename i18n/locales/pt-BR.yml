@@ -106,6 +106,16 @@ list:
   exportData: Exportar dados
   editView: Editar visualização
 
+listEmptyState:
+  noRecords:
+    title: Nenhum item encontrado
+    description: Você ainda não tem {entity}.
+
+  noResults:
+    title: Nenhum resultado encontrado
+    description: Tente outros filtros para encontrar o que procura.
+    descriptionSearch: Não encontramos resultados para "{search}".
+
 operators:
   equals: igual a
   notEquals: diferente de

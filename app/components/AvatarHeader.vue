@@ -74,8 +74,8 @@ const colorClasses = {
   },
 
   neutral: {
-    background: 'bg-neutral/10',
-    text: 'text-neutral'
+    background: 'bg-muted',
+    text: 'text-dimmed'
   }
 }
 

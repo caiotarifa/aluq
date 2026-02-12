@@ -47,8 +47,16 @@
     </header>
 
     <slot>
+      <ListEmptyState
+        v-if="emptyStateType"
+        :entity
+        :search="queryModel.search"
+        :type="emptyStateType"
+        @clear="onClearFilters"
+      />
+
       <ListCardView
-        v-if="queryModel.type === 'cards'"
+        v-else-if="queryModel.type === 'cards'"
         :data="items"
         :entity
         :loading
@@ -59,6 +67,7 @@
       <ListTableView
         v-else
         :data="items"
+        :entity
         :loading
         :pinned="pinnedColumns"
         :properties="viewProperties"
@@ -260,4 +269,22 @@ const adjustmentsMenu = computed(() => [
     onSelect: () => isEditViewOpen.value = true
   }
 ])
+
+// Empty state.
+const emptyStateType = computed(() => {
+  if (props.loading || hasItems.value) return null
+
+  if (queryModel.value.search || queryModel.value.filter?.length > 0) {
+    return 'no-results'
+  }
+
+  return 'no-records'
+})
+
+function onClearFilters() {
+  updateQuery({
+    search: '',
+    filter: []
+  })
+}
 </script>

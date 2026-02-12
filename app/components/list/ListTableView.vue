@@ -7,6 +7,8 @@
     :loading
     sticky
     :ui="{ root: 'overflow-clip', thead: '-top-4 sm:-top-6' }"
+    @hover="onHover"
+    @select="onSelect"
   />
 </template>
 
@@ -15,6 +17,11 @@ const props = defineProps({
   data: {
     type: Array,
     default: () => []
+  },
+
+  entity: {
+    type: Object,
+    default: () => ({})
   },
 
   loading: {
@@ -112,6 +119,21 @@ const columnPinning = computed(() => ({
   left: props.pinned?.left || [],
   right: props.pinned?.right || []
 }))
+
+// Navigation.
+const route = useRoute()
+const hoveredRow = ref(null)
+
+function onHover(_, row) {
+  hoveredRow.value = row
+}
+
+function onSelect(_, row) {
+  if (row.original._skeleton) return
+
+  const id = row.original.id
+  navigateTo(`/app/${route.params.entity}/${id}`)
+}
 
 function getHeader(column, property) {
   const nodes = []

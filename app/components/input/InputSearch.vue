@@ -62,6 +62,12 @@ const syncModel = useDebounceFn(() => {
   model.value = localValue.value
 }, props.debounceTime)
 
+watch(model, (newValue) => {
+  if (newValue !== localValue.value) {
+    localValue.value = newValue
+  }
+})
+
 const localModel = computed({
   get: () => localValue.value,
 
