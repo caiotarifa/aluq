@@ -309,7 +309,7 @@ Criar um campo de upload seguro usando o **NuxtHub Blob** para armazenamento.
 
 ## 4. Novos Modos de Visualização
 
-### 4.1 🟡 Criar visualização em Cards no List
+### 4.1 ✅ Criar visualização em Cards no List
 
 **Arquivos principais:** `app/components/list/ListCardView.vue` (novo), `app/components/list/List.vue`, `app/composables/useEntityList.js`
 

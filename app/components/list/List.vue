@@ -47,7 +47,17 @@
     </header>
 
     <slot>
+      <ListCardView
+        v-if="queryModel.type === 'cards'"
+        :data="items"
+        :entity
+        :loading
+        :properties="viewProperties"
+        :size="queryModel.size"
+      />
+
       <ListTableView
+        v-else
         :data="items"
         :loading
         :pinned="pinnedColumns"

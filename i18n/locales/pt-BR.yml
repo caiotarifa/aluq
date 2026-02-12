@@ -219,8 +219,10 @@ listEditView:
   description: Personalize como os dados são exibidos
 
   viewType: Tipo de visualização
+
   viewTypes:
     table: Tabela
+    cards: Cards
 
   properties: Propriedades
   showAll: Mostrar todas

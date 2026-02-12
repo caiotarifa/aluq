@@ -93,7 +93,7 @@
                 >
                   <UButton
                     class="transition-opacity"
-                    :class=" property.pinned ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"
+                    :class="property.pinned ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"
                     :color="property.pinned ? 'primary' : 'neutral'"
                     :icon="property.pinned ? 'i-tabler-pinned-filled' : 'i-tabler-pin'"
                     size="xs"
@@ -165,6 +165,11 @@ const viewTypeOptions = [
     value: 'table',
     label: t('listEditView.viewTypes.table'),
     icon: 'i-tabler-table'
+  },
+  {
+    value: 'cards',
+    label: t('listEditView.viewTypes.cards'),
+    icon: 'i-tabler-layout-grid'
   }
 ]
 
