@@ -121,11 +121,6 @@ export function useEntityList(entityName) {
     viewCounts.value[viewName.value] ?? 0
   )
 
-  // Reset pagination when switching tabs.
-  watch(viewName, () => {
-    query.value = { ...query.value, page: 1, size: 25 }
-  })
-
   // View update: persist overrides + update query.
   function onViewUpdate({ view: updatedView, config }) {
     const pinnedLeft = config.ui?.pinned?.left || []

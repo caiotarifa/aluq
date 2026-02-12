@@ -42,7 +42,7 @@
         :items="viewItems"
         :model-value="queryModel.view"
         variant="link"
-        @update:model-value="queryModel = { view: $event }"
+        @update:model-value="updateQuery({ view: $event, page: 1, size: 25 })"
       />
     </header>
 

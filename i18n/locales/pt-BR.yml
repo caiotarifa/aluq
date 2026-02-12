@@ -296,6 +296,7 @@ businessUnit:
 
   views:
     default: Todas
+    inactive: Inativas
 
   properties:
     id: Código
