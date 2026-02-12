@@ -6,7 +6,7 @@
     :data="tableData"
     :loading
     sticky
-    :ui="{ root: 'overflow-clip', thead: '-top-4 sm:-top-6' }"
+    :ui="{ root: 'overflow-clip', thead: '-top-4 sm:-top-6', tbody: 'cursor-pointer' }"
     @hover="onHover"
     @select="onSelect"
   />

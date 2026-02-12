@@ -658,7 +658,7 @@ Não existe nenhuma ação de exclusão (delete) implementada, nem no List (dele
 
 ---
 
-### 12.2 🟢 Estado vazio (empty state) no List
+### 12.2 ✅ Estado vazio (empty state) no List
 
 Quando a lista não tem registros, não existe nenhuma UI de empty state.
 
