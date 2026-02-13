@@ -5,8 +5,12 @@
         v-for="index in size"
         :key="index"
       >
-        <div class="space-y-3">
+        <template #header>
           <USkeleton class="h-5 w-3/4" />
+        </template>
+
+        <div class="space-y-3">
+          <USkeleton class="h-4 w-3/5" />
           <USkeleton class="h-4 w-1/2" />
           <USkeleton class="h-4 w-2/3" />
         </div>
@@ -18,7 +22,7 @@
       v-else
       :key="item.id"
       class="cursor-pointer transition-colors hover:bg-elevated/50"
-      :ui="{ header: 'flex items-center gap-2' }"
+      :ui="{ header: 'flex items-center gap-3' }"
       @click="navigateTo(getItemRoute(item))"
     >
       <template #header>

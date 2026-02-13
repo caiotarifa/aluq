@@ -184,7 +184,7 @@ Existem inconsistências no registro de tipos de campo que precisam ser corrigid
 
 ---
 
-### 3.2 🟢 Suporte a máscara em property types existentes
+### 3.2 ✅ Suporte a máscara em property types existentes
 
 **Arquivos principais:** `app/registry/propertyTypes.js`, `app/components/input/`
 
@@ -634,7 +634,7 @@ Criar um sistema completo de relatórios com templates customizáveis, suporte a
 
 ## 12. Outros
 
-### 12.1 ⭐🔴 Ação de excluir registro (delete)
+### 12.1 ✅ Ação de excluir registro (delete)
 
 **Arquivos principais:** `app/composables/useEntityDelete.js` (novo), `app/composables/useEntityForm.js`, `app/composables/useEntityList.js`, `app/components/form/Form.vue`, `app/components/list/List.vue`
 
@@ -696,7 +696,7 @@ O componente `ModalConfirm.vue` existe, mas é usado em apenas um local (deletar
 
 ---
 
-### 12.4 🟢 Seleção de registros no List (checkbox)
+### 12.4 ✅ Seleção de registros no List (checkbox)
 
 Para habilitar ações em batch (excluir vários, exportar selecionados, etc.), a tabela precisa de uma coluna de checkbox com seleção individual e "selecionar todos".
 

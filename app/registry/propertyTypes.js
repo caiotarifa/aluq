@@ -4,6 +4,8 @@ import {
   isArrayOperator
 } from './operators.js'
 
+import { resolveMask } from './masks.js'
+
 const propertyTypes = {
   boolean: {
     icon: 'i-tabler-toggle-left',
@@ -39,17 +41,17 @@ const propertyTypes = {
     defaultOperator: 'contains',
     defaultValue: '',
 
-    resolveInput: () => ({
-      componentName: 'UInput',
-      props: {}
+    resolveInput: property => ({
+      component: 'InputText',
+      props: { mask: resolveMask(property.mask) }
     }),
 
-    resolveFilterInput: ({ operator }) => {
+    resolveFilterInput: (property, { operator }) => {
       if (isEmptyOperator(operator)) return null
 
       return {
-        componentName: 'InputFilterText',
-        props: {}
+        component: 'InputText',
+        props: { mask: resolveMask(property.mask) }
       }
     }
   },
@@ -89,7 +91,7 @@ const propertyTypes = {
       props: {}
     }),
 
-    resolveFilterInput: (operator) => {
+    resolveFilterInput: (property, { operator }) => {
       if (isEmptyOperator(operator)) return null
 
       if (isArrayOperator(operator)) {
@@ -122,7 +124,7 @@ const propertyTypes = {
       props: {}
     }),
 
-    resolveFilterInput: (operator) => {
+    resolveFilterInput: (property, { operator }) => {
       if (isEmptyOperator(operator)) return null
 
       return {
@@ -149,7 +151,7 @@ const propertyTypes = {
       }
     }),
 
-    resolveFilterInput: (operator, property) => {
+    resolveFilterInput: (property, { operator }) => {
       if (isEmptyOperator(operator)) return null
 
       return {
@@ -174,9 +176,7 @@ const propertyTypes = {
 
     resolveInput: property => ({
       component: 'InputRelation',
-      props: {
-        entity: property?.entity
-      }
+      props: { entity: property?.entity }
     }),
 
     resolveFilterInput: () => null

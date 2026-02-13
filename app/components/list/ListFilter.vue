@@ -53,7 +53,7 @@
           />
 
           <component
-            :is="getComponent(filter.component?.componentName)"
+            :is="getComponent(filter.component?.component)"
             autofocus
             :model-value="filter.value"
             size="sm"
@@ -91,7 +91,7 @@
 
 <script setup>
 import { useDebounceFn } from '@vueuse/core'
-import { InputFilterText } from '#components'
+import { InputText } from '#components'
 
 const props = defineProps({
   debounceTime: {
@@ -147,7 +147,7 @@ const filterableProperties = computed(() => {
 
 // Component mapping.
 const componentMap = {
-  InputFilterText
+  InputText
 }
 
 function getComponent(name) {
@@ -200,10 +200,8 @@ const filters = computed(() => localFilters.value.map((filter) => {
       : operatorConfig.mask(propertyConfig.label, filter.value),
 
     propertyConfig,
-
     operators: propertyConfig.operators,
-
-    component: propertyConfig.resolveFilterInput?.(filter)
+    component: propertyConfig.resolveFilterInput?.(propertyConfig, filter)
   })
 }))
 

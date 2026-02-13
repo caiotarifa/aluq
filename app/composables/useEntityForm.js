@@ -214,7 +214,7 @@ export function useEntityForm(entityName, options = {}) {
 
       else {
         actionConfig.loading = action.execute === 'delete' && isDeleting.value
-        actionConfig.onClick = () => onItemAction({ action })
+        actionConfig.onSelect = () => onItemAction({ action })
       }
 
       actions.push(actionConfig)

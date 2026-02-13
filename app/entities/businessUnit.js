@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { companyDocumentMask } from '~/registry/masks.js'
 
 export default {
   name: 'businessUnit',
@@ -32,6 +33,7 @@ export default {
     taxId: {
       type: 'text',
       icon: 'i-tabler-id',
+      mask: companyDocumentMask(),
       searchable: true
     }
   },

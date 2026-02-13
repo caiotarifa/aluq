@@ -27,6 +27,7 @@ import {
   InputBoolean,
   InputDate,
   InputDateTime,
+  InputText,
   InputTime
 } from '#components'
 
@@ -61,6 +62,7 @@ const componentMap = {
   InputBoolean,
   InputDate,
   InputDateTime,
+  InputText,
   InputTime
 }
 
