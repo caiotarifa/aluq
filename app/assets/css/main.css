@@ -21,7 +21,7 @@
   }
 }
 
-/* Transitions */
+/* Transition: Slide Up */
 .slide-up-enter-active,
 .slide-up-leave-active {
   transition: all 0.25s ease-out;
@@ -35,4 +35,25 @@
 .slide-up-leave-to {
   opacity: 0;
   transform: translateY(-30px);
+}
+
+/* Transition: Expand Height */
+.expand-height-enter-active,
+.expand-height-leave-active {
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.expand-height-enter-from,
+.expand-height-leave-to {
+  max-height: 0;
+  opacity: 0;
+  transform: scaleY(0.95);
+}
+
+.expand-height-enter-to,
+.expand-height-leave-from {
+  max-height: 100px;
+  opacity: 1;
+  transform: scaleY(1);
 }

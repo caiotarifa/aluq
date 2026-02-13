@@ -50,6 +50,14 @@ messages:
     title: Excluído!
     description: Excluímos {item} com sucesso.
 
+  confirmBatchDelete:
+    title: Excluir {count} {title}?
+    description: Essa ação não poderá ser desfeita.
+
+  batchDeleteSuccess:
+    title: Excluídos!
+    description: 'Excluímos {count} {title} com sucesso.'
+
   submitError:
     title: Ops! Erro ao salvar.
     description: Ocorreu um erro ao salvar {item}.
@@ -101,6 +109,11 @@ inputSearch:
 
 list:
   perPage: Itens por página
+
+  batchActions:
+    selected: '{count} selecionado(s)'
+    selectAll: Selecionar tudo
+    deselectAll: Desmarcar tudo
 
   importData: Importar dados
   exportData: Exportar dados
@@ -310,6 +323,13 @@ businessUnit:
 
   actions:
     create: '@:actions.create empresa'
+
+  itemActions:
+    edit: Editar
+    delete: Excluir
+
+  batchActions:
+    delete: Excluir selecionados
 
   views:
     default: Todas

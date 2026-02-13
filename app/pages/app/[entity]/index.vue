@@ -11,6 +11,8 @@
       :loading="isLoading"
       :total
       :view-counts
+      @batch-action="onBatchAction"
+      @item-action="onItemAction"
       @view-update="onViewUpdate"
     />
   </AppPage>
@@ -34,6 +36,8 @@ const {
   total,
   viewCounts,
 
+  onBatchAction,
+  onItemAction,
   onViewUpdate
 } = useEntityList(entityName)
 </script>

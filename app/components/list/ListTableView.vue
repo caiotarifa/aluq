@@ -1,12 +1,18 @@
 <template>
   <UTable
+    v-model:row-selection="rowSelection"
     v-model:sorting="sorting"
     :column-pinning="columnPinning"
     :columns
     :data="tableData"
+    :get-row-id
     :loading
     sticky
-    :ui="{ root: 'overflow-clip', thead: '-top-4 sm:-top-6', tbody: 'cursor-pointer' }"
+    :ui="{
+      root: 'overflow-clip',
+      thead: '-top-4 sm:-top-6',
+      tbody: 'cursor-pointer'
+    }"
     @hover="onHover"
     @select="onSelect"
   />
@@ -14,6 +20,11 @@
 
 <script setup>
 const props = defineProps({
+  batchActions: {
+    type: Array,
+    default: undefined
+  },
+
   data: {
     type: Array,
     default: () => []
@@ -22,6 +33,11 @@ const props = defineProps({
   entity: {
     type: Object,
     default: () => ({})
+  },
+
+  itemActions: {
+    type: Array,
+    default: undefined
   },
 
   loading: {
@@ -45,10 +61,26 @@ const props = defineProps({
   }
 })
 
+// Models.
 const sort = defineModel('sort', {
   type: Array,
   default: () => []
 })
+
+const rowSelection = defineModel('rowSelection', {
+  type: Object,
+  default: () => ({})
+})
+
+// Emits.
+const emit = defineEmits([
+  'item-action'
+])
+
+// Row ID.
+function getRowId(row) {
+  return row.id
+}
 
 // Skeleton data.
 const USkeleton = resolveComponent('USkeleton')
@@ -59,7 +91,7 @@ const skeletonData = computed(() => {
   const keys = Object.keys(props.properties)
 
   return Array.from({ length: props.size }, () => {
-    const row = { _skeleton: true }
+    const row = { _skeleton: true, id: '' }
 
     for (const key of keys) {
       row[key] = null
@@ -91,9 +123,49 @@ const sorting = computed({
 })
 
 // Columns.
+const UButton = resolveComponent('UButton')
+const UCheckbox = resolveComponent('UCheckbox')
+const UDropdownMenu = resolveComponent('UDropdownMenu')
+
+const hasBatchActions = computed(() =>
+  props.batchActions?.length > 0
+)
+
+const hasItemActions = computed(() =>
+  props.itemActions?.length > 0
+)
+
 const columns = computed(() => {
   const results = []
 
+  // Batch actions column.
+  if (hasBatchActions.value) {
+    results.push({
+      id: '_select',
+      size: 32,
+
+      header: ({ table }) => h(UCheckbox, {
+        'modelValue': table.getIsSomePageRowsSelected()
+          ? 'indeterminate'
+          : table.getIsAllPageRowsSelected(),
+
+        'onUpdate:modelValue': value =>
+          table.toggleAllPageRowsSelected(!!value)
+      }),
+
+      cell: ({ row }) => {
+        if (row.original._skeleton) return null
+
+        return h(UCheckbox, {
+          'modelValue': row.getIsSelected(),
+          'onUpdate:modelValue': value => row.toggleSelected(!!value),
+          'onClick': event => event.stopPropagation()
+        })
+      }
+    })
+  }
+
+  // Data columns.
   for (const key in props.properties) {
     const property = props.properties[key]
 
@@ -112,13 +184,61 @@ const columns = computed(() => {
     })
   }
 
+  // Item actions column.
+  if (hasItemActions.value) {
+    results.push({
+      id: '_itemActions',
+      size: 40,
+
+      header: () => null,
+
+      meta: {
+        class: { td: 'text-right' }
+      },
+
+      cell: ({ row }) => {
+        if (row.original._skeleton) return null
+
+        return h(UDropdownMenu, {
+          content: { align: 'end' },
+          items: buildItemActionsMenu(row.original)
+        }, () => h(UButton, {
+          color: 'neutral',
+          icon: 'i-tabler-dots-vertical',
+          size: 'xs',
+          variant: 'ghost',
+          onClick: event => event.stopPropagation()
+        }))
+      }
+    })
+  }
+
   return results
 })
 
-const columnPinning = computed(() => ({
-  left: props.pinned?.left || [],
-  right: props.pinned?.right || []
-}))
+function buildItemActionsMenu(item) {
+  return props.itemActions.map(action => ({
+    color: action.color,
+    icon: action.icon,
+    label: action.label,
+    onSelect: () => emit('item-action', { action, item })
+  }))
+}
+
+const columnPinning = computed(() => {
+  const left = [...(props.pinned?.left || [])]
+  const right = [...(props.pinned?.right || [])]
+
+  if (hasBatchActions.value) {
+    left.unshift('_select')
+  }
+
+  if (hasItemActions.value) {
+    right.push('_itemActions')
+  }
+
+  return { left, right }
+})
 
 // Navigation.
 const route = useRoute()
@@ -154,13 +274,13 @@ function getHeader(column, property) {
       size: 'xs',
       variant: 'ghost',
       onClick: () => {
-        const currentDirection = column.getIsSorted()
+        const direction = column.getIsSorted()
 
-        if (!currentDirection) {
+        if (!direction) {
           return column.toggleSorting(true, true)
         }
 
-        if (currentDirection === 'desc') {
+        if (direction === 'desc') {
           return column.toggleSorting(false, true)
         }
 

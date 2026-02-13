@@ -17,13 +17,35 @@
       v-for="item in data"
       v-else
       :key="item.id"
-      class="cursor-pointer transition-shadow hover:shadow-md"
+      class="cursor-pointer transition-colors hover:bg-elevated/50"
+      :ui="{ header: 'flex items-center gap-2' }"
       @click="navigateTo(getItemRoute(item))"
     >
       <template #header>
-        <h3 class="truncate text-sm font-semibold text-highlighted">
+        <UCheckbox
+          v-if="hasBatchActions"
+          :model-value="isSelected(item.id)"
+          @click.stop
+          @update:model-value="toggleSelection(item.id)"
+        />
+
+        <h3 class="flex-1 truncate text-sm font-semibold text-highlighted">
           {{ getDisplayValue(item) }}
         </h3>
+
+        <UDropdownMenu
+          v-if="hasItemActions"
+          :content="{ align: 'end' }"
+          :items="buildItemActionsMenu(item)"
+        >
+          <UButton
+            color="neutral"
+            icon="i-tabler-dots-vertical"
+            size="xs"
+            variant="ghost"
+            @click.stop
+          />
+        </UDropdownMenu>
       </template>
 
       <dl class="space-y-1">
@@ -47,6 +69,11 @@
 
 <script setup>
 const props = defineProps({
+  batchActions: {
+    type: Array,
+    default: undefined
+  },
+
   data: {
     type: Array,
     default: () => []
@@ -55,6 +82,11 @@ const props = defineProps({
   entity: {
     type: Object,
     default: () => ({})
+  },
+
+  itemActions: {
+    type: Array,
+    default: undefined
   },
 
   loading: {
@@ -73,6 +105,15 @@ const props = defineProps({
   }
 })
 
+const rowSelection = defineModel('rowSelection', {
+  type: Object,
+  default: () => ({})
+})
+
+const emit = defineEmits([
+  'item-action'
+])
+
 const route = useRoute()
 
 // Skeleton.
@@ -80,12 +121,43 @@ const isSkeleton = computed(() =>
   props.loading && props.data.length === 0
 )
 
+// Batch actions.
+const hasBatchActions = computed(() =>
+  props.batchActions?.length > 0
+)
+
+const hasItemActions = computed(() =>
+  props.itemActions?.length > 0
+)
+
+function isSelected(id) {
+  return !!rowSelection.value[id]
+}
+
+function toggleSelection(id) {
+  const { [id]: selected, ...rest } = rowSelection.value
+
+  rowSelection.value = selected
+    ? rest
+    : { ...rowSelection.value, [id]: true }
+}
+
+// Item actions.
+function buildItemActionsMenu(item) {
+  return props.itemActions.map(action => ({
+    label: action.label,
+    icon: action.icon,
+    color: action.color,
+    onSelect: () => emit('item-action', { action, item })
+  }))
+}
+
 // Display property (title of the card).
 const displayProperty = computed(() =>
   props.entity.display?.property || 'name'
 )
 
-// Detail properties (all properties except the title).
+// Detail properties (except the title).
 const detailProperties = computed(() => {
   const result = {}
   const displayKey = displayProperty.value

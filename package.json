@@ -14,10 +14,10 @@
     "db:seed": "zenstack db seed"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.41",
-    "@ai-sdk/google": "^3.0.24",
-    "@ai-sdk/openai": "^3.0.26",
-    "@ai-sdk/vue": "^3.0.78",
+    "@ai-sdk/anthropic": "^3.0.42",
+    "@ai-sdk/google": "^3.0.27",
+    "@ai-sdk/openai": "^3.0.27",
+    "@ai-sdk/vue": "^3.0.83",
     "@nuxt/hints": "1.0.0-alpha.6",
     "@nuxt/image": "2.0.0",
     "@nuxt/scripts": "0.13.2",
@@ -31,7 +31,7 @@
     "@zenstackhq/plugin-policy": "^3.3.3",
     "@zenstackhq/server": "^3.3.3",
     "@zenstackhq/tanstack-query": "^3.3.3",
-    "ai": "^6.0.78",
+    "ai": "^6.0.83",
     "better-sqlite3": "^12.6.2",
     "es-toolkit": "^1.44.0",
     "nodemailer": "^8.0.1",

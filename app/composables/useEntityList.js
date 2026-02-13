@@ -4,6 +4,7 @@ export function useEntityList(entityName) {
   const entity = useEntity(entityName)
   const { activeOrganizationId } = useAuth()
   const route = useRoute()
+  const router = useRouter()
 
   // Persistence.
   const storageKey = computed(() =>
@@ -147,6 +148,27 @@ export function useEntityList(entityName) {
     persistedViews.value[updatedView] = stored
   }
 
+  // Actions.
+  const { deleteRecord, deleteRecords } = useEntityDelete(entityName)
+
+  function onItemAction({ action, item }) {
+    if (action.execute === 'delete') {
+      return deleteRecord(item.id)
+    }
+
+    if (action.handler) {
+      return action.handler(item)
+    }
+
+    router.push(`/app/${route.params.entity}/${item.id}`)
+  }
+
+  async function onBatchAction({ action, ids }) {
+    if (action.execute === 'delete') {
+      await deleteRecords(ids)
+    }
+  }
+
   return {
     entity,
     isLoading,
@@ -156,6 +178,8 @@ export function useEntityList(entityName) {
     total,
     viewCounts,
 
+    onBatchAction,
+    onItemAction,
     onViewUpdate
   }
 }

@@ -24,7 +24,6 @@
         {{ item }}
 
         <UButton
-          :aria-label="t('listFilter.remove')"
           class="-mr-1 text-primary"
           color="primary"
           :icon="appConfig.ui.icons.close"

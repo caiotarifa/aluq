@@ -46,6 +46,43 @@
       />
     </header>
 
+    <!-- Batch actions toolbar -->
+    <Transition name="expand-height">
+      <div v-if="hasSelection">
+        <div class="flex items-center gap-3 rounded-lg border border-default/50 bg-elevated px-4 py-2">
+          <UCheckbox
+            :model-value="isAllSelected ? true : 'indeterminate'"
+            @update:model-value="onToggleAll"
+          />
+
+          <span class="text-sm font-medium">
+            {{ t('list.batchActions.selected', { count: selectedCount }) }}
+          </span>
+
+          <div class="ml-auto flex gap-2">
+            <UButton
+              v-for="action in resolvedBatchActions"
+              :key="action.key"
+              :color="action.color || 'neutral'"
+              :icon="action.icon"
+              :label="action.label"
+              size="sm"
+              variant="soft"
+              @click="onBatchAction(action)"
+            />
+
+            <UButton
+              color="neutral"
+              icon="i-tabler-x"
+              size="xs"
+              variant="ghost"
+              @click="clearSelection"
+            />
+          </div>
+        </div>
+      </div>
+    </Transition>
+
     <slot>
       <ListEmptyState
         v-if="emptyStateType"
@@ -57,22 +94,30 @@
 
       <ListCardView
         v-else-if="queryModel.type === 'cards'"
+        v-model:row-selection="rowSelectionModel"
+        :batch-actions="resolvedBatchActions"
         :data="items"
         :entity
+        :item-actions="resolvedItemActions"
         :loading
         :properties="viewProperties"
         :size="queryModel.size"
+        @item-action="onItemAction"
       />
 
       <ListTableView
         v-else
+        v-model:row-selection="rowSelectionModel"
+        v-model:sort="queryModel.sort"
+        :batch-actions="resolvedBatchActions"
         :data="items"
         :entity
+        :item-actions="resolvedItemActions"
         :loading
         :pinned="pinnedColumns"
         :properties="viewProperties"
         :size="queryModel.size"
-        :sort="queryModel.sort"
+        @item-action="onItemAction"
         @update:sort="updateQuery({ sort: $event })"
       />
     </slot>
@@ -159,6 +204,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits([
+  'batch-action',
+  'item-action',
   'refetch',
   'view-update'
 ])
@@ -170,6 +217,26 @@ const queryModel = defineModel('query', {
   type: Object,
   default: () => ({})
 })
+
+const rowSelectionModel = defineModel('rowSelection', {
+  type: Object,
+  default: () => ({})
+})
+
+// Selection.
+const selectedIds = computed(() => {
+  const ids = []
+
+  for (const id in rowSelectionModel.value) {
+    if (rowSelectionModel.value[id]) ids.push(id)
+  }
+
+  return ids
+})
+
+function clearSelection() {
+  rowSelectionModel.value = {}
+}
 
 function updateQuery(patch) {
   queryModel.value = { ...queryModel.value, ...patch }
@@ -194,6 +261,52 @@ const hasItems = computed(() =>
 const totalItems = computed(() =>
   props.total || props.items.length
 )
+
+// Item actions.
+const resolvedItemActions = computed(() =>
+  props.entity.itemActions || undefined
+)
+
+// Batch actions.
+const resolvedBatchActions = computed(() =>
+  props.entity.batchActions || undefined
+)
+
+const selectedCount = computed(() =>
+  selectedIds.value.length
+)
+
+const hasSelection = computed(() =>
+  selectedCount.value > 0
+)
+
+const isAllSelected = computed(() =>
+  props.items.length > 0 && selectedIds.value.length >= props.items.length
+)
+
+function onToggleAll(value) {
+  if (value) {
+    const next = {}
+
+    for (const item of props.items) {
+      next[item.id] = true
+    }
+
+    rowSelectionModel.value = next
+    return
+  }
+
+  clearSelection()
+}
+
+function onItemAction({ action, item }) {
+  emit('item-action', { action, item })
+}
+
+async function onBatchAction(action) {
+  await emit('batch-action', { action, ids: selectedIds.value })
+  clearSelection()
+}
 
 // Views.
 const viewItems = computed(() => {

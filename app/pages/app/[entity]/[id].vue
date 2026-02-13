@@ -1,5 +1,6 @@
 <template>
   <AppPage
+    :actions="[, itemActions]"
     :breadcrumb
     :title="pageTitle"
   >
@@ -31,6 +32,7 @@ const {
   isFetching,
   isNew,
   isSaving,
+  itemActions,
   state,
 
   onCancel,

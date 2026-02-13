@@ -133,6 +133,9 @@ export function useEntityForm(entityName, options = {}) {
     createMutation.isPending.value || updateMutation.isPending.value
   )
 
+  // Delete.
+  const { isDeleting, deleteRecord } = useEntityDelete(entityName)
+
   function save() {
     const data = buildPayload(state)
 
@@ -181,15 +184,68 @@ export function useEntityForm(entityName, options = {}) {
     router.push(redirectTo.value)
   }
 
+  // Delete handler.
+  async function onDelete() {
+    const confirmed = await deleteRecord(route.params.id)
+
+    if (confirmed) {
+      router.push(redirectTo.value)
+    }
+  }
+
+  // Item actions (excluding edit).
+  const itemActions = computed(() => {
+    if (isNew.value || !entity.value?.itemActions?.length) return []
+
+    const actions = []
+
+    for (const action of entity.value.itemActions) {
+      if (action.key === 'edit') continue
+
+      const actionConfig = {
+        color: action.color,
+        icon: action.icon,
+        label: action.label
+      }
+
+      if (action.to) {
+        actionConfig.to = action.to
+      }
+
+      else {
+        actionConfig.loading = action.execute === 'delete' && isDeleting.value
+        actionConfig.onClick = () => onItemAction({ action })
+      }
+
+      actions.push(actionConfig)
+    }
+
+    return actions
+  })
+
+  // Item action handler.
+  function onItemAction({ action }) {
+    if (action.execute === 'delete') {
+      return onDelete()
+    }
+
+    if (action.handler) {
+      return action.handler()
+    }
+  }
+
   return {
     entity,
     formConfig,
+    isDeleting,
     isFetching,
     isNew,
     isSaving,
+    itemActions,
     state,
 
     onCancel,
+    onItemAction,
     onSubmit
   }
 }

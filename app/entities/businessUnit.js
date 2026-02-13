@@ -107,5 +107,25 @@ export default {
       icon: 'i-tabler-plus',
       to: '/app/business-units/new'
     }
-  }]
+  }],
+
+  itemActions: {
+    edit: {
+      icon: 'i-tabler-edit'
+    },
+
+    delete: {
+      icon: 'i-tabler-trash',
+      execute: 'delete',
+      color: 'error'
+    }
+  },
+
+  batchActions: {
+    delete: {
+      icon: 'i-tabler-trash',
+      execute: 'delete',
+      color: 'error'
+    }
+  }
 }

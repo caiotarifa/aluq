@@ -107,6 +107,38 @@ function resolveActions(actions, entityName, t) {
   return resolvedActions
 }
 
+function resolveItemActions(itemActions, entityName, t) {
+  if (!itemActions) return undefined
+
+  const resolved = []
+
+  for (const key in itemActions) {
+    resolved.push({
+      ...itemActions[key],
+      key,
+      label: t(`${entityName}.itemActions.${key}`)
+    })
+  }
+
+  return resolved
+}
+
+function resolveBatchActions(batchActions, entityName, t) {
+  if (!batchActions) return undefined
+
+  const resolved = []
+
+  for (const key in batchActions) {
+    resolved.push({
+      ...batchActions[key],
+      key,
+      label: t(`${entityName}.batchActions.${key}`)
+    })
+  }
+
+  return resolved
+}
+
 export function useEntity(name) {
   const { t } = useI18n()
 
@@ -123,9 +155,18 @@ export function useEntity(name) {
     return {
       ...source,
       operators: resolvedOperators,
-      properties: resolveProperties(source.properties, entityName, t, resolvedOperators),
+
+      properties: resolveProperties(
+        source.properties,
+        entityName,
+        t,
+        resolvedOperators
+      ),
+
       views: resolveViews(source.views, entityName, t),
-      actions: resolveActions(source.actions, entityName, t)
+      actions: resolveActions(source.actions, entityName, t),
+      itemActions: resolveItemActions(source.itemActions, entityName, t),
+      batchActions: resolveBatchActions(source.batchActions, entityName, t)
     }
   })
 }
