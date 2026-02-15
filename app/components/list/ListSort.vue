@@ -28,51 +28,56 @@
         />
       </header>
 
-      <DraggableList
-        v-model="model"
-        class="space-y-2 p-4"
-        :item="{ class: 'flex items-center gap-2' }"
-        item-key="property"
-      >
-        <template #default="{ item: sort, drag }">
-          <UIcon
-            v-if="canDrag"
-            v-bind="drag"
-            class="size-4 cursor-grab text-dimmed active:cursor-grabbing"
-            :name="appConfig.ui.icons.drag"
-          />
+      <DragDropProvider @drag-end="onDragEnd">
+        <div class="space-y-2 p-4">
+          <SortableItem
+            v-for="(sort, index) in model"
+            :id="sort.property"
+            :key="sort.property"
+            class="flex items-center gap-2"
+            :index="index"
+          >
+            <template #default="{ drag }">
+              <UIcon
+                v-if="canDrag"
+                :ref="drag"
+                class="size-4 cursor-grab text-dimmed active:cursor-grabbing"
+                :name="appConfig.ui.icons.drag"
+              />
 
-          <USelectMenu
-            class="w-full flex-1"
-            :icon="entity.properties[sort.property]?.icon"
-            :items="getAvailablePropertiesFor(sort.property)"
-            :model-value="sort.property"
-            size="sm"
-            :ui="{ content: 'min-w-fit' }"
-            value-key="key"
-            variant="soft"
-            @update:model-value="updateSortProperty(sort.property, $event)"
-          />
+              <USelectMenu
+                class="w-full flex-1"
+                :icon="entity.properties[sort.property]?.icon"
+                :items="getAvailablePropertiesFor(sort.property)"
+                :model-value="sort.property"
+                size="sm"
+                :ui="{ content: 'min-w-fit' }"
+                value-key="key"
+                variant="soft"
+                @update:model-value="updateSort(sort.property, { property: $event })"
+              />
 
-          <USelect
-            class="w-34"
-            :icon="directions.find(direction => direction.value === sort.direction)?.icon"
-            :items="directions"
-            :model-value="sort.direction"
-            size="sm"
-            variant="soft"
-            @update:model-value="updateSortDirection(sort.property, $event)"
-          />
+              <USelect
+                class="w-34"
+                :icon="directionsMap[sort.direction]"
+                :items="directions"
+                :model-value="sort.direction"
+                size="sm"
+                variant="soft"
+                @update:model-value="updateSort(sort.property, { direction: $event })"
+              />
 
-          <UButton
-            color="neutral"
-            :icon="appConfig.ui.icons.close"
-            size="sm"
-            variant="ghost"
-            @click="removeSort(sort.property)"
-          />
-        </template>
-      </DraggableList>
+              <UButton
+                color="neutral"
+                :icon="appConfig.ui.icons.close"
+                size="sm"
+                variant="ghost"
+                @click="removeSort(sort.property)"
+              />
+            </template>
+          </SortableItem>
+        </div>
+      </DragDropProvider>
 
       <footer
         v-if="hasAvailableProperties && canAddMore"
@@ -113,6 +118,9 @@
 </template>
 
 <script setup>
+import { DragDropProvider } from '@dnd-kit/vue'
+import { arrayMove } from '@dnd-kit/helpers'
+
 const props = defineProps({
   defaultDirection: {
     type: String,
@@ -140,18 +148,30 @@ const model = defineModel({
 // Composables.
 const appConfig = useAppConfig()
 
-// Select.
-const isSelectOpen = ref(false)
-
 // Sorts.
 const sortsCount = computed(() => model.value.length)
 const hasSorts = computed(() => sortsCount.value > 0)
 const canAddMore = computed(() => sortsCount.value < props.max)
+const canDrag = computed(() => sortsCount.value > 1)
+
+function onDragEnd(event) {
+  const { source, target } = event.operation
+  if (!source || !target) return
+
+  model.value = arrayMove(
+    model.value,
+    source.sortable.initialIndex,
+    target.sortable.index
+  )
+}
 
 function addSort(item) {
   if (!item || !canAddMore.value) return
 
-  const exists = model.value.some(sort => sort.property === item.key)
+  const exists = model.value.some(
+    sort => sort.property === item.key
+  )
+
   if (exists) return
 
   model.value = [
@@ -160,35 +180,29 @@ function addSort(item) {
   ]
 
   isSelectOpen.value = false
-  openPopover()
+  isPopoverOpen.value = true
+}
+
+function updateSort(property, updates) {
+  for (const sort of model.value) {
+    if (sort.property !== property) continue
+
+    Object.assign(sort, updates)
+    break
+  }
+
+  model.value = [...model.value]
 }
 
 function removeSort(property) {
-  model.value = model.value.filter(sort => sort.property !== property)
+  model.value = model.value.filter(
+    sort => sort.property !== property
+  )
 }
 
 function clearSorts() {
   model.value = []
 }
-
-function updateSortProperty(oldProperty, newProperty) {
-  if (!newProperty || oldProperty === newProperty) return
-
-  model.value = model.value.map(sort =>
-    sort.property === oldProperty ? { ...sort, property: newProperty } : sort
-  )
-}
-
-function updateSortDirection(property, direction) {
-  model.value = model.value.map(sort =>
-    sort.property === property ? { ...sort, direction } : sort
-  )
-}
-
-// Drag.
-const canDrag = computed(() =>
-  sortsCount.value > 1
-)
 
 // Properties.
 const sortableProperties = computed(() => {
@@ -227,6 +241,10 @@ const availableProperties = computed(() =>
   )
 )
 
+const hasAvailableProperties = computed(() =>
+  availableProperties.value.length > 0
+)
+
 function getAvailablePropertiesFor(currentProperty) {
   return propertyItems.value.filter(item =>
     item.key === currentProperty
@@ -234,9 +252,28 @@ function getAvailablePropertiesFor(currentProperty) {
   )
 }
 
-const hasAvailableProperties = computed(() =>
-  availableProperties.value.length > 0
-)
+// Popover & Select.
+const isPopoverOpen = ref(false)
+const isSelectOpen = ref(false)
+
+// Directions.
+const directions = [
+  {
+    label: 'Crescente',
+    value: 'asc',
+    icon: 'i-tabler-sort-ascending'
+  },
+  {
+    label: 'Decrescente',
+    value: 'desc',
+    icon: 'i-tabler-sort-descending'
+  }
+]
+
+const directionsMap = {
+  asc: 'i-tabler-sort-ascending',
+  desc: 'i-tabler-sort-descending'
+}
 
 // Button.
 const buttonColor = computed(() =>
@@ -245,9 +282,7 @@ const buttonColor = computed(() =>
 
 const buttonIcon = computed(() => {
   if (sortsCount.value === 1) {
-    return model.value[0].direction === 'asc'
-      ? 'i-tabler-sort-ascending'
-      : 'i-tabler-sort-descending'
+    return directionsMap[model.value[0].direction]
   }
 
   return 'i-tabler-arrows-sort'
@@ -269,25 +304,4 @@ const buttonLabel = computed(() => {
 const buttonVariant = computed(() =>
   hasSorts.value ? 'subtle' : 'soft'
 )
-
-// Popover.
-const isPopoverOpen = ref(false)
-
-function openPopover() {
-  isPopoverOpen.value = true
-}
-
-// Directions.
-const directions = [
-  {
-    label: 'Crescente',
-    value: 'asc',
-    icon: 'i-tabler-sort-ascending'
-  },
-  {
-    label: 'Decrescente',
-    value: 'desc',
-    icon: 'i-tabler-sort-descending'
-  }
-]
 </script>

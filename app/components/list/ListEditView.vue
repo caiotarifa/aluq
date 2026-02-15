@@ -4,7 +4,7 @@
     :description="t('listEditView.description')"
     :title="t('listEditView.title')"
     :ui="{ footer: 'justify-end' }"
-    @update:open="resetState"
+    @after:enter="resetState"
   >
     <template #body>
       <section class="space-y-2">
@@ -67,50 +67,61 @@
           </div>
         </header>
 
-        <DraggableList
-          v-model="draggableProperties"
-          class="space-y-1"
-        >
-          <template #default="{ item: property, drag }">
-            <div
-              class="group flex items-center gap-2 py-1.5 text-muted transition-colors"
-              :class="property.visible ? 'hover:text-default' : 'opacity-50'"
+        <div>
+          <template
+            v-for="group in propertyGroups"
+            :key="group.key"
+          >
+            <DragDropProvider
+              v-if="group.items.length > 0"
+              @drag-end="group.onDragEnd"
             >
-              <UIcon
-                v-bind="drag"
-                class="size-4 text-dimmed"
-                :name="appConfig.ui.icons.drag"
-              />
-
-              <span class="flex-1 truncate text-sm">
-                {{ property.label }}
-              </span>
-
-              <div class="flex items-center gap-2">
-                <UTooltip
-                  v-if="property.visible"
-                  :text="property.pinned ? t('listEditView.unpin') : t('listEditView.pin')"
-                >
-                  <UButton
-                    class="transition-opacity"
-                    :class="property.pinned ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"
-                    :color="property.pinned ? 'primary' : 'neutral'"
-                    :icon="property.pinned ? 'i-tabler-pinned-filled' : 'i-tabler-pin'"
-                    size="xs"
-                    variant="ghost"
-                    @click="togglePin(property.key)"
+              <SortableItem
+                v-for="(property, index) in group.items"
+                :id="property.key"
+                :key="property.key"
+                class="group flex items-center gap-2 py-1.5 text-muted transition-colors"
+                :class="property.pinned || property.visible ? 'hover:text-default' : 'opacity-50'"
+                :index="index"
+              >
+                <template #default="{ drag }">
+                  <UIcon
+                    :ref="drag"
+                    class="size-4 cursor-grab text-dimmed active:cursor-grabbing"
+                    :name="appConfig.ui.icons.drag"
                   />
-                </UTooltip>
 
-                <USwitch
-                  :model-value="property.visible"
-                  size="xs"
-                  @update:model-value="toggleVisibility(property.key)"
-                />
-              </div>
-            </div>
+                  <span class="flex-1 truncate text-sm">
+                    {{ property.label }}
+                  </span>
+
+                  <div class="flex items-center gap-2">
+                    <UTooltip
+                      v-if="property.pinned || property.visible"
+                      :text="property.pinned ? t('listEditView.unpin') : t('listEditView.pin')"
+                    >
+                      <UButton
+                        class="transition-opacity"
+                        :class="property.pinned ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"
+                        :color="property.pinned ? 'primary' : 'neutral'"
+                        :icon="property.pinned ? 'i-tabler-pinned-filled' : 'i-tabler-pin'"
+                        size="xs"
+                        variant="ghost"
+                        @click="togglePin(property.key)"
+                      />
+                    </UTooltip>
+
+                    <USwitch
+                      :model-value="property.visible"
+                      size="xs"
+                      @update:model-value="toggleVisibility(property.key)"
+                    />
+                  </div>
+                </template>
+              </SortableItem>
+            </DragDropProvider>
           </template>
-        </DraggableList>
+        </div>
       </section>
     </template>
 
@@ -133,6 +144,9 @@
 </template>
 
 <script setup>
+import { DragDropProvider } from '@dnd-kit/vue'
+import { arrayMove } from '@dnd-kit/helpers'
+
 const props = defineProps({
   entity: {
     type: Object,
@@ -157,8 +171,6 @@ const open = defineModel('open', {
 const { t } = useI18n()
 const appConfig = useAppConfig()
 
-const isSaving = ref(false)
-
 // Views.
 const viewTypeOptions = [
   {
@@ -176,153 +188,178 @@ const viewTypeOptions = [
 const localViewType = ref(props.query.type || 'table')
 
 // Properties.
-const entityProperties = computed(() => {
+const localProperties = ref([])
+
+const pinnedProperties = computed(() => {
   const result = []
 
-  for (const key in props.entity.properties) {
-    result.push({
-      key,
-      label: props.entity.properties[key].label || key,
-      type: props.entity.properties[key].type
-    })
+  for (const property of localProperties.value) {
+    if (property.pinned) {
+      result.push(property)
+    }
   }
 
   return result
 })
 
-const initialProperties = computed(() => {
-  if (!open.value) return []
+const unpinnedProperties = computed(() => {
+  const result = []
 
+  for (const property of localProperties.value) {
+    if (!property.pinned) {
+      result.push(property)
+    }
+  }
+
+  return result
+})
+
+function buildProperties() {
   const viewProperties = props.query.properties || []
   const pinnedLeft = props.query.pinned || []
 
-  const propertyMap = new Map(
-    entityProperties.value.map(property => [
-      property.key,
+  const propertyMap = new Map()
 
-      {
-        ...property,
-        visible: viewProperties.includes(property.key),
-        pinned: pinnedLeft.includes(property.key)
-      }
-    ])
-  )
+  for (const key in props.entity.properties) {
+    const { label, type } = props.entity.properties[key]
 
-  const orderedProperties = [
-    ...viewProperties
-      .filter(key => propertyMap.has(key))
-      .map((key) => {
-        const prop = propertyMap.get(key)
-        propertyMap.delete(key)
-        return prop
-      }),
-    ...propertyMap.values()
-  ]
-
-  return orderPropertiesByPinned(orderedProperties)
-})
-
-const localProperties = ref([])
-
-const draggableProperties = computed({
-  get() {
-    return localProperties.value.length
-      ? localProperties.value
-      : initialProperties.value
-  },
-
-  set(properties) {
-    localProperties.value = orderPropertiesByPinned(properties)
+    propertyMap.set(key, {
+      key,
+      label: label || key,
+      type,
+      visible: viewProperties.includes(key),
+      pinned: pinnedLeft.includes(key)
+    })
   }
-})
 
-function orderPropertiesByPinned(properties) {
-  const pinnedProperties = []
-  const unpinnedProperties = []
+  const pinned = []
+  const unpinned = []
 
-  for (const property of properties) {
+  for (const key of viewProperties) {
+    if (!propertyMap.has(key)) continue
+
+    const property = propertyMap.get(key)
+    propertyMap.delete(key)
+
     if (property.pinned) {
-      pinnedProperties.push(property)
+      pinned.push(property)
       continue
     }
 
-    unpinnedProperties.push(property)
+    unpinned.push(property)
   }
 
-  return [
-    ...pinnedProperties,
-    ...unpinnedProperties
-  ]
+  for (const property of propertyMap.values()) {
+    unpinned.push(property)
+  }
+
+  localProperties.value = [...pinned, ...unpinned]
 }
+
+// Drag.
+function onDragEnd(group, event) {
+  const { source, target } = event.operation
+  if (!source || !target) return
+
+  const reordered = arrayMove(
+    group,
+    source.sortable.initialIndex,
+    target.sortable.index
+  )
+
+  localProperties.value = group === pinnedProperties.value
+    ? [...reordered, ...unpinnedProperties.value]
+    : [...pinnedProperties.value, ...reordered]
+}
+
+const propertyGroups = computed(() => [
+  {
+    key: 'pinned',
+    items: pinnedProperties.value,
+    onDragEnd: event => onDragEnd(pinnedProperties.value, event)
+  },
+  {
+    key: 'unpinned',
+    items: unpinnedProperties.value,
+    onDragEnd: event => onDragEnd(unpinnedProperties.value, event)
+  }
+])
 
 // State.
 function resetState() {
   localViewType.value = props.query.type || 'table'
-  localProperties.value = []
+  buildProperties()
 }
 
 // Visibility.
 const allVisible = computed(() =>
-  draggableProperties.value.every(property => property.visible)
+  localProperties.value.every(property => property.visible)
 )
 
 const noneVisible = computed(() =>
-  draggableProperties.value.every(property => !property.visible)
+  localProperties.value.every(property => !property.visible)
 )
 
-const visibleCount = computed(() =>
-  draggableProperties.value.filter(property => property.visible).length
-)
+const visibleCount = computed(() => {
+  let count = 0
 
-function ensureLocalCopy() {
-  if (!localProperties.value.length) {
-    localProperties.value = [...initialProperties.value]
+  for (const property of localProperties.value) {
+    if (property.visible) {
+      count++
+    }
   }
-}
+
+  return count
+})
 
 function showAll() {
-  ensureLocalCopy()
-
   for (const property of localProperties.value) {
     property.visible = true
   }
 }
 
 function hideAll() {
-  ensureLocalCopy()
-
   for (const property of localProperties.value) {
     property.visible = false
+    property.pinned = false
   }
 }
 
 function toggleVisibility(key) {
-  ensureLocalCopy()
+  const property = localProperties.value.find(
+    item => item.key === key
+  )
 
-  const property = localProperties.value.find(item => item.key === key)
   if (!property) return
 
   property.visible = !property.visible
 
-  if (!property.visible) {
+  if (!property.visible && property.pinned) {
     property.pinned = false
   }
 }
 
 function togglePin(key) {
-  ensureLocalCopy()
+  const property = localProperties.value.find(
+    item => item.key === key
+  )
 
-  const property = localProperties.value.find(item => item.key === key)
   if (!property) return
 
   property.pinned = !property.pinned
-  localProperties.value = orderPropertiesByPinned(localProperties.value)
+
+  localProperties.value = [
+    ...pinnedProperties.value,
+    ...unpinnedProperties.value
+  ]
 }
 
 // Actions.
 function close() {
   open.value = false
 }
+
+const isSaving = ref(false)
 
 function apply() {
   isSaving.value = true
@@ -331,7 +368,7 @@ function apply() {
     const properties = []
     const pinnedLeft = []
 
-    for (const property of draggableProperties.value) {
+    for (const property of localProperties.value) {
       if (!property.visible) continue
 
       properties.push(property.key)
@@ -349,9 +386,7 @@ function apply() {
         properties,
 
         ui: {
-          pinned: {
-            left: pinnedLeft
-          }
+          pinned: { left: pinnedLeft }
         }
       }
     })

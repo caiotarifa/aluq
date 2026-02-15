@@ -90,8 +90,9 @@ const skeletonData = computed(() => {
 
   const keys = Object.keys(props.properties)
 
-  return Array.from({ length: props.size }, () => {
-    const row = { _skeleton: true, id: '' }
+  return Array.from({ length: props.size }, (_, index) => {
+    const id = `skeleton-${index + 1}`
+    const row = { _skeleton: true, id }
 
     for (const key of keys) {
       row[key] = null

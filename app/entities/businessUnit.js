@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { companyDocumentMask } from '~/registry/masks.js'
+import { companyDocumentMask } from '../registry/masks.js'
 
 export default {
   name: 'businessUnit',

@@ -14,7 +14,7 @@ Simplicidade, clareza e manutenção. DRY e KISS são inegociáveis.
 - Comentários apenas para explicar "porquê", não "o quê"
 
 # Convenções JavaScript/Vue
-- `const` por padrão, `let` nunca
+- `const` por padrão, `let` NUNCA, `var` JAMAIS
 - Prefira `for..of`/`for..in` ao invés de combinar `Object.keys()`/`values()`/`entries()`/`forEach()`/`map()`
 - Prefira `push` e `splice` para mutação de arrays, evitando métodos que retornam novos arrays
 - Prefira spread operator ou `Object.assign` para objetos, evitando mutação direta

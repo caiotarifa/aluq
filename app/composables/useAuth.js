@@ -1,6 +1,3 @@
-import { createAuthClient } from 'better-auth/vue'
-import { organizationClient, adminClient } from 'better-auth/client/plugins'
-
 import {
   authSignInByEmailSchema,
   authSignUpByEmailSchema,
@@ -34,30 +31,14 @@ export function useAuth() {
   const { t } = useI18n()
   const { notifyError, notifySuccess } = useNotify()
 
-  // Auth client.
-  const url = useRequestURL()
-
-  const headers = import.meta.server
-    ? useRequestHeaders()
-    : undefined
-
-  const authClient = createAuthClient({
-    baseURL: url.origin,
-    fetchOptions: { headers },
-
-    plugins: [
-      organizationClient,
-      adminClient
-    ]
-  })
+  // Auth client (shared instance from session plugin).
+  const { $authClient: authClient } = useNuxtApp()
 
   // Session state (shared via useState).
   const session = useState('auth:session', () => null)
   const user = useState('auth:user', () => null)
 
-  const sessionFetching = import.meta.server
-    ? ref(false)
-    : useState('auth:sessionFetching', () => false)
+  const sessionFetching = useState('auth:sessionFetching', () => false)
 
   // Fetch session.
   async function fetchSession() {
@@ -75,9 +56,19 @@ export function useAuth() {
 
   // Listen for session changes (client only).
   if (import.meta.client) {
-    authClient.$store.listen('$sessionSignal', async (signal) => {
-      if (!signal) return
-      await fetchSession()
+    const unsubscribe = authClient.$store.listen(
+      '$sessionSignal',
+
+      async (signal) => {
+        if (!signal) return
+        await fetchSession()
+      }
+    )
+
+    onUnmounted(() => {
+      if (typeof unsubscribe === 'function') {
+        unsubscribe()
+      }
     })
   }
 

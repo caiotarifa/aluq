@@ -12,7 +12,15 @@ for (const path in entities) {
   entitySources[entityName] = source
 }
 
-function resolveOperators(t) {
+const operatorCache = new Map()
+const operatorMappingCache = new Map()
+const entityCache = new Map()
+
+function resolveOperators(t, locale) {
+  if (operatorCache.has(locale)) {
+    return operatorCache.get(locale)
+  }
+
   const resolvedOperators = {}
 
   for (const operatorKey in operators) {
@@ -24,13 +32,31 @@ function resolveOperators(t) {
     }
   }
 
+  operatorCache.set(locale, resolvedOperators)
   return resolvedOperators
 }
 
+function getMappedOperators(propertyTypeOperators, resolvedOperators) {
+  const cacheKey = propertyTypeOperators.map(({ value }) => value).join(',')
+
+  if (operatorMappingCache.has(cacheKey)) {
+    return operatorMappingCache.get(cacheKey)
+  }
+
+  const mapped = propertyTypeOperators.map(
+    operator => resolvedOperators[operator.value] || operator
+  )
+
+  operatorMappingCache.set(cacheKey, mapped)
+  return mapped
+}
+
 function resolveProperties(properties, entityName, t, resolvedOperators) {
+  if (!properties) return {}
+
   const resolvedProperties = {}
 
-  for (const propertyKey in properties || {}) {
+  for (const propertyKey in properties) {
     const property = properties[propertyKey]
     const propertyType = resolvePropertyType(property.type)
 
@@ -42,8 +68,9 @@ function resolveProperties(properties, entityName, t, resolvedOperators) {
     }
 
     if (propertyType.operators) {
-      resolved.operators = propertyType.operators.map(
-        operator => resolvedOperators[operator.value] || operator
+      resolved.operators = getMappedOperators(
+        propertyType.operators,
+        resolvedOperators
       )
     }
 
@@ -54,9 +81,11 @@ function resolveProperties(properties, entityName, t, resolvedOperators) {
 }
 
 function resolveViews(views, entityName, t) {
+  if (!views) return {}
+
   const resolvedViews = {}
 
-  for (const viewKey in views || {}) {
+  for (const viewKey in views) {
     resolvedViews[viewKey] = {
       ...views[viewKey],
       label: t(`${entityName}.views.${viewKey}`)
@@ -140,7 +169,7 @@ function resolveBatchActions(batchActions, entityName, t) {
 }
 
 export function useEntity(name) {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
 
   return computed(() => {
     const entityName = toValue(name)
@@ -150,9 +179,15 @@ export function useEntity(name) {
       throw new Error(`Entity "${entityName}" not found`)
     }
 
-    const resolvedOperators = resolveOperators(t)
+    const cacheKey = `${entityName}:${locale.value}`
 
-    return {
+    if (entityCache.has(cacheKey)) {
+      return entityCache.get(cacheKey)
+    }
+
+    const resolvedOperators = resolveOperators(t, locale.value)
+
+    const resolved = {
       ...source,
       operators: resolvedOperators,
 
@@ -168,5 +203,8 @@ export function useEntity(name) {
       itemActions: resolveItemActions(source.itemActions, entityName, t),
       batchActions: resolveBatchActions(source.batchActions, entityName, t)
     }
+
+    entityCache.set(cacheKey, resolved)
+    return resolved
   })
 }

@@ -1,6 +1,9 @@
 export default defineNuxtRouteMiddleware(async (to) => {
   if (to.meta?.auth === false) return
 
+  const ready = useState('auth:ready')
+  if (!ready.value) return
+
   const user = useState('auth:user').value
   const isSignedIn = !!user
   const isEmailVerified = user?.emailVerified || false
@@ -21,6 +24,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   const isSafeRedirect = typeof redirect === 'string'
     && redirect.length > 0
+    && redirect.startsWith('/')
+    && !redirect.startsWith('//')
     && !redirect.startsWith('/auth')
 
   const safeRedirect = isSafeRedirect ? redirect : '/app'

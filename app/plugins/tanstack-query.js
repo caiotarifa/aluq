@@ -24,17 +24,19 @@ export default defineNuxtPlugin((nuxtApp) => {
     { queryClient }
   )
 
+  const event = import.meta.server ? useRequestEvent() : null
+
   // Provide Zenstack TanStack Query settings.
   nuxtApp.hook('vue:setup', () => {
-    const event = useRequestEvent()
-
     const customFetch = async (url, options = {}) => {
-      const cookie = event?.headers.get('cookie')
+      if (import.meta.server && event) {
+        const cookie = event.headers.get('cookie')
 
-      if (cookie) {
-        options = {
-          ...options,
-          headers: { ...options.headers, cookie }
+        if (cookie) {
+          options = {
+            ...options,
+            headers: { ...options.headers, cookie }
+          }
         }
       }
 
@@ -44,7 +46,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     provideQuerySettingsContext({
       endpoint: '/api/model',
-      logging: true,
+      logging: import.meta.dev,
       fetch: customFetch
     })
   })

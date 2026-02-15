@@ -7,11 +7,11 @@
       :ui="{ content: 'text-sm min-w-72' }"
     >
       <UButton
-        :class="isEmpty(filter.value) ? 'bg-elevated/50 text-dimmed hover:bg-elevated' : ''"
-        :color="isEmpty(filter.value) ? 'neutral' : 'primary'"
+        :class="isValueEmpty(filter.value) ? 'bg-elevated/50 text-dimmed hover:bg-elevated' : ''"
+        :color="isValueEmpty(filter.value) ? 'neutral' : 'primary'"
         :icon="filter.propertyConfig?.icon"
         :trailing-icon="appConfig.ui.icons.chevronDown"
-        :variant="isEmpty(filter.value) ? 'soft' : 'subtle'"
+        :variant="isValueEmpty(filter.value) ? 'soft' : 'subtle'"
       >
         <MDC
           tag="span"
@@ -45,7 +45,7 @@
         <div class="space-x-2 p-4">
           <USelect
             :items="filter.operators"
-            :model-value="filter?.operator"
+            :model-value="filter.operator"
             size="sm"
             :ui="{ content: 'w-(--reka-dropdown-menu-trigger-width)' }"
             variant="soft"
@@ -53,12 +53,13 @@
           />
 
           <component
-            :is="getComponent(filter.component?.component)"
+            :is="getComponent(filter.component.component)"
+            v-if="filter.component"
             autofocus
             :model-value="filter.value"
             size="sm"
             variant="soft"
-            v-bind="filter.component?.props"
+            v-bind="filter.component.props"
             @update:model-value="updateFilter(filter.property, { value: $event })"
           />
         </div>
@@ -116,19 +117,54 @@ const model = defineModel({
   default: () => []
 })
 
-const localFilters = ref(
-  model.value.map(f => ({ ...f }))
-)
-
-const syncModel = useDebounceFn(() => {
-  model.value = localFilters.value.map(
-    ({ property, operator, value }) => ({ property, operator, value })
-  )
-}, props.debounceTime)
-
 // Composables.
 const appConfig = useAppConfig()
 const { t } = useI18n()
+
+// Component mapping.
+const componentMap = {
+  InputText
+}
+
+function getComponent(name) {
+  return componentMap[name] || 'div'
+}
+
+// Utils.
+function isValueEmpty(value) {
+  if (Array.isArray(value)) {
+    return value.every(item => item == null || item === '')
+  }
+
+  return value == null || value === ''
+}
+
+// Local state.
+function cloneFilters(filters = []) {
+  const results = []
+
+  for (const filter of filters) {
+    results.push({ ...filter })
+  }
+
+  return results
+}
+
+const localFilters = ref(cloneFilters(model.value))
+
+const syncModel = useDebounceFn(() => {
+  const results = []
+
+  for (const { property, operator, value } of localFilters.value) {
+    results.push({ property, operator, value })
+  }
+
+  model.value = results
+}, props.debounceTime)
+
+watch(model, (value) => {
+  localFilters.value = cloneFilters(value)
+}, { deep: true })
 
 // Properties.
 const filterableProperties = computed(() => {
@@ -145,101 +181,88 @@ const filterableProperties = computed(() => {
   return result
 })
 
-// Component mapping.
-const componentMap = {
-  InputText
-}
-
-function getComponent(name) {
-  return componentMap[name] || 'div'
-}
-
-// Utils.
-function isEmpty(value) {
-  return [null, undefined, ''].includes(value)
-}
-
-function isFunction(value) {
-  return typeof value === 'function'
-}
-
-// Available properties.
 const availableProperties = computed(() => {
-  const usedProperties = localFilters.value.map(
-    filter => filter.property
-  )
+  const used = new Set()
+
+  for (const filter of localFilters.value) {
+    used.add(filter.property)
+  }
 
   const results = []
 
   for (const key in filterableProperties.value) {
+    if (used.has(key)) continue
+
     const property = filterableProperties.value[key]
 
-    if (!usedProperties.includes(key)) {
-      results.push({
-        key,
-        label: property.label,
-        icon: property.icon
-      })
-    }
+    results.push({
+      key,
+      label: property.label,
+      icon: property.icon
+    })
   }
 
   return results
 })
 
 // Filters.
-const filters = computed(() => localFilters.value.map((filter) => {
-  const propertyConfig = filterableProperties.value[filter.property]
+const filters = computed(() => {
+  const results = []
 
-  const operatorConfig = propertyConfig.operators?.find(
-    operator => operator.value === filter.operator
-  )
+  for (const filter of localFilters.value) {
+    const propertyConfig = filterableProperties.value[filter.property]
+    const operatorConfig = propertyConfig.operators?.find(
+      operator => operator.value === filter.operator
+    )
 
-  return Object.assign(filter, {
-    label: isEmpty(filter.value) || !isFunction(operatorConfig?.mask)
+    const label = isValueEmpty(filter.value)
+      || typeof operatorConfig?.mask !== 'function'
       ? propertyConfig.label
-      : operatorConfig.mask(propertyConfig.label, filter.value),
+      : operatorConfig.mask(propertyConfig.label, filter.value)
 
-    propertyConfig,
-    operators: propertyConfig.operators,
-    component: propertyConfig.resolveFilterInput?.(propertyConfig, filter)
-  })
-}))
+    results.push({
+      ...filter,
+      label,
+      propertyConfig,
+      operators: propertyConfig.operators,
+      component: propertyConfig.resolveFilterInput?.(propertyConfig, filter)
+    })
+  }
 
+  return results
+})
+
+// Actions.
 function addFilter(item) {
   const propertyConfig = filterableProperties.value[item.key]
 
-  localFilters.value = [...localFilters.value, {
+  localFilters.value.push({
     property: item.key,
     operator: propertyConfig.defaultOperator,
     value: propertyConfig.defaultValue
-  }]
+  })
 
   syncModel()
 }
 
 function updateFilter(property, updates) {
-  const copy = localFilters.value.slice()
-  const index = copy.findIndex(
-    filter => filter.property === property
-  )
+  for (const filter of localFilters.value) {
+    if (filter.property !== property) continue
 
-  if (~index) {
-    Object.assign(copy[index], updates)
-    localFilters.value = copy
+    Object.assign(filter, updates)
+    break
   }
 
   syncModel()
 }
 
 function removeFilter(property) {
-  const copy = localFilters.value.slice()
-  const index = copy.findIndex(
-    filter => filter.property === property
+  const index = localFilters.value.findIndex(filter =>
+    filter.property === property
   )
 
-  if (~index) {
-    copy.splice(index, 1)
-    localFilters.value = copy
+  if (index !== -1) {
+    localFilters.value.splice(index, 1)
   }
 
   syncModel()
