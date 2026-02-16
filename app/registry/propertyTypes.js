@@ -164,6 +164,34 @@ const propertyTypes = {
     }
   },
 
+  phone: {
+    icon: 'i-tabler-phone',
+
+    operators: [
+      ...operatorGroups.equality,
+      ...operatorGroups.text,
+      ...operatorGroups.array,
+      ...operatorGroups.empty
+    ],
+
+    defaultOperator: 'contains',
+    defaultValue: '',
+
+    resolveInput: () => ({
+      component: 'InputPhone',
+      props: {}
+    }),
+
+    resolveFilterInput: (property, { operator }) => {
+      if (isEmptyOperator(operator)) return null
+
+      return {
+        component: 'InputFilterText',
+        props: {}
+      }
+    }
+  },
+
   relation: {
     operators: [...operatorGroups.relation],
     defaultOperator: 'some',

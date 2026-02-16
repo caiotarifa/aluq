@@ -28,6 +28,14 @@
         <pre>{{ time }}</pre>
       </div>
 
+      <div>
+        <InputPhone
+          v-model="phone"
+        />
+
+        <pre>{{ phone }}</pre>
+      </div>
+
       <!-- <div>
         <InputDateTime
           v-model="dateTime"
@@ -93,6 +101,8 @@ const date = ref('2024-06-15')
 const dateRange = ref([null, null])
 const time = ref('')
 // const dateTime = ref('')
+
+const phone = ref('+5516988311731')
 
 // const { activeOrganizationId, client } = useAuth()
 // const { organizations, fetchOrganizations } = useOrganization()

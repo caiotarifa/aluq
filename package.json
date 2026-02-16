@@ -36,6 +36,7 @@
     "ai": "^6.0.86",
     "better-sqlite3": "^12.6.2",
     "es-toolkit": "^1.44.0",
+    "libphonenumber-js": "^1.12.36",
     "maska": "^3.2.0",
     "nodemailer": "^8.0.1",
     "nuxt": "^4.3.1",

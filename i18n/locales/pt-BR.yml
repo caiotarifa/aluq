@@ -104,6 +104,9 @@ copyButton:
   copy: Copiar
   copied: Copiado!
 
+inputPhone:
+  searchCountry: Buscar país...
+
 inputSearch:
   placeholder: Buscar...
 
