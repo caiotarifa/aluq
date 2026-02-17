@@ -261,6 +261,9 @@ listEditView:
 inputFilterText:
   placeholder: Digite um valor
 
+inputRelation:
+  placeholder: Selecione...
+
 # Auth
 
 # Chat
@@ -344,6 +347,33 @@ businessUnit:
     name: Nome
     legalName: Razão Social
     taxId: Documento
+    createdAt: Criado em
+    updatedAt: Atualizado em
+
+  fieldsets:
+    general: Dados gerais
+
+location:
+  title: Unidade | Unidades
+  items: a unidade | as unidades
+
+  actions:
+    create: '@:actions.create unidade'
+
+  itemActions:
+    edit: Editar
+    delete: Excluir
+
+  batchActions:
+    delete: Excluir selecionados
+
+  views:
+    default: Todos
+
+  properties:
+    id: Código
+    name: Nome
+    businessUnitId: Empresa
     createdAt: Criado em
     updatedAt: Atualizado em
 

@@ -193,21 +193,28 @@ const propertyTypes = {
   },
 
   relation: {
-    operators: [...operatorGroups.relation],
-    defaultOperator: 'some',
+    operators: [
+      ...operatorGroups.equality,
+      ...operatorGroups.array,
+      ...operatorGroups.empty
+    ],
 
-    defaultValue: {
-      property: null,
-      operator: null,
-      value: null
-    },
+    defaultOperator: 'equals',
+    defaultValue: null,
 
     resolveInput: property => ({
       component: 'InputRelation',
       props: { entity: property?.entity }
     }),
 
-    resolveFilterInput: () => null
+    resolveFilterInput: (property, { operator }) => {
+      if (isEmptyOperator(operator)) return null
+
+      return {
+        component: 'InputRelation',
+        props: { entity: property?.entity }
+      }
+    }
   }
 }
 

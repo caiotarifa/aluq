@@ -32,6 +32,7 @@ function randomInvitationStatus() {
 async function cleanDatabase() {
   console.log('Cleaning database...')
 
+  await db.location.deleteMany()
   await db.businessUnit.deleteMany()
   await db.invitation.deleteMany()
   await db.member.deleteMany()
@@ -229,14 +230,16 @@ async function createBusinessUnits(organizations) {
   const businessUnits = []
 
   for (const organization of organizations) {
-    const count = faker.number.int({ min: 20, max: 500 })
+    const count = faker.number.int({ min: 1, max: 3 })
 
     for (let index = 0; index < count; index++) {
+      const name = faker.company.name()
+
       businessUnits.push({
         organizationId: organization.id,
         isActive: faker.datatype.boolean({ probability: 0.8 }),
-        name: faker.company.name(),
-        legalName: maybe(faker.company.name() + ' LTDA'),
+        name,
+        legalName: maybe(name + ' LTDA'),
         taxId: maybe(faker.string.numeric(14))
       })
     }
@@ -245,6 +248,38 @@ async function createBusinessUnits(organizations) {
   await db.businessUnit.createMany({ data: businessUnits })
 
   console.log(`Created ${businessUnits.length} business units!`)
+}
+
+/* -------------------------------------------------------------------------- */
+/* Locations                                                                  */
+/* -------------------------------------------------------------------------- */
+
+async function createLocations() {
+  console.log('Creating locations...')
+
+  const businessUnits = await db.businessUnit.findMany()
+  const locations = []
+
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+  const prefixes = ['Branch', 'Deposit', 'Office', 'Unit', 'Warehouse']
+
+  for (const businessUnit of businessUnits) {
+    const count = faker.number.int({ min: 1, max: 5 })
+
+    const prefix = faker.helpers.arrayElement(prefixes)
+    const selectedLetters = faker.helpers.arrayElements(letters, count)
+
+    for (const letter of selectedLetters) {
+      locations.push({
+        businessUnitId: businessUnit.id,
+        name: `${prefix} ${letter}`
+      })
+    }
+  }
+
+  await db.location.createMany({ data: locations })
+
+  console.log(`Created ${locations.length} locations!`)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -262,6 +297,7 @@ async function main() {
   await addMembersToOrganizations(otherUsers, organizations)
   await createInvitations(adminUser, organizations)
   await createBusinessUnits(organizations)
+  await createLocations()
 
   console.log('\nSeed completed successfully!')
   console.log('\nAdmin credentials:')

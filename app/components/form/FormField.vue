@@ -28,6 +28,7 @@ import {
   InputDate,
   InputDateTime,
   InputPhone,
+  InputRelation,
   InputText,
   InputTime
 } from '#components'
@@ -64,6 +65,7 @@ const componentMap = {
   InputDate,
   InputDateTime,
   InputPhone,
+  InputRelation,
   InputText,
   InputTime
 }
