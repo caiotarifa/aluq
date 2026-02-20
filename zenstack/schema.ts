@@ -615,6 +615,12 @@ export class SchemaType implements SchemaDef {
                         "organization"
                     ]
                 },
+                locations: {
+                    name: "locations",
+                    type: "Location",
+                    array: true,
+                    relation: { opposite: "businessUnit" }
+                },
                 isActive: {
                     name: "isActive",
                     type: "Boolean",
@@ -641,6 +647,58 @@ export class SchemaType implements SchemaDef {
                 { name: "@@allow", args: [{ name: "operation", value: ExpressionUtils.literal("all") }, { name: "condition", value: ExpressionUtils.binary(ExpressionUtils.member(ExpressionUtils.call("auth"), ["organizationId"]), "==", ExpressionUtils.field("organizationId")) }] },
                 { name: "@@map", args: [{ name: "name", value: ExpressionUtils.literal("businessUnit") }] },
                 { name: "@@index", args: [{ name: "fields", value: ExpressionUtils.array("String", [ExpressionUtils.field("organizationId")]) }] }
+            ],
+            idFields: ["id"],
+            uniqueFields: {
+                id: { type: "String" }
+            }
+        },
+        Location: {
+            name: "Location",
+            fields: {
+                id: {
+                    name: "id",
+                    type: "String",
+                    id: true,
+                    attributes: [{ name: "@id" }, { name: "@default", args: [{ name: "value", value: ExpressionUtils.call("cuid") }] }],
+                    default: ExpressionUtils.call("cuid")
+                },
+                createdAt: {
+                    name: "createdAt",
+                    type: "DateTime",
+                    attributes: [{ name: "@default", args: [{ name: "value", value: ExpressionUtils.call("now") }] }],
+                    default: ExpressionUtils.call("now")
+                },
+                updatedAt: {
+                    name: "updatedAt",
+                    type: "DateTime",
+                    updatedAt: true,
+                    attributes: [{ name: "@default", args: [{ name: "value", value: ExpressionUtils.call("now") }] }, { name: "@updatedAt" }],
+                    default: ExpressionUtils.call("now")
+                },
+                businessUnit: {
+                    name: "businessUnit",
+                    type: "BusinessUnit",
+                    attributes: [{ name: "@relation", args: [{ name: "fields", value: ExpressionUtils.array("String", [ExpressionUtils.field("businessUnitId")]) }, { name: "references", value: ExpressionUtils.array("String", [ExpressionUtils.field("id")]) }, { name: "onDelete", value: ExpressionUtils.literal("Cascade") }] }],
+                    relation: { opposite: "locations", fields: ["businessUnitId"], references: ["id"], onDelete: "Cascade" }
+                },
+                businessUnitId: {
+                    name: "businessUnitId",
+                    type: "String",
+                    foreignKeyFor: [
+                        "businessUnit"
+                    ]
+                },
+                name: {
+                    name: "name",
+                    type: "String",
+                    attributes: [{ name: "@length", args: [{ name: "min", value: ExpressionUtils.literal(1) }] }]
+                }
+            },
+            attributes: [
+                { name: "@@allow", args: [{ name: "operation", value: ExpressionUtils.literal("all") }, { name: "condition", value: ExpressionUtils.binary(ExpressionUtils.member(ExpressionUtils.field("businessUnit"), ["organizationId"]), "==", ExpressionUtils.member(ExpressionUtils.call("auth"), ["organizationId"])) }] },
+                { name: "@@map", args: [{ name: "name", value: ExpressionUtils.literal("location") }] },
+                { name: "@@index", args: [{ name: "fields", value: ExpressionUtils.array("String", [ExpressionUtils.field("businessUnitId")]) }] }
             ],
             idFields: ["id"],
             uniqueFields: {

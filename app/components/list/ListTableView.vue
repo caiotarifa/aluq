@@ -171,7 +171,8 @@ const columns = computed(() => {
     const property = props.properties[key]
 
     results.push({
-      accessorKey: key,
+      id: key,
+      accessorFn: row => row[key],
 
       header: ({ column }) => getHeader(column, property),
 

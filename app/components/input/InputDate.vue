@@ -7,7 +7,7 @@
       :range
     />
 
-    <UPopover :reference="inputDate?.inputsRef[range ? 0 : 3]?.$el">
+    <UPopover :reference="inputDate?.inputsRef?.[range ? 0 : 3]?.$el">
       <UButton
         class="px-2.5 text-muted"
         color="neutral"

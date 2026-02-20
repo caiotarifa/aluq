@@ -251,8 +251,8 @@ listEditView:
     cards: Cards
 
   properties: Propriedades
-  showAll: Mostrar todas
-  hideAll: Ocultar todas
+  addProperty: Adicionar propriedade
+  removeProperty: Remover propriedade
   pin: Fixar coluna
   unpin: Desafixar coluna
 
@@ -374,6 +374,8 @@ location:
     id: Código
     name: Nome
     businessUnitId: Empresa
+    businessUnit.name: Empresa
+    businessUnit.taxId: Empresa / Documento
     createdAt: Criado em
     updatedAt: Atualizado em
 

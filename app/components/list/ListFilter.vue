@@ -42,7 +42,7 @@
           />
         </header>
 
-        <div class="space-x-2 p-4">
+        <div class="flex items-center gap-2 p-4">
           <USelect
             :items="filter.operators"
             :model-value="filter.operator"
@@ -56,6 +56,7 @@
             :is="getComponent(filter.component.component)"
             v-if="filter.component"
             autofocus
+            class="flex-1"
             :model-value="filter.value"
             size="sm"
             variant="soft"
@@ -92,7 +93,10 @@
 
 <script setup>
 import { useDebounceFn } from '@vueuse/core'
-import { InputText } from '#components'
+import {
+  InputRelation,
+  InputText
+} from '#components'
 
 const props = defineProps({
   debounceTime: {
@@ -123,6 +127,7 @@ const { t } = useI18n()
 
 // Component mapping.
 const componentMap = {
+  InputRelation,
   InputText
 }
 

@@ -37,7 +37,7 @@ const {
 
   onCancel,
   onSubmit
-} = useEntityForm(entityName)
+} = useEntityForm(entityName, route.params.id)
 
 // Page title.
 const pageTitle = computed(() => {

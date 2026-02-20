@@ -96,7 +96,7 @@
         v-else-if="queryModel.type === 'cards'"
         v-model:row-selection="rowSelectionModel"
         :batch-actions="resolvedBatchActions"
-        :data="items"
+        :data="flattenedItems"
         :entity
         :item-actions="resolvedItemActions"
         :loading
@@ -110,7 +110,7 @@
         v-model:row-selection="rowSelectionModel"
         v-model:sort="queryModel.sort"
         :batch-actions="resolvedBatchActions"
-        :data="items"
+        :data="flattenedItems"
         :entity
         :item-actions="resolvedItemActions"
         :loading
@@ -330,6 +330,18 @@ function onViewUpdate(payload) {
 }
 
 // Properties.
+const nestedKeys = computed(() => {
+  const keys = []
+
+  for (const key of queryModel.value.properties || []) {
+    if (key.includes('.')) {
+      keys.push(key)
+    }
+  }
+
+  return keys
+})
+
 const viewProperties = computed(() => {
   const result = {}
   const propertyKeys = queryModel.value.properties || []
@@ -338,6 +350,37 @@ const viewProperties = computed(() => {
     if (props.entity.properties?.[key]) {
       result[key] = props.entity.properties[key]
     }
+  }
+
+  return result
+})
+
+// Flatten nested data for child views.
+const flattenedItems = computed(() => {
+  const keys = nestedKeys.value
+
+  if (keys.length === 0) {
+    return props.items
+  }
+
+  const result = []
+
+  for (const item of props.items) {
+    const flat = { ...item }
+
+    for (const key of keys) {
+      const [relation, property] = key.split('.')
+      const value = item[relation]
+
+      if (Array.isArray(value)) {
+        flat[key] = value.map(v => v?.[property]).filter(Boolean).join(', ')
+      }
+      else {
+        flat[key] = value?.[property] ?? null
+      }
+    }
+
+    result.push(flat)
   }
 
   return result

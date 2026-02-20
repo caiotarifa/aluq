@@ -1,0 +1,15 @@
+import '../types/BaseModel'
+
+import './BusinessUnit'
+
+model Location with BaseModel {
+  businessUnit   BusinessUnit @relation(fields: [businessUnitId], references: [id], onDelete: Cascade)
+  businessUnitId String
+
+  name String @length(1)
+
+  @@allow('all', businessUnit.organizationId == auth().organizationId)
+
+  @@map('location')
+  @@index([businessUnitId])
+}

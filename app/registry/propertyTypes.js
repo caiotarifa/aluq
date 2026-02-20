@@ -193,9 +193,10 @@ const propertyTypes = {
   },
 
   relation: {
+    icon: 'i-tabler-circles-relation',
+
     operators: [
       ...operatorGroups.equality,
-      ...operatorGroups.array,
       ...operatorGroups.empty
     ],
 

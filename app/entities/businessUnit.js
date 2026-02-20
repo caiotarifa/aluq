@@ -4,6 +4,8 @@ import { companyDocumentMask } from '../registry/masks.js'
 export default {
   name: 'businessUnit',
 
+  hasMany: ['location'],
+
   aiDescription: 'A business unit represents a distinct part of a company, such as a department or division, that operates semi-independently.',
 
   display: {

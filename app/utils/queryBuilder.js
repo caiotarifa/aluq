@@ -70,21 +70,25 @@ export function buildSelect(properties) {
     return undefined
   }
 
-  const validProperties = []
+  const result = { id: true }
 
   for (const field of properties) {
-    if (field) continue
-    validProperties.push(field)
-  }
+    if (!field) continue
 
-  if (validProperties.length === 0) {
-    return undefined
-  }
+    if (!field.includes('.')) {
+      result[field] = true
+      continue
+    }
 
-  const result = {}
+    const [relation, property] = field.split('.')
+    const existing = result[relation]
 
-  for (const field of validProperties) {
-    result[field] = true
+    if (existing?.select) {
+      existing.select[property] = true
+    }
+    else {
+      result[relation] = { select: { [property]: true } }
+    }
   }
 
   return result

@@ -39,32 +39,8 @@
       </section>
 
       <section class="my-6 space-y-2 border-t border-default pt-4">
-        <header class="flex items-center gap-2 text-xs font-medium tracking-wide text-highlighted uppercase">
+        <header class="text-xs font-medium tracking-wide text-highlighted uppercase">
           {{ t('listEditView.properties') }}
-
-          <div class="ml-auto flex gap-1">
-            <UTooltip :text="t('listEditView.showAll')">
-              <UButton
-                color="neutral"
-                :disabled="allVisible"
-                icon="i-tabler-eye"
-                size="xs"
-                variant="ghost"
-                @click="showAll"
-              />
-            </UTooltip>
-
-            <UTooltip :text="t('listEditView.hideAll')">
-              <UButton
-                color="neutral"
-                :disabled="noneVisible"
-                icon="i-tabler-eye-off"
-                size="xs"
-                variant="ghost"
-                @click="hideAll"
-              />
-            </UTooltip>
-          </div>
         </header>
 
         <div>
@@ -80,8 +56,7 @@
                 v-for="(property, index) in group.items"
                 :id="property.key"
                 :key="property.key"
-                class="group flex items-center gap-2 py-1.5 text-muted transition-colors"
-                :class="property.pinned || property.visible ? 'hover:text-default' : 'opacity-50'"
+                class="group flex items-center gap-2 py-1.5 text-muted transition-colors hover:text-default"
                 :index="index"
               >
                 <template #default="{ drag }">
@@ -97,7 +72,6 @@
 
                   <div class="flex items-center gap-2">
                     <UTooltip
-                      v-if="property.pinned || property.visible"
                       :text="property.pinned ? t('listEditView.unpin') : t('listEditView.pin')"
                     >
                       <UButton
@@ -111,17 +85,37 @@
                       />
                     </UTooltip>
 
-                    <USwitch
-                      :model-value="property.visible"
-                      size="xs"
-                      @update:model-value="toggleVisibility(property.key)"
-                    />
+                    <UTooltip
+                      :text="t('listEditView.removeProperty')"
+                    >
+                      <UButton
+                        class="opacity-0 transition-opacity group-hover:opacity-100"
+                        color="neutral"
+                        icon="i-tabler-x"
+                        size="xs"
+                        variant="ghost"
+                        @click="removeProperty(property.key)"
+                      />
+                    </UTooltip>
                   </div>
                 </template>
               </SortableItem>
             </DragDropProvider>
           </template>
         </div>
+
+        <USelectMenu
+          v-if="availableProperties.length > 0"
+          :content="{ align: 'start' }"
+          :icon="appConfig.ui.icons.plus"
+          :items="availableProperties"
+          :model-value="null"
+          :placeholder="t('listEditView.addProperty')"
+          :trailing-icon="false"
+          :ui="{ content: 'min-w-fit' }"
+          variant="soft"
+          @update:model-value="addProperty"
+        />
       </section>
     </template>
 
@@ -218,42 +212,105 @@ function buildProperties() {
   const viewProperties = props.query.properties || []
   const pinnedLeft = props.query.pinned || []
 
-  const propertyMap = new Map()
-
-  for (const key in props.entity.properties) {
-    const { label, type } = props.entity.properties[key]
-
-    propertyMap.set(key, {
-      key,
-      label: label || key,
-      type,
-      visible: viewProperties.includes(key),
-      pinned: pinnedLeft.includes(key)
-    })
-  }
-
   const pinned = []
   const unpinned = []
 
   for (const key of viewProperties) {
-    if (!propertyMap.has(key)) continue
+    const property = props.entity.properties?.[key]
+    if (!property) continue
 
-    const property = propertyMap.get(key)
-    propertyMap.delete(key)
-
-    if (property.pinned) {
-      pinned.push(property)
-      continue
+    const item = {
+      key,
+      label: property.label || key,
+      pinned: pinnedLeft.includes(key)
     }
 
-    unpinned.push(property)
-  }
-
-  for (const property of propertyMap.values()) {
-    unpinned.push(property)
+    if (item.pinned) {
+      pinned.push(item)
+    }
+    else {
+      unpinned.push(item)
+    }
   }
 
   localProperties.value = [...pinned, ...unpinned]
+}
+
+// Available properties (not yet selected), grouped by entity.
+const availableProperties = computed(() => {
+  const used = new Set()
+
+  for (const property of localProperties.value) {
+    used.add(property.key)
+  }
+
+  const ownItems = []
+  const groupedNested = {}
+
+  for (const key in props.entity.properties) {
+    if (used.has(key)) continue
+
+    const property = props.entity.properties[key]
+
+    if (property.nested) {
+      const groupKey = property.relation
+      const group = groupedNested[groupKey] || (groupedNested[groupKey] = [])
+
+      group.push({
+        key,
+        label: property.label,
+        icon: property.icon
+      })
+    }
+    else if (property.type !== 'relation') {
+      ownItems.push({
+        key,
+        label: property.label,
+        icon: property.icon
+      })
+    }
+  }
+
+  const result = [...ownItems]
+
+  for (const groupKey in groupedNested) {
+    const groupLabel = t(`${groupKey}.title`, 1)
+
+    result.push({
+      type: 'label',
+      label: groupLabel
+    })
+
+    for (const item of groupedNested[groupKey]) {
+      result.push(item)
+    }
+  }
+
+  return result
+})
+
+// Add / remove property.
+function addProperty(item) {
+  if (!item?.key) return
+
+  const property = props.entity.properties?.[item.key]
+  if (!property) return
+
+  localProperties.value.push({
+    key: item.key,
+    label: property.label || item.key,
+    pinned: false
+  })
+}
+
+function removeProperty(key) {
+  const index = localProperties.value.findIndex(
+    item => item.key === key
+  )
+
+  if (index !== -1) {
+    localProperties.value.splice(index, 1)
+  }
 }
 
 // Drag.
@@ -291,54 +348,12 @@ function resetState() {
   buildProperties()
 }
 
-// Visibility.
-const allVisible = computed(() =>
-  localProperties.value.every(property => property.visible)
+// Visibility count.
+const visibleCount = computed(() =>
+  localProperties.value.length
 )
 
-const noneVisible = computed(() =>
-  localProperties.value.every(property => !property.visible)
-)
-
-const visibleCount = computed(() => {
-  let count = 0
-
-  for (const property of localProperties.value) {
-    if (property.visible) {
-      count++
-    }
-  }
-
-  return count
-})
-
-function showAll() {
-  for (const property of localProperties.value) {
-    property.visible = true
-  }
-}
-
-function hideAll() {
-  for (const property of localProperties.value) {
-    property.visible = false
-    property.pinned = false
-  }
-}
-
-function toggleVisibility(key) {
-  const property = localProperties.value.find(
-    item => item.key === key
-  )
-
-  if (!property) return
-
-  property.visible = !property.visible
-
-  if (!property.visible && property.pinned) {
-    property.pinned = false
-  }
-}
-
+// Pin.
 function togglePin(key) {
   const property = localProperties.value.find(
     item => item.key === key
@@ -369,8 +384,6 @@ function apply() {
     const pinnedLeft = []
 
     for (const property of localProperties.value) {
-      if (!property.visible) continue
-
       properties.push(property.key)
 
       if (property.pinned) {

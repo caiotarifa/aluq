@@ -51,33 +51,94 @@ function getMappedOperators(propertyTypeOperators, resolvedOperators) {
   return mapped
 }
 
-function resolveProperties(properties, entityName, t, resolvedOperators) {
+function resolveProperty(
+  propertyKey, property, entityName, t, resolvedOperators
+) {
+  const propertyType = resolvePropertyType(property.type)
+
+  const resolved = {
+    ...propertyType,
+    ...property,
+    label: t(`${entityName}.properties.${propertyKey}`),
+    propertyType
+  }
+
+  if (propertyType.operators) {
+    resolved.operators = getMappedOperators(
+      propertyType.operators,
+      resolvedOperators
+    )
+  }
+
+  return resolved
+}
+
+function resolveNestedLabel(entityName, nestedKey, t) {
+  const specific = `${entityName}.properties.${nestedKey}`
+
+  // Try specific label first.
+  if (t(specific) !== specific) {
+    return t(specific)
+  }
+
+  // Fallback to "Entity / Property".
+  const [relation, property] = nestedKey.split('.')
+  const relationLabel = t(`${relation}.title`, 1)
+  const propertyLabel = t(`${relation}.properties.${property}`)
+
+  return `${relationLabel} / ${propertyLabel}`
+}
+
+function resolveNestedProperties(source, entityName, t, resolvedOperators) {
+  const nested = {}
+
+  for (const relation of source.hasOne || []) {
+    const relatedSource = entitySources[relation]
+    if (!relatedSource?.properties) continue
+
+    for (const property in relatedSource.properties) {
+      const key = `${relation}.${property}`
+
+      const relatedProperty = relatedSource.properties[property]
+      const resolved = resolveProperty(
+        property,
+        relatedProperty,
+        relation,
+        t,
+        resolvedOperators
+      )
+
+      nested[key] = {
+        ...resolved,
+        label: resolveNestedLabel(entityName, key, t),
+        nested: true,
+        sortable: false,
+        filterable: false,
+        relation
+      }
+    }
+  }
+
+  return nested
+}
+
+function resolveProperties(source, entityName, t, resolvedOperators) {
+  const { properties } = source
   if (!properties) return {}
 
   const resolvedProperties = {}
 
-  for (const propertyKey in properties) {
-    const property = properties[propertyKey]
-    const propertyType = resolvePropertyType(property.type)
-
-    const resolved = {
-      ...propertyType,
-      ...property,
-      label: t(`${entityName}.properties.${propertyKey}`),
-      propertyType
-    }
-
-    if (propertyType.operators) {
-      resolved.operators = getMappedOperators(
-        propertyType.operators,
-        resolvedOperators
-      )
-    }
-
-    resolvedProperties[propertyKey] = resolved
+  for (const key in properties) {
+    resolvedProperties[key] = resolveProperty(
+      key, properties[key], entityName, t, resolvedOperators
+    )
   }
 
-  return resolvedProperties
+  const nested = resolveNestedProperties(
+    source, entityName, t, resolvedOperators
+  )
+
+  return { ...resolvedProperties, ...nested }
 }
 
 function resolveViews(views, entityName, t) {
@@ -192,7 +253,7 @@ export function useEntity(name) {
       operators: resolvedOperators,
 
       properties: resolveProperties(
-        source.properties,
+        source,
         entityName,
         t,
         resolvedOperators

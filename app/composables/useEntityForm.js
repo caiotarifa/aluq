@@ -1,164 +1,120 @@
 const excludedProperties = ['id', 'createdAt', 'updatedAt']
 
-function buildInitialState(entity) {
-  const state = {}
+function isExcluded(key) {
+  return excludedProperties.includes(key)
+}
+
+export function useEntityForm(entityName, id, options = {}) {
+  const entityNameValue = toValue(entityName)
+
+  const isNew = computed(() =>
+    id.value === 'new'
+  )
+
+  // Composables.
+  const router = useRouter()
+  const route = useRoute()
+  const { t } = useI18n()
+
+  const { notifyError, notifySuccess } = useNotify()
+  const { client } = useRemote()
+
+  if (!client[entityNameValue]) {
+    throw new Error(`Entity "${entityNameValue}" not found in schema`)
+  }
+
+  // Entity.
+  const entity = useEntity(entityName)
+
+  // Form configuration.
+  const formConfig = computed(() => {
+    const form = entity.value.form || {}
+
+    if (form.fieldsets?.length || form.fields?.length) {
+      return {
+        fieldsets: form.fieldsets || [],
+        fields: form.fields || []
+      }
+    }
+
+    const fields = []
+
+    for (const key in entity.value.properties) {
+      if (isExcluded(key)) continue
+      fields.push({ property: key })
+    }
+
+    return {
+      fieldsets: [],
+      fields
+    }
+  })
+
+  // State.
+  const state = reactive({})
 
   for (const key in entity.properties) {
-    if (excludedProperties.includes(key)) continue
+    if (isExcluded(key)) continue
 
     const property = entity.properties[key]
     state[key] = property.defaultValue ?? undefined
   }
 
-  return state
-}
+  // Data fetching.
+  const { isLoading: isFetching } = useRemoteItem(
+    entityName,
 
-function buildPayload(state) {
-  const payload = {}
+    computed(() =>
+      isNew.value ? null : { id }
+    ),
 
-  for (const field in state) {
-    if (excludedProperties.includes(field)) continue
+    {
+      enabled: !isNew.value,
 
-    const value = toRaw(state[field])
-    payload[field] = value === undefined ? null : value
-  }
-
-  return payload
-}
-
-function resolveFormConfig(entity) {
-  const form = entity.form || {}
-
-  if (form.fieldsets?.length || form.fields?.length) {
-    return {
-      fieldsets: form.fieldsets || [],
-      fields: form.fields || []
-    }
-  }
-
-  const fields = []
-
-  for (const key in entity.properties) {
-    if (excludedProperties.includes(key)) continue
-    fields.push({ property: key })
-  }
-
-  return {
-    fieldsets: [],
-    fields
-  }
-}
-
-export function useEntityForm(entityName, options = {}) {
-  const route = useRoute()
-  const router = useRouter()
-
-  const key = singularize(toValue(entityName))
-
-  const isNew = computed(() =>
-    route.params.id === 'new'
-  )
-
-  const entity = useEntity(entityName)
-
-  const formConfig = computed(() =>
-    resolveFormConfig(entity.value)
-  )
-
-  const state = reactive({})
-  const isInitialized = ref(false)
-
-  const { t } = useI18n()
-  const { client } = useRemote()
-  const { notifyError, notifySuccess } = useNotify()
-
-  if (!client[key]) {
-    throw new Error(`Entity "${key}" not found in schema`)
-  }
-
-  const {
-    data: existingData,
-    error: fetchError,
-    isLoading: isFetching
-  } = client[key].useFindUnique(
-    () => isNew.value ? false : { where: { id: route.params.id } },
-    () => ({ enabled: !isNew.value })
-  )
-
-  watch(fetchError, (error) => {
-    if (!error) return
-
-    const item = t(`${key}.items`)
-
-    notifyError({
-      title: t('messages.fetchError.title'),
-      description: t('messages.fetchError.description', { item })
-    })
-  })
-
-  // Reset initialization flag when route id changes.
-  watch(
-    () => route.params.id,
-    () => { isInitialized.value = false }
-  )
-
-  // State initialization.
-  watch([() => entity.value, existingData], ([resolvedEntity, data]) => {
-    if (isInitialized.value || !resolvedEntity) return
-
-    const base = buildInitialState(resolvedEntity)
-
-    if (data) {
-      for (const field in data) {
-        if (field in base) {
-          base[field] = data[field]
+      select: (data) => {
+        for (const key in data) {
+          if (isExcluded(key)) continue
+          state[key] = data[key]
         }
       }
     }
+  )
 
-    for (const field in base) {
-      state[field] = base[field]
-    }
-
-    if (isNew.value || data) {
-      isInitialized.value = true
-    }
-  }, { immediate: true })
+  // Redirect.
+  const redirectTo = computed(() =>
+    toValue(options.redirectTo) || `/app/${route.params.entity}`
+  )
 
   // Mutations.
-  const createMutation = client[key].useCreate()
-  const updateMutation = client[key].useUpdate()
+  const createMutation = client[entityNameValue].useCreate()
+  const updateMutation = client[entityNameValue].useUpdate()
 
   const isSaving = computed(() =>
     createMutation.isPending.value || updateMutation.isPending.value
   )
 
-  // Delete.
-  const { isDeleting, deleteRecord } = useEntityDelete(entityName)
-
   function save() {
-    const data = buildPayload(state)
+    const data = {}
+
+    for (const field in state) {
+      if (isExcluded(field)) continue
+
+      const value = toRaw(state[field])
+      data[field] = value === undefined ? null : value
+    }
 
     if (isNew.value) {
       return createMutation.mutateAsync({ data })
     }
 
-    return updateMutation.mutateAsync({
-      where: { id: route.params.id },
-      data
-    })
+    return updateMutation.mutateAsync({ where: { id }, data })
   }
-
-  // Redirect default.
-  const redirectTo = computed(() =>
-    toValue(options.redirectTo) || `/app/${route.params.entity}`
-  )
 
   // Submit handler.
   async function onSubmit() {
     if (isSaving.value) return
 
-    const item = t(`${key}.items`)
+    const item = t(`${entityNameValue}.items`)
 
     try {
       await save()
@@ -184,16 +140,18 @@ export function useEntityForm(entityName, options = {}) {
     router.push(redirectTo.value)
   }
 
-  // Delete handler.
+  // Delete.
+  const { isDeleting, deleteRecord } = useEntityDelete(entityNameValue)
+
   async function onDelete() {
-    const confirmed = await deleteRecord(route.params.id)
+    const confirmed = await deleteRecord(id)
 
     if (confirmed) {
       router.push(redirectTo.value)
     }
   }
 
-  // Item actions (excluding edit).
+  // Item actions.
   const itemActions = computed(() => {
     if (isNew.value || !entity.value?.itemActions?.length) return []
 
@@ -223,7 +181,6 @@ export function useEntityForm(entityName, options = {}) {
     return actions
   })
 
-  // Item action handler.
   function onItemAction({ action }) {
     if (action.execute === 'delete') {
       return onDelete()
