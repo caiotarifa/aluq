@@ -45,9 +45,12 @@ const pageTitle = computed(() => {
 
   const entityTitle = t(`${entityName.value}.title`)
 
-  return isNew.value
-    ? t('actions.create', [entityTitle.toLowerCase()])
-    : entityTitle
+  if (isNew.value) {
+    return t('actions.create', [entityTitle.toLowerCase()])
+  }
+
+  const displayProperty = entity.value.display?.property
+  return (displayProperty && state[displayProperty]) || entityTitle
 })
 
 // Breadcrumb.
