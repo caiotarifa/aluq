@@ -5,7 +5,8 @@ export default defineNuxtConfig({
     '@nuxt/image',
     '@nuxt/scripts',
     '@nuxtjs/i18n',
-    '@nuxtjs/mdc'
+    '@nuxtjs/mdc',
+    '@nuxthub/core'
   ],
 
   devtools: {
@@ -41,6 +42,13 @@ export default defineNuxtConfig({
   },
 
   compatibilityDate: '2025-01-15',
+
+  // Hub.
+  hub: {
+    blob: true,
+    cache: true,
+    kv: true
+  },
 
   // ESLint.
   eslint: {

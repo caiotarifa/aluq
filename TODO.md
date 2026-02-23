@@ -165,7 +165,7 @@ O `Form.vue` recebe a prop `fetching`, mas não exibe skeletons. O formulário a
 
 Consolidar o registro de tipos para que novas entidades possam usar qualquer campo sem friction.
 
-### 3.1 ⭐🟡 Auditoria e padronização dos property types e inputs
+### 3.1 ✅ Auditoria e padronização dos property types e inputs
 
 **Arquivos principais:** `app/registry/propertyTypes.js`, `app/components/form/FormField.vue`, `app/components/input/`
 
@@ -258,7 +258,7 @@ Campo composto para endereços internacionais com busca automática usando OpenS
 
 **O que precisa ser feito:**
 - Criar `InputAddress.vue` como um componente composto com campos na ordem:
-  - **País** (seletor com bandeira)
+  - **País** (seletor com bandeira) – Criar InputCountry.vue usando Intl
   - **CEP/Código Postal**
   - **Endereço 1** (linha principal: rua, número)
   - **Endereço 2** (complemento: apartamento, bloco)
@@ -327,7 +327,7 @@ Atualmente o List só suporta o tipo `table`. A entidade pode definir `type: 'ca
 
 ---
 
-### 4.2 🟡 Criar componentes Display (readonly)
+### 4.2 ✅ Criar componentes Display (readonly)
 
 **Arquivos principais:** `app/components/display/` (nova pasta), `app/registry/propertyTypes.js`, `app/components/form/Form.vue`
 
@@ -356,9 +356,9 @@ Para cenários onde o usuário não tem permissão de edição ou para telas de 
 
 ---
 
-## 5. Entidades Relacionadas
+## 5. ✅ Entidades Relacionadas
 
-### 5.1 ⭐🟡 Teste e implementação de entidade com relação
+### 5.1 ✅ Teste e implementação de entidade com relação
 
 **Arquivos principais:** `app/entities/location.js` (novo), `app/components/input/InputRelation.vue`, `zenstack/models/Location.zmodel` (novo)
 
