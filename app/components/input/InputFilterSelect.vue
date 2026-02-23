@@ -2,7 +2,7 @@
   <USelectMenu
     v-if="multiple"
     v-model="model"
-    :items="options"
+    :items
     multiple
     :placeholder="t('listFilter.filter')"
     size="sm"
@@ -12,7 +12,7 @@
   <USelect
     v-else
     v-model="model"
-    :items="options"
+    :items
     size="sm"
     variant="soft"
   />
@@ -25,14 +25,14 @@ defineProps({
     default: () => ({})
   },
 
+  items: {
+    type: Array,
+    default: () => []
+  },
+
   operator: {
     type: String,
     default: 'equals'
-  },
-
-  options: {
-    type: Array,
-    default: () => []
   },
 
   multiple: {
@@ -44,7 +44,7 @@ defineProps({
 const { t } = useI18n()
 
 const model = defineModel({
-  type: [String, Number, Boolean, Array],
+  type: [Array, String],
   default: null
 })
 </script>

@@ -63,7 +63,16 @@
           </dt>
 
           <dd class="truncate text-default">
-            {{ item[key] }}
+            <component
+              :is="resolveDisplay(property.displayConfig)"
+              v-if="resolveDisplay(property.displayConfig)"
+              :model-value="item[key]"
+              v-bind="property.displayConfig?.props"
+            />
+
+            <span v-else>
+              {{ item[key] ?? '–' }}
+            </span>
           </dd>
         </div>
       </dl>
@@ -72,6 +81,8 @@
 </template>
 
 <script setup>
+const { resolve: resolveDisplay } = useDisplay()
+
 const props = defineProps({
   batchActions: {
     type: Array,

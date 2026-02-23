@@ -16,7 +16,7 @@
       :color="copied ? 'primary' : 'neutral'"
       variant="link"
       v-bind="button"
-      @click="copy(text)"
+      @click.stop="copy(text)"
     >
       <template #leading>
         <UIcon

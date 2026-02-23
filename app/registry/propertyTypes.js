@@ -25,6 +25,242 @@ const propertyTypes = {
     resolveFilterInput: () => ({
       component: 'InputFilterBoolean',
       props: {}
+    }),
+
+    resolveDisplay: () => ({
+      component: 'DisplayBoolean',
+      props: {}
+    })
+  },
+
+  code: {
+    icon: 'i-tabler-hash',
+    extends: 'text',
+
+    operators: [
+      ...operatorGroups.equality,
+      ...operatorGroups.array,
+      ...operatorGroups.empty
+    ],
+
+    defaultOperator: 'equals',
+
+    resolveInput: () => ({
+      component: 'InputCode',
+      props: {}
+    }),
+
+    resolveDisplay: () => ({
+      component: 'DisplayCode',
+      props: {}
+    })
+  },
+
+  currency: {
+    icon: 'i-tabler-coins',
+    extends: 'number',
+
+    resolveInput: () => ({
+      component: 'InputCurrency',
+      props: {}
+    }),
+
+    resolveDisplay: () => ({
+      component: 'DisplayCurrency',
+      props: {}
+    })
+  },
+
+  date: {
+    icon: 'i-tabler-calendar',
+
+    operators: [
+      ...operatorGroups.equality,
+      ...operatorGroups.comparison,
+      ...operatorGroups.range,
+      ...operatorGroups.empty
+    ],
+
+    defaultOperator: 'equals',
+    defaultValue: null,
+
+    resolveInput: () => ({
+      component: 'InputDate',
+      props: {}
+    }),
+
+    resolveFilterInput: (property, { operator }) => {
+      if (isEmptyOperator(operator)) return null
+
+      return {
+        component: 'InputDate',
+        props: { range: operator === 'between' }
+      }
+    },
+
+    resolveDisplay: () => ({
+      component: 'DisplayDate',
+      props: {}
+    })
+  },
+
+  datetime: {
+    icon: 'i-tabler-calendar-clock',
+    extends: 'date',
+
+    resolveInput: () => ({
+      component: 'InputDateTime',
+      props: {}
+    })
+  },
+
+  email: {
+    icon: 'i-tabler-mail',
+    extends: 'text',
+
+    resolveDisplay: () => ({
+      component: 'DisplayEmail',
+      props: {}
+    })
+  },
+
+  number: {
+    icon: 'i-tabler-numbers',
+
+    operators: [
+      ...operatorGroups.equality,
+      ...operatorGroups.comparison,
+      ...operatorGroups.range,
+      ...operatorGroups.array,
+      ...operatorGroups.empty
+    ],
+
+    defaultOperator: 'equals',
+    defaultValue: null,
+
+    resolveInput: () => ({
+      component: 'UInputNumber',
+      props: {}
+    }),
+
+    resolveFilterInput: (property, { operator }) => {
+      if (isEmptyOperator(operator)) return null
+
+      if (isArrayOperator(operator)) {
+        return {
+          component: 'InputFilterList',
+          props: { type: 'number' }
+        }
+      }
+
+      return {
+        component: 'InputFilterNumber',
+        props: { between: operator === 'between' }
+      }
+    },
+
+    resolveDisplay: () => ({
+      component: 'DisplayNumber',
+      props: {}
+    })
+  },
+
+  phone: {
+    icon: 'i-tabler-phone',
+
+    operators: [
+      ...operatorGroups.equality,
+      ...operatorGroups.text,
+      ...operatorGroups.array,
+      ...operatorGroups.empty
+    ],
+
+    defaultOperator: 'contains',
+    defaultValue: '',
+
+    resolveInput: () => ({
+      component: 'InputPhone',
+      props: {}
+    }),
+
+    resolveFilterInput: (property, { operator }) => {
+      if (isEmptyOperator(operator)) return null
+
+      return {
+        component: 'InputText',
+        props: {}
+      }
+    },
+
+    resolveDisplay: () => ({
+      component: 'DisplayPhone',
+      props: {}
+    })
+  },
+
+  relation: {
+    icon: 'i-tabler-circles-relation',
+
+    operators: [
+      ...operatorGroups.equality,
+      ...operatorGroups.empty
+    ],
+
+    defaultOperator: 'equals',
+    defaultValue: null,
+
+    resolveInput: property => ({
+      component: 'InputRelation',
+      props: { entity: property?.entity }
+    }),
+
+    resolveFilterInput: (property, { operator }) => {
+      if (isEmptyOperator(operator)) return null
+
+      return {
+        component: 'InputRelation',
+        props: { entity: property?.entity }
+      }
+    },
+
+    resolveDisplay: property => ({
+      component: 'DisplayRelation',
+      props: { entity: property?.entity }
+    })
+  },
+
+  select: {
+    icon: 'i-tabler-list',
+
+    operators: [
+      ...operatorGroups.equality,
+      ...operatorGroups.array,
+      ...operatorGroups.empty
+    ],
+
+    defaultOperator: 'equals',
+    defaultValue: null,
+
+    resolveInput: property => ({
+      component: 'USelect',
+      props: { items: property?.options || [] }
+    }),
+
+    resolveFilterInput: (property, { operator }) => {
+      if (isEmptyOperator(operator)) return null
+
+      return {
+        component: 'InputFilterSelect',
+        props: {
+          items: property?.items || [],
+          multiple: isArrayOperator(operator)
+        }
+      }
+    },
+
+    resolveDisplay: property => ({
+      component: 'DisplaySelect',
+      props: { items: property?.items || [] }
     })
   },
 
@@ -53,62 +289,27 @@ const propertyTypes = {
         component: 'InputText',
         props: { mask: resolveMask(property.mask) }
       }
-    }
+    },
+
+    resolveDisplay: property => ({
+      component: 'DisplayText',
+      props: { mask: resolveMask(property.mask) }
+    })
   },
 
-  code: {
-    icon: 'i-tabler-hash',
+  textarea: {
+    icon: 'i-tabler-align-left',
     extends: 'text',
 
-    operators: [
-      ...operatorGroups.equality,
-      ...operatorGroups.array,
-      ...operatorGroups.empty
-    ],
-
-    defaultOperator: 'equals',
-
     resolveInput: () => ({
-      component: 'InputCode',
+      component: 'UTextarea',
       props: {}
     })
   },
 
-  number: {
-    operators: [
-      ...operatorGroups.equality,
-      ...operatorGroups.comparison,
-      ...operatorGroups.range,
-      ...operatorGroups.array,
-      ...operatorGroups.empty
-    ],
+  time: {
+    icon: 'i-tabler-clock',
 
-    defaultOperator: 'equals',
-    defaultValue: null,
-
-    resolveInput: () => ({
-      component: 'InputNumber',
-      props: {}
-    }),
-
-    resolveFilterInput: (property, { operator }) => {
-      if (isEmptyOperator(operator)) return null
-
-      if (isArrayOperator(operator)) {
-        return {
-          component: 'InputFilterList',
-          props: { type: 'number' }
-        }
-      }
-
-      return {
-        component: 'InputFilterNumber',
-        props: { between: operator === 'between' }
-      }
-    }
-  },
-
-  date: {
     operators: [
       ...operatorGroups.equality,
       ...operatorGroups.comparison,
@@ -120,7 +321,7 @@ const propertyTypes = {
     defaultValue: null,
 
     resolveInput: () => ({
-      component: 'InputDate',
+      component: 'InputTime',
       props: {}
     }),
 
@@ -128,94 +329,20 @@ const propertyTypes = {
       if (isEmptyOperator(operator)) return null
 
       return {
-        component: 'InputFilterDate',
-        props: { range: operator === 'between' }
+        component: 'InputTime',
+        props: { size: 'sm', variant: 'soft' }
       }
-    }
-  },
+    },
 
-  select: {
-    operators: [
-      ...operatorGroups.equality,
-      ...operatorGroups.array,
-      ...operatorGroups.empty
-    ],
-
-    defaultOperator: 'equals',
-    defaultValue: null,
-
-    resolveInput: property => ({
-      component: 'InputSelect',
-      props: {
-        options: property?.options || []
-      }
-    }),
-
-    resolveFilterInput: (property, { operator }) => {
-      if (isEmptyOperator(operator)) return null
-
-      return {
-        component: 'InputFilterSelect',
-        props: {
-          options: property?.options || [],
-          multiple: isArrayOperator(operator)
-        }
-      }
-    }
-  },
-
-  phone: {
-    icon: 'i-tabler-phone',
-
-    operators: [
-      ...operatorGroups.equality,
-      ...operatorGroups.text,
-      ...operatorGroups.array,
-      ...operatorGroups.empty
-    ],
-
-    defaultOperator: 'contains',
-    defaultValue: '',
-
-    resolveInput: () => ({
-      component: 'InputPhone',
+    resolveDisplay: () => ({
+      component: 'DisplayText',
       props: {}
-    }),
-
-    resolveFilterInput: (property, { operator }) => {
-      if (isEmptyOperator(operator)) return null
-
-      return {
-        component: 'InputFilterText',
-        props: {}
-      }
-    }
+    })
   },
 
-  relation: {
-    icon: 'i-tabler-circles-relation',
-
-    operators: [
-      ...operatorGroups.equality,
-      ...operatorGroups.empty
-    ],
-
-    defaultOperator: 'equals',
-    defaultValue: null,
-
-    resolveInput: property => ({
-      component: 'InputRelation',
-      props: { entity: property?.entity }
-    }),
-
-    resolveFilterInput: (property, { operator }) => {
-      if (isEmptyOperator(operator)) return null
-
-      return {
-        component: 'InputRelation',
-        props: { entity: property?.entity }
-      }
-    }
+  url: {
+    icon: 'i-tabler-link',
+    extends: 'text'
   }
 }
 

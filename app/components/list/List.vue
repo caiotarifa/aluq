@@ -347,8 +347,15 @@ const viewProperties = computed(() => {
   const propertyKeys = queryModel.value.properties || []
 
   for (const key of propertyKeys) {
-    if (props.entity.properties?.[key]) {
-      result[key] = props.entity.properties[key]
+    const property = props.entity.properties?.[key]
+    if (!property) continue
+
+    const resolver = property.resolveDisplay
+      || property.propertyType?.resolveDisplay
+
+    result[key] = {
+      ...property,
+      displayConfig: resolver ? resolver(property) : null
     }
   }
 

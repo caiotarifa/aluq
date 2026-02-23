@@ -4,9 +4,7 @@
       Index
 
       <div>
-        <InputDate
-          v-model="date"
-        />
+        <InputDate v-model="date" />
 
         <pre>{{ date }}</pre>
       </div>
@@ -21,19 +19,36 @@
       </div>
 
       <div>
-        <InputTime
-          v-model="time"
-        />
+        <InputTime v-model="time" />
 
         <pre>{{ time }}</pre>
       </div>
 
       <div>
-        <InputPhone
-          v-model="phone"
-        />
+        <InputPhone v-model="phone" />
 
         <pre>{{ phone }}</pre>
+      </div>
+
+      <div>
+        <InputCurrency v-model="currency" />
+
+        <pre>{{ currency }}</pre>
+      </div>
+
+      <div>
+        <DisplayEmail model-value="caiotarifa@gmail.com" />
+      </div>
+
+      <div>
+        <DisplayPhone model-value="+5516988311731" />
+      </div>
+
+      <div>
+        <DisplayCurrency
+          currency="BRL"
+          :model-value="1250.50"
+        />
       </div>
 
       <!-- <div>
@@ -67,28 +82,17 @@
           </h2>
         </template>
 
-        <div class="space-y-4">
-          <UInput
-            v-model="inviteEmail"
-            placeholder="Email do membro"
-            type="email"
-          />
+<div class="space-y-4">
+  <UInput v-model="inviteEmail" placeholder="Email do membro" type="email" />
 
-          <USelect
-            v-model="inviteRole"
-            :options="roleOptions"
-          />
+  <USelect v-model="inviteRole" :options="roleOptions" />
 
-          <UButton
-            block
-            :loading="isInviting"
-            @click="sendInvite"
-          >
-            Enviar convite
-          </UButton>
-        </div>
-      </UCard>
-    </div> -->
+  <UButton block :loading="isInviting" @click="sendInvite">
+    Enviar convite
+  </UButton>
+</div>
+</UCard>
+</div> -->
   </NuxtLayout>
 </template>
 
@@ -103,6 +107,7 @@ const time = ref('')
 // const dateTime = ref('')
 
 const phone = ref('+5516988311731')
+const currency = ref(1250.50)
 
 // const { activeOrganizationId, client } = useAuth()
 // const { organizations, fetchOrganizations } = useOrganization()

@@ -128,6 +128,8 @@ const UButton = resolveComponent('UButton')
 const UCheckbox = resolveComponent('UCheckbox')
 const UDropdownMenu = resolveComponent('UDropdownMenu')
 
+const { resolve: resolveDisplay } = useDisplay()
+
 const hasBatchActions = computed(() =>
   props.batchActions?.length > 0
 )
@@ -169,6 +171,7 @@ const columns = computed(() => {
   // Data columns.
   for (const key in props.properties) {
     const property = props.properties[key]
+    const { displayConfig } = property
 
     results.push({
       id: key,
@@ -178,10 +181,20 @@ const columns = computed(() => {
 
       cell: ({ row }) => {
         if (row.original._skeleton) {
-          return h(USkeleton, { class: 'h-4 w-full max-w-48' })
+          return h(USkeleton, { class: 'h-4 max-w-48 w-full' })
         }
 
-        return row.getValue(key)
+        const DisplayComponent = resolveDisplay(displayConfig)
+        const value = row.getValue(key)
+
+        if (!DisplayComponent) {
+          return value
+        }
+
+        return h(DisplayComponent, {
+          modelValue: value,
+          ...(displayConfig.props || {})
+        })
       }
     })
   }

@@ -9,30 +9,16 @@
     />
 
     <component
-      :is="inputComponent"
+      :is="activeComponent"
       v-else
       v-model="model"
       class="w-full"
-      v-bind="inputProps"
+      v-bind="activeProps"
     />
   </UFormField>
 </template>
 
 <script setup>
-import {
-  UInput,
-  UCheckbox,
-  USelect,
-  UTextarea,
-  InputBoolean,
-  InputDate,
-  InputDateTime,
-  InputPhone,
-  InputRelation,
-  InputText,
-  InputTime
-} from '#components'
-
 const props = defineProps({
   loading: {
     type: Boolean,
@@ -47,6 +33,11 @@ const props = defineProps({
   property: {
     type: Object,
     required: true
+  },
+
+  readonly: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -55,22 +46,10 @@ const model = defineModel({
   default: null
 })
 
-// Component map.
-const componentMap = {
-  UInput,
-  UCheckbox,
-  USelect,
-  UTextarea,
-  InputBoolean,
-  InputDate,
-  InputDateTime,
-  InputPhone,
-  InputRelation,
-  InputText,
-  InputTime
-}
+// Component resolvers.
+const { resolve: resolveInput } = useInput()
+const { resolve: resolveDisplay } = useDisplay()
 
-// Resolvers.
 const inputConfig = computed(() => {
   const { resolveInput, propertyType } = props.property
   const resolver = resolveInput || propertyType?.resolveInput
@@ -79,25 +58,27 @@ const inputConfig = computed(() => {
     return resolver(props.property)
   }
 
-  return {
-    component: 'UInput',
-    props: {}
-  }
+  return { component: 'UInput', props: {} }
 })
 
-const inputComponent = computed(() => {
-  const { component, componentName } = inputConfig.value
-  const name = component || componentName || 'UInput'
+const displayConfig = computed(() => {
+  const { resolveDisplay, propertyType } = props.property
+  const resolver = resolveDisplay || propertyType?.resolveDisplay
 
-  if (componentMap[name]) {
-    return componentMap[name]
+  if (typeof resolver === 'function') {
+    return resolver(props.property)
   }
 
-  console.warn(`[FormField] Component "${name}" not found, using UInput.`)
-  return UInput
+  return { component: 'DisplayText', props: {} }
 })
 
-const inputProps = computed(() =>
-  inputConfig.value.props || {}
+const activeComponent = computed(() =>
+  props.readonly
+    ? resolveDisplay(displayConfig.value)
+    : resolveInput(inputConfig.value)
+)
+
+const activeProps = computed(() =>
+  (props.readonly ? displayConfig.value.props : inputConfig.value.props) || {}
 )
 </script>

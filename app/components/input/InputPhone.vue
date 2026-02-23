@@ -65,17 +65,6 @@ const { t, locale } = useI18n()
 const country = ref(props.defaultCountry)
 const digits = ref('')
 
-const countryCodeToFlag = (code) => {
-  const offset = 127397
-  const parts = []
-
-  for (const char of code.toUpperCase()) {
-    parts.push(String.fromCodePoint(char.charCodeAt(0) + offset))
-  }
-
-  return parts.join('')
-}
-
 const countries = computed(() => {
   const displayNames = new Intl.DisplayNames(
     [locale.value],
@@ -92,7 +81,7 @@ const countries = computed(() => {
       label: `+${callingCode}`,
       name: displayNames.of(id) || id,
       callingCode,
-      flag: countryCodeToFlag(id)
+      flag: getCountryFlag(id)
     })
   }
 

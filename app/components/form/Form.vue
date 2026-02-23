@@ -13,6 +13,7 @@
       :loading="fetching"
       :name="field.property"
       :property="entity.properties[field.property]"
+      :readonly
     />
 
     <!-- Fieldsets -->
@@ -33,10 +34,14 @@
         :loading="fetching"
         :name="field.property"
         :property="entity.properties[field.property]"
+        :readonly
       />
     </FormFieldset>
 
-    <div class="mt-6 flex justify-end gap-3">
+    <div
+      v-if="!readonly"
+      class="mt-6 flex justify-end gap-3"
+    >
       <slot name="actions">
         <UButton
           class="px-6"
@@ -79,6 +84,11 @@ const props = defineProps({
   fieldsets: {
     type: Array,
     default: () => []
+  },
+
+  readonly: {
+    type: Boolean,
+    default: false
   },
 
   saving: {

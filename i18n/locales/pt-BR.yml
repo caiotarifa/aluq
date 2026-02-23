@@ -104,8 +104,14 @@ copyButton:
   copy: Copiar
   copied: Copiado!
 
+inputCurrency:
+  searchCurrency: Buscar moeda...
+
 inputPhone:
   searchCountry: Buscar país...
+
+inputRelation:
+  placeholder: Selecione...
 
 inputSearch:
   placeholder: Buscar...
@@ -257,12 +263,6 @@ listEditView:
   unpin: Desafixar coluna
 
   apply: Aplicar
-
-inputFilterText:
-  placeholder: Digite um valor
-
-inputRelation:
-  placeholder: Selecione...
 
 # Auth
 
