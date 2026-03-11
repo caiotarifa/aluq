@@ -10,15 +10,18 @@ import emailVerification from './mailer/templates/email-verification.js'
 import resetPassword from './mailer/templates/reset-password.js'
 import organizationInvite from './mailer/templates/organization-invite.js'
 
+const baseUrl = process.env.BETTER_AUTH_URL || process.env.NUXT_PUBLIC_APP_URL
+
 export const auth = betterAuth({
   appName: 'Aluq',
+  baseURL: baseUrl,
 
   plugins: [
     admin(),
 
     organization({
       async sendInvitationEmail(data) {
-        const url = `${process.env.NUXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/organization?invitation=${data.id}`
+        const url = `${baseUrl}/auth/organization?invitation=${data.id}`
 
         await sendMail({
           to: data.email,

@@ -104,11 +104,33 @@ copyButton:
   copy: Copiar
   copied: Copiado!
 
+displayPhone:
+  whatsapp: Abrir no WhatsApp
+
 inputCurrency:
   searchCurrency: Buscar moeda...
 
 inputPhone:
   searchCountry: Buscar país...
+
+inputCountry:
+  searchCountry: Buscar país...
+
+inputAddress:
+  searchPlaceholder: Buscar endereço...
+  fillManually: Preencher manualmente
+  searchAgain: Buscar novamente
+  editAddress: Editar endereço
+  editAddressDescription: Preencha os campos abaixo.
+  country: País
+  postalCode: Código Postal
+  addressLine1: Endereço
+  addressLine2: Complemento
+  addressLine3: Bairro
+  state: Estado
+  city: Cidade
+  searchState: Buscar estado...
+  searchCity: Buscar cidade...
 
 inputRelation:
   placeholder: Selecione...

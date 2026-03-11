@@ -340,6 +340,60 @@ const propertyTypes = {
     })
   },
 
+  address: {
+    icon: 'i-tabler-map-pin',
+
+    operators: [
+      ...operatorGroups.empty
+    ],
+
+    defaultOperator: 'isEmpty',
+    defaultValue: null,
+
+    resolveInput: () => ({
+      component: 'InputAddress',
+      props: {}
+    }),
+
+    resolveFilterInput: () => null,
+
+    resolveDisplay: () => ({
+      component: 'DisplayAddress',
+      props: {}
+    })
+  },
+
+  country: {
+    icon: 'i-tabler-world',
+
+    operators: [
+      ...operatorGroups.equality,
+      ...operatorGroups.empty
+    ],
+
+    defaultOperator: 'equals',
+    defaultValue: null,
+
+    resolveInput: () => ({
+      component: 'InputCountry',
+      props: {}
+    }),
+
+    resolveFilterInput: (property, { operator }) => {
+      if (isEmptyOperator(operator)) return null
+
+      return {
+        component: 'InputCountry',
+        props: {}
+      }
+    },
+
+    resolveDisplay: () => ({
+      component: 'DisplayCountry',
+      props: {}
+    })
+  },
+
   url: {
     icon: 'i-tabler-link',
     extends: 'text'

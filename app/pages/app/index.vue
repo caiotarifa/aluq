@@ -1,98 +1,81 @@
 <template>
   <NuxtLayout name="app">
-    <div>
-      Index
+    <AppPage>
+      <div class="space-y-2">
+        <div>
+          <InputDate v-model="date" />
 
-      <div>
-        <InputDate v-model="date" />
+          <pre>{{ date }}</pre>
+        </div>
 
-        <pre>{{ date }}</pre>
-      </div>
+        <div>
+          <InputDate
+            v-model="dateRange"
+            range
+          />
 
-      <div>
-        <InputDate
-          v-model="dateRange"
-          range
-        />
+          <pre>{{ dateRange }}</pre>
+        </div>
 
-        <pre>{{ dateRange }}</pre>
-      </div>
+        <div>
+          <InputTime v-model="time" />
 
-      <div>
-        <InputTime v-model="time" />
+          <pre>{{ time }}</pre>
+        </div>
 
-        <pre>{{ time }}</pre>
-      </div>
+        <div>
+          <InputPhone v-model="phone" />
 
-      <div>
-        <InputPhone v-model="phone" />
+          <pre>{{ phone }}</pre>
+        </div>
 
-        <pre>{{ phone }}</pre>
-      </div>
+        <div>
+          <InputCurrency v-model="currency" />
 
-      <div>
-        <InputCurrency v-model="currency" />
+          <pre>{{ currency }}</pre>
+        </div>
 
-        <pre>{{ currency }}</pre>
-      </div>
+        <div>
+          <InputCountry v-model="country" />
 
-      <div>
-        <DisplayEmail model-value="caiotarifa@gmail.com" />
-      </div>
+          <pre>{{ country }}</pre>
+        </div>
 
-      <div>
-        <DisplayPhone model-value="+5516988311731" />
-      </div>
+        <div>
+          <DisplayEmail model-value="caiotarifa@gmail.com" />
+        </div>
 
-      <div>
-        <DisplayCurrency
-          currency="BRL"
-          :model-value="1250.50"
-        />
-      </div>
+        <div>
+          <DisplayPhone model-value="+5516988311731" />
+        </div>
 
-      <!-- <div>
-        <InputDateTime
-          v-model="dateTime"
-        />
+        <div>
+          <DisplayCurrency
+            currency="BRL"
+            :model-value="1250.50"
+          />
+        </div>
 
-        <pre>{{ dateTime }}</pre>
-      </div> -->
-    </div>
-    <!-- <div class="p-6 space-y-6">
-      <div>
-        <h1 class="text-2xl font-bold">
-          Index APP
-        </h1>
+        <div>
+          <DisplayCountry model-value="BR" />
+        </div>
 
-        <div class="mt-4">
-          <strong>Organização:</strong>
-          <br> {{ organizationName || 'Nenhuma' }}
-          <br> {{ activeOrganizationId || 'Sem ID' }}
+        <div>
+          <InputAddress v-model="address1" />
+        </div>
+
+        <div>
+          <InputAddress
+            v-model="address"
+            class="w-full"
+          />
+        </div>
+
+        <div>
+          <DisplayAddress :model-value="address" />
         </div>
       </div>
-
-      <UCard
-        v-if="activeOrganizationId"
-        class="max-w-md"
-      >
-        <template #header>
-          <h2 class="font-semibold">
-            Convidar membro
-          </h2>
-        </template>
-
-<div class="space-y-4">
-  <UInput v-model="inviteEmail" placeholder="Email do membro" type="email" />
-
-  <USelect v-model="inviteRole" :options="roleOptions" />
-
-  <UButton block :loading="isInviting" @click="sendInvite">
-    Enviar convite
-  </UButton>
-</div>
-</UCard>
-</div> -->
+    </AppPage>
   </NuxtLayout>
 </template>
 
@@ -104,68 +87,12 @@ definePageMeta({
 const date = ref('2024-06-15')
 const dateRange = ref([null, null])
 const time = ref('')
-// const dateTime = ref('')
 
 const phone = ref('+5516988311731')
 const currency = ref(1250.50)
 
-// const { activeOrganizationId, client } = useAuth()
-// const { organizations, fetchOrganizations } = useOrganization()
-// const { notifySuccess, notifyError } = useNotify()
+const country = ref('BR')
 
-// // Fetch organizations.
-// await useAsyncData('app:organizations', () =>
-//   fetchOrganizations()
-// )
-
-// const organizationName = computed(() => {
-//   if (!activeOrganizationId.value || !organizations.value) return null
-
-//   return organizations.value.find(organization =>
-//     organization.id === activeOrganizationId.value
-//   )?.name
-// })
-
-// // Invite member.
-// const inviteEmail = ref('')
-// const inviteRole = ref('member')
-// const isInviting = ref(false)
-
-// const roleOptions = [
-//   { label: 'Membro', value: 'member' },
-//   { label: 'Administrador', value: 'admin' },
-//   { label: 'Proprietário', value: 'owner' }
-// ]
-
-// async function sendInvite() {
-//   if (!inviteEmail.value || !activeOrganizationId.value) return
-
-//   isInviting.value = true
-
-//   try {
-//     const result = await client.organization.inviteMember({
-//       email: inviteEmail.value,
-//       role: inviteRole.value,
-//       organizationId: activeOrganizationId.value
-//     })
-
-//     if (result.error) {
-//       throw new Error(result.error.message || 'Erro ao enviar convite')
-//     }
-
-//     notifySuccess({
-//       title: 'Convite enviado com sucesso!'
-//     })
-
-//     inviteEmail.value = ''
-//   }
-//   catch (error) {
-//     notifyError({
-//       description: error.message || 'Erro ao enviar convite'
-//     })
-//   }
-//   finally {
-//     isInviting.value = false
-//   }
-// }
+const address1 = ref(null)
+const address = ref(null)
 </script>

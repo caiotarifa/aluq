@@ -15,15 +15,19 @@
       <slot />
     </NuxtLink>
 
-    <UButton
+    <UTooltip
       v-for="(action, index) in actions"
       :key="index"
-      color="primary"
-      size="xs"
-      variant="link"
-      v-bind="action"
-      @click.stop
-    />
+      :text="action.title"
+    >
+      <UButton
+        color="primary"
+        size="xs"
+        variant="link"
+        v-bind="removeAttrs(action, ['title'])"
+        @click.stop
+      />
+    </UTooltip>
   </span>
 </template>
 
@@ -44,4 +48,16 @@ defineProps({
     required: true
   }
 })
+
+function removeAttrs(object, keys) {
+  const result = {}
+
+  for (const key in object) {
+    if (!keys.includes(key)) {
+      result[key] = object[key]
+    }
+  }
+
+  return result
+}
 </script>

@@ -49,10 +49,13 @@ const whatsappUrl = computed(() => {
   return `https://wa.me/${digits}`
 })
 
+const { t } = useI18n()
+
 const actions = computed(() => [
   {
     icon: 'i-tabler-brand-whatsapp',
     target: '_blank',
+    title: t('displayPhone.whatsapp'),
     to: whatsappUrl.value
   }
 ])
