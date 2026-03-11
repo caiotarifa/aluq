@@ -87,8 +87,9 @@
             :label="t('inputAddress.postalCode')"
             name="postalCode"
           >
-            <UInput
+            <InputText
               class="w-full"
+              :mask="currentPostalCodeMask"
               :model-value="fields.postalCode"
               @update:model-value="updateField('postalCode', $event)"
             />
@@ -189,6 +190,7 @@
 <script setup>
 import { useDebounceFn } from '@vueuse/core'
 import { z } from 'zod'
+import { postalCodeMask } from '~/registry/masks'
 
 defineOptions({
   inheritAttrs: false
@@ -230,9 +232,14 @@ const searchInputRef = useTemplateRef('searchInput')
 
 const fields = reactive(emptyFields())
 const editing = ref(false)
+
 const pendingFocus = ref(false)
 const searchTerm = ref('')
 const selectedSuggestion = ref(null)
+
+const currentPostalCodeMask = computed(() =>
+  postalCodeMask(fields.country)
+)
 
 // Cancellable fetch.
 function useCancellableFetch() {

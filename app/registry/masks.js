@@ -15,6 +15,29 @@ function companyDocumentMask(country = 'BR') {
   return companyDocumentMasks[country] || companyDocumentMasks.default
 }
 
+const postalCodeMasks = {
+  DE: '#####',
+  AR: '@####@@@',
+  BO: '####',
+  BR: '#####-###',
+  CA: '@#@ #@#',
+  CL: '#######',
+  ES: '#####',
+  US: '#####',
+  FR: '#####',
+  GB: ['@# #@@', '@## #@@', '@#@ #@@', '@@# #@@', '@@## #@@', '@@#@ #@@'],
+  IT: '#####',
+  PY: '######',
+  PT: '####-###',
+  UY: '#####',
+
+  default: undefined
+}
+
+function postalCodeMask(country = 'BR') {
+  return postalCodeMasks[country] || postalCodeMasks.default
+}
+
 // Resolves mask reference to actual pattern.
 function resolveMask(mask) {
   if (!mask) return undefined
@@ -30,5 +53,6 @@ export {
   masks,
   resolveMask,
 
-  companyDocumentMask
+  companyDocumentMask,
+  postalCodeMask
 }

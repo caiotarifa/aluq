@@ -207,7 +207,7 @@ Permitir que qualquer property type de texto (text, code, etc.) possa receber um
 
 ---
 
-### 3.3 🟡 Sistema de máscaras dinâmicas contextuais
+### 3.3 ✅ Sistema de máscaras dinâmicas contextuais
 
 **Arquivos principais:** `app/registry/propertyTypes.js`, `app/components/form/FormField.vue`, documentação Maska sobre máscaras dinâmicas
 
@@ -250,7 +250,7 @@ A máscara deve ser adaptada dinamicamente pelo **contexto do formulário**. Por
 
 ---
 
-### 3.5 🔴 Campo do tipo endereço (InputAddress)
+### 3.5 ✅ Campo do tipo endereço (InputAddress)
 
 **Arquivos principais:** `app/components/input/InputAddress.vue` (novo), `app/registry/propertyTypes.js`, `server/api/geocoding/search.js` (novo)
 
