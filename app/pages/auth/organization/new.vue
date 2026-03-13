@@ -1,74 +1,69 @@
 <template>
-  <NuxtLayout
-    name="auth"
-    wide
-  >
-    <AuthCard>
-      <div class="space-y-6">
-        <header class="text-center">
-          <h1 class="text-xl font-semibold text-highlighted">
-            Criar organização
-          </h1>
+  <AuthCard>
+    <div class="space-y-6">
+      <header class="text-center">
+        <h1 class="text-xl font-semibold text-highlighted">
+          Criar organização
+        </h1>
 
-          <p class="mt-1 text-sm text-muted">
-            Preencha os dados abaixo para criar sua nova organização.
-          </p>
-        </header>
+        <p class="mt-1 text-sm text-muted">
+          Preencha os dados abaixo para criar sua nova organização.
+        </p>
+      </header>
 
-        <UForm
-          class="space-y-4"
-          :schema="createOrganizationSchema"
-          :state="formState"
-          @submit="onSubmit"
+      <UForm
+        class="space-y-4"
+        :schema="createOrganizationSchema"
+        :state="formState"
+        @submit="onSubmit"
+      >
+        <UFormField
+          label="Nome da organização"
+          name="name"
         >
-          <UFormField
-            label="Nome da organização"
-            name="name"
+          <UInput
+            v-model="formState.name"
+            autofocus
+            placeholder="Minha Empresa"
+            @update:model-value="generateSlug"
+          />
+        </UFormField>
+
+        <UFormField
+          label="Slug"
+          name="slug"
+        >
+          <UInput
+            v-model="formState.slug"
+            placeholder="minha-empresa"
+          />
+        </UFormField>
+
+        <div class="flex gap-3 pt-4">
+          <UButton
+            block
+            color="neutral"
+            to="/auth/organization"
+            variant="soft"
           >
-            <UInput
-              v-model="formState.name"
-              autofocus
-              placeholder="Minha Empresa"
-              @update:model-value="generateSlug"
-            />
-          </UFormField>
+            Cancelar
+          </UButton>
 
-          <UFormField
-            label="Slug"
-            name="slug"
+          <UButton
+            block
+            :loading="isCreatingOrganization"
+            type="submit"
           >
-            <UInput
-              v-model="formState.slug"
-              placeholder="minha-empresa"
-            />
-          </UFormField>
+            <template #leading>
+              <UIcon name="i-tabler-plus" />
+            </template>
 
-          <div class="flex gap-3 pt-4">
-            <UButton
-              block
-              color="neutral"
-              to="/auth/organization"
-              variant="soft"
-            >
-              Cancelar
-            </UButton>
-
-            <UButton
-              block
-              :loading="isCreatingOrganization"
-              type="submit"
-            >
-              <template #leading>
-                <UIcon name="i-tabler-plus" />
-              </template>
-
-              {{ isCreatingOrganization ? 'Criando...' : 'Criar organização' }}
-            </UButton>
-          </div>
-        </UForm>
-      </div>
-    </AuthCard>
-  </NuxtLayout>
+            {{ isCreatingOrganization ? 'Criando...' : 'Criar organização' }}
+          </UButton>
+        </div>
+      </UForm>
+    </div>
+  </AuthCard>
 </template>
 
 <script setup>
@@ -76,6 +71,8 @@ import { deburr } from 'es-toolkit/string'
 import { createOrganizationSchema } from '~/schemas/organization'
 
 definePageMeta({
+  layout: 'auth',
+  wide: true,
   auth: { only: 'user' }
 })
 

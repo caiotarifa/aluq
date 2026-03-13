@@ -55,7 +55,7 @@ export default defineAppConfig({
       slots: {
         linkLabel: 'text-xs truncate',
         linkLeadingIcon: 'shrink-0 size-3',
-        separatorIcon: 'shrink-0 size-3 text-[var(--ui-text-muted)]/50'
+        separatorIcon: 'shrink-0 size-3 text-muted/50'
       }
     }
   }

@@ -124,7 +124,7 @@
 
     <footer
       v-if="hasItems"
-      class="sticky bottom-0 z-1 flex justify-between bg-(--ui-bg)/75 px-4 py-3 backdrop-blur-sm"
+      class="sticky bottom-0 z-1 flex justify-between bg-default/75 px-4 py-3 backdrop-blur-sm"
     >
       <div class="flex items-center gap-x-2">
         <span class="hidden text-sm md:inline">

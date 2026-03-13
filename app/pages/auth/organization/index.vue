@@ -1,40 +1,112 @@
 <template>
-  <NuxtLayout
-    name="auth"
-    wide
-  >
-    <AuthCard>
-      <div class="space-y-6">
-        <header class="text-center">
-          <h1 class="text-xl font-semibold text-highlighted">
-            {{ hasOrganizations ? 'Organizações' : 'Vamos começar...' }}
-          </h1>
+  <AuthCard>
+    <div class="space-y-6">
+      <header class="text-center">
+        <h1 class="text-xl font-semibold text-highlighted">
+          {{ hasOrganizations ? 'Organizações' : 'Vamos começar...' }}
+        </h1>
 
-          <p class="mt-1 text-sm text-muted">
-            Selecione ou crie uma organização para continuar.
-          </p>
-        </header>
+        <p class="mt-1 text-sm text-muted">
+          Selecione ou crie uma organização para continuar.
+        </p>
+      </header>
 
-        <div
-          v-if="isLoading"
-          class="flex justify-center py-8"
-        >
-          <UIcon
-            class="size-6 animate-spin text-muted"
-            name="i-tabler-loader-2"
-          />
+      <div
+        v-if="isLoading"
+        class="flex justify-center py-8"
+      >
+        <UIcon
+          class="size-6 animate-spin text-muted"
+          name="i-tabler-loader-2"
+        />
+      </div>
+
+      <template v-else-if="hasOrganizations">
+        <OrganizationList
+          v-model:loading="isLoadingOrganization"
+          :organizations
+          :to="redirectTo"
+          @select="onSelectOrganization"
+        />
+
+        <div class="text-center">
+          <UButton
+            :icon="appConfig.ui.icons.plus"
+            to="/auth/organization/new"
+            variant="subtle"
+          >
+            Criar organização
+          </UButton>
         </div>
+      </template>
 
-        <template v-else-if="hasOrganizations">
-          <OrganizationList
-            v-model:loading="isLoadingOrganization"
-            :organizations
-            :to="redirectTo"
-            @select="onSelectOrganization"
-          />
+      <div
+        v-else
+        class="grid gap-6 md:grid-cols-2"
+      >
+        <UCard variant="outline">
+          <div class="space-y-4">
+            <div class="flex items-center gap-3">
+              <UAvatar
+                icon="i-tabler-users-group"
+                size="lg"
+              />
 
-          <div class="text-center">
+              <h2 class="font-medium text-highlighted">
+                Entrar em uma organização
+              </h2>
+            </div>
+
+            <p class="text-sm text-muted">
+              Aceite um convite para começar a colaborar em uma organização existente.
+            </p>
+
+            <OrganizationInvitationList
+              v-if="hasInvitations"
+              v-model:loading="isLoadingInvitation"
+              :invitations
+              @accept="onAcceptInvitation"
+              @reject="onRejectInvitation"
+            />
+
+            <UFieldGroup
+              v-else
+              class="w-full"
+            >
+              <UInput
+                class="w-full"
+                readonly
+                :value="userEmail"
+              />
+
+              <CopyButton
+                :button="{ variant: 'subtle' }"
+                :compact="false"
+                :text="userEmail"
+              />
+            </UFieldGroup>
+          </div>
+        </UCard>
+
+        <UCard variant="outline">
+          <div class="space-y-4">
+            <div class="flex items-center gap-3">
+              <UAvatar
+                icon="i-tabler-building"
+                size="lg"
+              />
+
+              <h2 class="font-medium text-highlighted">
+                Criar uma organização
+              </h2>
+            </div>
+
+            <p class="text-sm text-muted">
+              Inicie uma nova organização para gerenciar sua equipe e seus aluguéis.
+            </p>
+
             <UButton
+              block
               :icon="appConfig.ui.icons.plus"
               to="/auth/organization/new"
               variant="subtle"
@@ -42,91 +114,16 @@
               Criar organização
             </UButton>
           </div>
-        </template>
-
-        <div
-          v-else
-          class="grid gap-6 md:grid-cols-2"
-        >
-          <UCard variant="outline">
-            <div class="space-y-4">
-              <div class="flex items-center gap-3">
-                <UAvatar
-                  icon="i-tabler-users-group"
-                  size="lg"
-                />
-
-                <h2 class="font-medium text-highlighted">
-                  Entrar em uma organização
-                </h2>
-              </div>
-
-              <p class="text-sm text-muted">
-                Aceite um convite para começar a colaborar em uma organização existente.
-              </p>
-
-              <OrganizationInvitationList
-                v-if="hasInvitations"
-                v-model:loading="isLoadingInvitation"
-                :invitations
-                @accept="onAcceptInvitation"
-                @reject="onRejectInvitation"
-              />
-
-              <UFieldGroup
-                v-else
-                class="w-full"
-              >
-                <UInput
-                  class="w-full"
-                  readonly
-                  :value="userEmail"
-                />
-
-                <CopyButton
-                  :button="{ variant: 'subtle' }"
-                  :compact="false"
-                  :text="userEmail"
-                />
-              </UFieldGroup>
-            </div>
-          </UCard>
-
-          <UCard variant="outline">
-            <div class="space-y-4">
-              <div class="flex items-center gap-3">
-                <UAvatar
-                  icon="i-tabler-building"
-                  size="lg"
-                />
-
-                <h2 class="font-medium text-highlighted">
-                  Criar uma organização
-                </h2>
-              </div>
-
-              <p class="text-sm text-muted">
-                Inicie uma nova organização para gerenciar sua equipe e seus aluguéis.
-              </p>
-
-              <UButton
-                block
-                :icon="appConfig.ui.icons.plus"
-                to="/auth/organization/new"
-                variant="subtle"
-              >
-                Criar organização
-              </UButton>
-            </div>
-          </UCard>
-        </div>
+        </UCard>
       </div>
-    </AuthCard>
-  </NuxtLayout>
+    </div>
+  </AuthCard>
 </template>
 
 <script setup>
 definePageMeta({
+  layout: 'auth',
+  wide: true,
   auth: { only: 'user' }
 })
 

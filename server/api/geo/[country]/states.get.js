@@ -5,7 +5,7 @@ export default defineCachedEventHandler(async (event) => {
 
   if (!country || country.length !== 2) {
     throw createError({
-      statusCode: 400,
+      status: 400,
       message: 'Invalid country code'
     })
   }

@@ -1,51 +1,49 @@
 <template>
-  <NuxtLayout name="app">
-    <UDashboardPanel
-      class="relative"
-      :ui="{ body: 'p-0 sm:p-0' }"
-    >
-      <template #body>
-        <slot />
-      </template>
-    </UDashboardPanel>
+  <UDashboardPanel
+    class="relative"
+    :ui="{ body: 'p-0 sm:p-0' }"
+  >
+    <template #body>
+      <slot />
+    </template>
+  </UDashboardPanel>
 
-    <UDashboardSidebar
-      class="bg-elevated/25"
-      resizable
-      side="right"
-    >
-      <template #header>
-        <UButton
-          block
-          :icon="appConfig.ui.icons.plus"
-          to="/app/chat"
-          variant="soft"
-        >
-          {{ t('chat.newChat') }}
-        </UButton>
-      </template>
-
-      <UNavigationMenu
-        :items="navigationItems"
-        orientation="vertical"
-        :ui="{ link: 'overflow-hidden' }"
+  <UDashboardSidebar
+    class="bg-elevated/25"
+    resizable
+    side="right"
+  >
+    <template #header>
+      <UButton
+        block
+        :icon="appConfig.ui.icons.plus"
+        to="/app/chat"
+        variant="soft"
       >
-        <template #chat-trailing="{ item }">
-          <div class="-mr-1.25 flex translate-x-full transition-transform group-hover:translate-x-0">
-            <UButton
-              class="p-0.5 text-muted hover:bg-accented/50 hover:text-primary focus-visible:bg-accented/50"
-              color="neutral"
-              :icon="appConfig.ui.icons.close"
-              size="xs"
-              tabindex="-1"
-              variant="ghost"
-              @click.stop.prevent="onDeleteChat(item.id)"
-            />
-          </div>
-        </template>
-      </UNavigationMenu>
-    </UDashboardSidebar>
-  </NuxtLayout>
+        {{ t('chat.newChat') }}
+      </UButton>
+    </template>
+
+    <UNavigationMenu
+      :items="navigationItems"
+      orientation="vertical"
+      :ui="{ link: 'overflow-hidden' }"
+    >
+      <template #chat-trailing="{ item }">
+        <div class="-mr-1.25 flex translate-x-full transition-transform group-hover:translate-x-0">
+          <UButton
+            class="p-0.5 text-muted hover:bg-accented/50 hover:text-primary focus-visible:bg-accented/50"
+            color="neutral"
+            :icon="appConfig.ui.icons.close"
+            size="xs"
+            tabindex="-1"
+            variant="ghost"
+            @click.stop.prevent="onDeleteChat(item.id)"
+          />
+        </div>
+      </template>
+    </UNavigationMenu>
+  </UDashboardSidebar>
 </template>
 
 <script setup>

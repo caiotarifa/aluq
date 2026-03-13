@@ -1,68 +1,66 @@
 <template>
-  <NuxtLayout name="app">
-    <UDashboardPanel :ui>
-      <template #header>
-        <UDashboardNavbar>
-          <template #left>
-            <div class="py-0">
-              <h1
-                v-if="title"
-                class="text-2xl"
-              >
-                {{ title }}
-              </h1>
+  <UDashboardPanel :ui>
+    <template #header>
+      <UDashboardNavbar>
+        <template #left>
+          <div class="py-0">
+            <h1
+              v-if="title"
+              class="text-2xl"
+            >
+              {{ title }}
+            </h1>
 
-              <USkeleton
-                v-else
-                class="my-1.5 h-6 w-48"
-              />
+            <USkeleton
+              v-else
+              class="my-1.5 h-6 w-48"
+            />
 
-              <UBreadcrumb
-                :items="breadcrumbItems"
-                separator-icon="i-tabler-slash"
-              />
-            </div>
-          </template>
+            <UBreadcrumb
+              :items="breadcrumbItems"
+              separator-icon="i-tabler-slash"
+            />
+          </div>
+        </template>
 
-          <template #right>
-            <div class="flex gap-2">
+        <template #right>
+          <div class="flex gap-2">
+            <UButton
+              v-for="(action, key) in mainActions"
+              :key
+              color="neutral"
+              size="lg"
+              variant="soft"
+              v-bind="action"
+            />
+
+            <UDropdownMenu
+              v-if="dropdownActions.length"
+              :items="dropdownActions"
+              :ui="{ content: 'w-48' }"
+            >
               <UButton
-                v-for="(action, key) in mainActions"
-                :key
                 color="neutral"
+                icon="i-tabler-dots"
                 size="lg"
-                variant="soft"
-                v-bind="action"
+                variant="ghost"
               />
+            </UDropdownMenu>
+          </div>
+        </template>
+      </UDashboardNavbar>
+    </template>
 
-              <UDropdownMenu
-                v-if="dropdownActions.length"
-                :items="dropdownActions"
-                :ui="{ content: 'w-48' }"
-              >
-                <UButton
-                  color="neutral"
-                  icon="i-tabler-dots"
-                  size="lg"
-                  variant="ghost"
-                />
-              </UDropdownMenu>
-            </div>
-          </template>
-        </UDashboardNavbar>
-      </template>
-
-      <template #body>
-        <main
-          id="main"
-          class="flex-1"
-          role="main"
-        >
-          <slot />
-        </main>
-      </template>
-    </UDashboardPanel>
-  </NuxtLayout>
+    <template #body>
+      <main
+        id="main"
+        class="flex-1"
+        role="main"
+      >
+        <slot />
+      </main>
+    </template>
+  </UDashboardPanel>
 </template>
 
 <script setup>

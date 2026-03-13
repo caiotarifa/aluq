@@ -116,6 +116,12 @@ inputPhone:
 inputCountry:
   searchCountry: Buscar país...
 
+inputFile:
+  selectFile: Selecionar arquivo
+  description: ou arraste e solte aqui
+  uploadError: Erro ao enviar arquivo.
+  fileTooLarge: 'Arquivo excede o tamanho máximo de {max}.'
+
 inputAddress:
   searchPlaceholder: Buscar endereço...
   fillManually: Preencher manualmente

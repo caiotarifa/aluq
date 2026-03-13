@@ -19,6 +19,10 @@
 <script setup>
 import { camelCase } from 'es-toolkit/string'
 
+definePageMeta({
+  layout: 'app'
+})
+
 const { t } = useI18n()
 const route = useRoute()
 

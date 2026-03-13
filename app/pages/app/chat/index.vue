@@ -58,6 +58,10 @@
 </template>
 
 <script setup>
+definePageMeta({
+  layout: 'app'
+})
+
 const { rt, t, tm } = useI18n()
 
 // Models.

@@ -1,35 +1,34 @@
 <template>
-  <NuxtLayout name="auth">
-    <AuthCard>
-      <UAuthForm
-        description="Digite sua nova senha para redefinir o acesso à sua conta."
-        :fields
-        :schema="authResetPasswordFormSchema"
-        :submit="submitButton"
-        title="Redefinir senha"
-        @submit="onSubmit"
-      />
+  <AuthCard>
+    <UAuthForm
+      description="Digite sua nova senha para redefinir o acesso à sua conta."
+      :fields
+      :schema="authResetPasswordFormSchema"
+      :submit="submitButton"
+      title="Redefinir senha"
+      @submit="onSubmit"
+    />
 
-      <template #footer>
-        <div class="text-center text-sm text-muted">
-          Lembrou a senha?
+    <template #footer>
+      <div class="text-center text-sm text-muted">
+        Lembrou a senha?
 
-          <NuxtLink
-            class="text-primary hover:underline"
-            to="/auth/sign-in"
-          >
-            Voltar para o login.
-          </NuxtLink>
-        </div>
-      </template>
-    </AuthCard>
-  </NuxtLayout>
+        <NuxtLink
+          class="text-primary hover:underline"
+          to="/auth/sign-in"
+        >
+          Voltar para o login.
+        </NuxtLink>
+      </div>
+    </template>
+  </AuthCard>
 </template>
 
 <script setup>
 import { authResetPasswordFormSchema } from '~/schemas/auth'
 
 definePageMeta({
+  layout: 'auth',
   auth: { only: 'guest' },
 
   validate(route) {

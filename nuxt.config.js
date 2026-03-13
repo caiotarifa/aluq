@@ -1,6 +1,7 @@
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
+    '@nuxt/hints',
     '@nuxt/ui',
     '@nuxt/image',
     '@nuxt/scripts',

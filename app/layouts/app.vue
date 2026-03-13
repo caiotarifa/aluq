@@ -2,6 +2,7 @@
   <UDashboardGroup unit="rem">
     <UDashboardSidebar
       v-model:open="open"
+      auto-close
       class="bg-elevated/25"
       collapsible
       resizable
@@ -22,12 +23,11 @@
             dark="/images/dark/aluq.svg"
             light="/images/light/aluq.svg"
           />
-
-          <UDashboardSidebarCollapse
-            v-if="!collapsed"
-            class="p-0 opacity-25 hover:opacity-50"
-          />
         </NuxtLink>
+
+        <UDashboardSidebarCollapse
+          class="p-0 opacity-25 hover:opacity-50"
+        />
       </template>
 
       <template #default="{ collapsed }">

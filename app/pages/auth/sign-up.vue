@@ -1,35 +1,34 @@
 <template>
-  <NuxtLayout name="auth">
-    <AuthCard>
-      <UAuthForm
-        description="Crie sua conta para começar a usar nossa plataforma."
-        :fields
-        :schema="authSignUpByEmailSchema"
-        :submit="submitButton"
-        title="Criar conta"
-        @submit="onSubmit"
-      />
+  <AuthCard>
+    <UAuthForm
+      description="Crie sua conta para começar a usar nossa plataforma."
+      :fields
+      :schema="authSignUpByEmailSchema"
+      :submit="submitButton"
+      title="Criar conta"
+      @submit="onSubmit"
+    />
 
-      <template #footer>
-        <div class="text-center text-sm text-muted">
-          Já tem uma conta?
+    <template #footer>
+      <div class="text-center text-sm text-muted">
+        Já tem uma conta?
 
-          <NuxtLink
-            class="text-sm text-primary hover:underline"
-            to="/auth/sign-in"
-          >
-            Faça login.
-          </NuxtLink>
-        </div>
-      </template>
-    </AuthCard>
-  </NuxtLayout>
+        <NuxtLink
+          class="text-sm text-primary hover:underline"
+          to="/auth/sign-in"
+        >
+          Faça login.
+        </NuxtLink>
+      </div>
+    </template>
+  </AuthCard>
 </template>
 
 <script setup>
 import { authSignUpByEmailSchema } from '~/schemas/auth'
 
 definePageMeta({
+  layout: 'auth',
   auth: { only: 'guest' }
 })
 

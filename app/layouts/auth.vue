@@ -18,7 +18,7 @@
       </header>
 
       <main class="relative">
-        <div class="absolute -z-10 size-full rounded-full bg-radial from-(--ui-primary)/10 blur-2xl" />
+        <div class="absolute -z-10 size-full rounded-full bg-radial from-primary/10 blur-2xl" />
 
         <Transition
           mode="out-in"
@@ -46,13 +46,12 @@
 </template>
 
 <script setup>
-defineProps({
-  wide: {
-    type: Boolean,
-    default: false
-  }
-})
-
 const { t } = useI18n()
+const route = useRoute()
+
 const currentYear = new Date().getFullYear()
+
+const wide = computed(() =>
+  route.meta.wide
+)
 </script>

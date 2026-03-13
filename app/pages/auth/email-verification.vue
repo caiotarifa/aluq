@@ -1,58 +1,57 @@
 <template>
-  <NuxtLayout name="auth">
-    <AuthCard>
-      <div class="space-y-4 text-center">
-        <UIcon
-          :class="['size-12', currentStatus.iconClass]"
-          :name="currentStatus.icon"
-        />
+  <AuthCard>
+    <div class="space-y-4 text-center">
+      <UIcon
+        :class="['size-12', currentStatus.iconClass]"
+        :name="currentStatus.icon"
+      />
 
-        <h2 class="text-2xl font-bold">
-          {{ currentStatus.title }}
-        </h2>
+      <h2 class="text-2xl font-bold">
+        {{ currentStatus.title }}
+      </h2>
 
-        <p class="text-sm text-muted">
-          {{ currentStatus.description }}
+      <p class="text-sm text-muted">
+        {{ currentStatus.description }}
 
-          <strong
-            v-if="!isVerifying && !verificationFailed && currentUser?.email"
-            class="text-default"
-          >
-            {{ currentUser.email }}
-          </strong>
-        </p>
-
-        <UButton
-          v-if="!isVerifying"
-          block
-          :disabled="!canResend"
-          :loading="isSendingVerificationEmail"
-          @click="resend"
+        <strong
+          v-if="!isVerifying && !verificationFailed && currentUser?.email"
+          class="text-default"
         >
-          {{ canResend ? 'Reenviar e-mail de verificação' : `Reenviar em ${countdown}s` }}
-        </UButton>
+          {{ currentUser.email }}
+        </strong>
+      </p>
+
+      <UButton
+        v-if="!isVerifying"
+        block
+        :disabled="!canResend"
+        :loading="isSendingVerificationEmail"
+        @click="resend"
+      >
+        {{ canResend ? 'Reenviar e-mail de verificação' : `Reenviar em ${countdown}s` }}
+      </UButton>
+    </div>
+
+    <template #footer>
+      <div class="text-center text-sm text-muted">
+        Quer usar outro e-mail?
+
+        <NuxtLink
+          class="text-primary hover:underline"
+          to="/auth/sign-out"
+        >
+          Sair e criar nova conta.
+        </NuxtLink>
       </div>
-
-      <template #footer>
-        <div class="text-center text-sm text-muted">
-          Quer usar outro e-mail?
-
-          <NuxtLink
-            class="text-primary hover:underline"
-            to="/auth/sign-out"
-          >
-            Sair e criar nova conta.
-          </NuxtLink>
-        </div>
-      </template>
-    </AuthCard>
-  </NuxtLayout>
+    </template>
+  </AuthCard>
 </template>
 
 <script setup>
 import { useCountdown } from '@vueuse/core'
 
 definePageMeta({
+  layout: 'auth',
   auth: { only: 'unverified' }
 })
 

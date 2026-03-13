@@ -394,6 +394,35 @@ const propertyTypes = {
     })
   },
 
+  file: {
+    icon: 'i-tabler-file-upload',
+
+    operators: [
+      ...operatorGroups.empty
+    ],
+
+    defaultOperator: 'isEmpty',
+    defaultValue: null,
+
+    resolveInput: property => ({
+      component: 'InputFile',
+      props: {
+        accept: property.accept || undefined,
+        maxSize: property.maxSize || undefined,
+        multiple: property.multiple || false
+      }
+    }),
+
+    resolveFilterInput: () => null,
+
+    resolveDisplay: property => ({
+      component: 'DisplayFile',
+      props: {
+        multiple: property.multiple || false
+      }
+    })
+  },
+
   url: {
     icon: 'i-tabler-link',
     extends: 'text'

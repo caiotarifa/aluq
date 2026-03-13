@@ -71,6 +71,10 @@ import { Chat } from '@ai-sdk/vue'
 import { useClipboard } from '@vueuse/core'
 import { getTextFromMessage } from '@nuxt/ui/utils/ai'
 
+definePageMeta({
+  layout: 'app'
+})
+
 // Route and i18n.
 const route = useRoute()
 const { t } = useI18n()

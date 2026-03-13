@@ -1,45 +1,44 @@
 <template>
-  <NuxtLayout name="auth">
-    <AuthCard>
-      <UAuthForm
-        ref="authForm"
-        description="Insira seus dados para acessar sua conta."
-        :fields
-        :schema="authSignInByEmailSchema"
-        :submit="submitButton"
-        title="Bem-vindo"
-        @submit="onSubmit"
-      >
-        <template #footer>
-          <NuxtLink
-            class="text-primary hover:underline"
-            :to="forgotPasswordLink"
-          >
-            Esqueci minha senha
-          </NuxtLink>
-        </template>
-      </UAuthForm>
-
+  <AuthCard>
+    <UAuthForm
+      ref="authForm"
+      description="Insira seus dados para acessar sua conta."
+      :fields
+      :schema="authSignInByEmailSchema"
+      :submit="submitButton"
+      title="Bem-vindo"
+      @submit="onSubmit"
+    >
       <template #footer>
-        <div class="text-center text-sm text-muted">
-          Não tem uma conta?
-
-          <NuxtLink
-            class="text-primary hover:underline"
-            to="/auth/sign-up"
-          >
-            Cadastre-se aqui.
-          </NuxtLink>
-        </div>
+        <NuxtLink
+          class="text-primary hover:underline"
+          :to="forgotPasswordLink"
+        >
+          Esqueci minha senha
+        </NuxtLink>
       </template>
-    </AuthCard>
-  </NuxtLayout>
+    </UAuthForm>
+
+    <template #footer>
+      <div class="text-center text-sm text-muted">
+        Não tem uma conta?
+
+        <NuxtLink
+          class="text-primary hover:underline"
+          to="/auth/sign-up"
+        >
+          Cadastre-se aqui.
+        </NuxtLink>
+      </div>
+    </template>
+  </AuthCard>
 </template>
 
 <script setup>
 import { authSignInByEmailSchema } from '~/schemas/auth'
 
 definePageMeta({
+  layout: 'auth',
   auth: { only: 'guest' }
 })
 

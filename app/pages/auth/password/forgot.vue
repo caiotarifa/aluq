@@ -1,53 +1,52 @@
 <template>
-  <NuxtLayout name="auth">
-    <AuthCard>
-      <UAuthForm
-        v-if="!isEmailSent"
-        description="Informe o seu e-mail para receber o link de redefinição de senha."
-        :fields
-        :schema="authForgotPasswordSchema"
-        :submit="submitButton"
-        title="Esqueci minha senha"
-        @submit="onSubmit"
-      />
+  <AuthCard>
+    <UAuthForm
+      v-if="!isEmailSent"
+      description="Informe o seu e-mail para receber o link de redefinição de senha."
+      :fields
+      :schema="authForgotPasswordSchema"
+      :submit="submitButton"
+      title="Esqueci minha senha"
+      @submit="onSubmit"
+    />
 
-      <template v-else>
-        <div class="text-center">
-          <UIcon
-            class="size-12 text-primary"
-            name="i-tabler-mail-fast"
-          />
+    <template v-else>
+      <div class="text-center">
+        <UIcon
+          class="size-12 text-primary"
+          name="i-tabler-mail-fast"
+        />
 
-          <h2 class="text-2xl font-bold">
-            Verifique o seu e-mail
-          </h2>
+        <h2 class="text-2xl font-bold">
+          Verifique o seu e-mail
+        </h2>
 
-          <p class="mt-2 text-sm text-muted">
-            Enviamos um link de redefinição de senha para o seu e-mail. Verifique sua caixa de entrada e siga as instruções.
-          </p>
-        </div>
-      </template>
+        <p class="mt-2 text-sm text-muted">
+          Enviamos um link de redefinição de senha para o seu e-mail. Verifique sua caixa de entrada e siga as instruções.
+        </p>
+      </div>
+    </template>
 
-      <template #footer>
-        <div class="text-center text-sm text-muted">
-          Lembrou a senha?
+    <template #footer>
+      <div class="text-center text-sm text-muted">
+        Lembrou a senha?
 
-          <NuxtLink
-            class="text-primary hover:underline"
-            to="/auth/sign-in"
-          >
-            Voltar para o login.
-          </NuxtLink>
-        </div>
-      </template>
-    </AuthCard>
-  </NuxtLayout>
+        <NuxtLink
+          class="text-primary hover:underline"
+          to="/auth/sign-in"
+        >
+          Voltar para o login.
+        </NuxtLink>
+      </div>
+    </template>
+  </AuthCard>
 </template>
 
 <script setup>
 import { authForgotPasswordSchema } from '~/schemas/auth'
 
 definePageMeta({
+  layout: 'auth',
   auth: { only: 'guest' }
 })
 
