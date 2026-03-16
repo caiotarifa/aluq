@@ -40,6 +40,11 @@
               v-else-if="part.type === 'tool-email'"
               :invocation="part"
             />
+
+            <ChatToolSpreadsheet
+              v-else-if="part.type === 'tool-spreadsheet'"
+              :invocation="part"
+            />
           </template>
         </template>
       </UChatMessages>

@@ -223,7 +223,7 @@ listImport:
 
   upload:
     label: Selecione ou arraste um arquivo
-    description: CSV, XLS, XLSX ou ODS
+    description: CSV ou XLSX
   
   review:
     totalRows: '{count} linha(s) encontrada(s)'
@@ -355,6 +355,10 @@ chatToolEmail:
     gmail: Gmail
     outlook: Outlook
     default: Aplicativo de e-mail padrão
+
+chatToolSpreadsheet:
+  rows: '{count} linha | {count} linhas'
+  downloadError: Erro ao baixar planilha
 
 # Entities
 businessUnit:

@@ -35,7 +35,7 @@
 
             <UFileUpload
               v-model="file"
-              accept=".csv,.xls,.xlsx,.xlsm,.xlsb,.ods"
+              accept=".csv,.xlsx"
               class="min-h-48 w-full"
               :description="t('listImport.upload.description')"
               file-delete-icon="i-tabler-trash"
@@ -225,7 +225,8 @@
 </template>
 
 <script setup>
-import * as XLSX from 'xlsx'
+import { Workbook } from '@cj-tech-master/excelts'
+import { parseCsv } from '@cj-tech-master/excelts/csv'
 
 import { useClientQueries } from '@zenstackhq/tanstack-query/vue'
 import { schema } from '../../../zenstack/schema'
@@ -301,16 +302,30 @@ function isStep(value) {
 }
 
 // Template.
-function downloadTemplate() {
-  const templateHeaders = Object.keys(props.entity.properties)
-  const worksheet = XLSX.utils.aoa_to_sheet([templateHeaders])
-  const workbook = XLSX.utils.book_new()
+const importableKeys = computed(() => {
+  const keys = []
 
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Template')
+  for (const key in props.entity.properties) {
+    if (!props.entity.properties[key].nested) {
+      keys.push(key)
+    }
+  }
 
-  XLSX.writeFile(
-    workbook,
-    t(`${props.entity?.name}.title`) + ' - Template.xlsx'
+  return keys
+})
+
+async function downloadTemplate() {
+  const workbook = new Workbook()
+  const worksheet = workbook.addWorksheet('Template')
+
+  worksheet.addAOA([importableKeys.value])
+
+  const buffer = await workbook.xlsx.writeBuffer()
+
+  saveAsFile(
+    buffer,
+    t(`${props.entity?.name}.title`) + ' - Template.xlsx',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
   )
 }
 
@@ -368,53 +383,66 @@ function resetReview() {
   parseError.value = null
 }
 
-function parseFile() {
+async function readFileData() {
+  if (file.value.name.toLowerCase().endsWith('.csv')) {
+    const { rows } = parseCsv(
+      await file.value.text(),
+      { headers: true, dynamicTyping: true }
+    )
+
+    return rows
+  }
+
+  // Workbook.
+  const workbook = new Workbook()
+
+  await workbook.xlsx.load(
+    await file.value.arrayBuffer()
+  )
+
+  // Only the first sheet is processed.
+  const firstSheet = workbook.worksheets[0]
+
+  if (!firstSheet) {
+    throw new Error()
+  }
+
+  return firstSheet.toJSON({ defaultValue: '' })
+}
+
+async function parseFile() {
   if (!file.value) return
 
   resetReview()
 
-  const reader = new FileReader()
+  try {
+    const jsonData = await readFileData()
 
-  reader.addEventListener('load', (event) => {
-    try {
-      const data = new Uint8Array(event.target.result)
-      const workbook = XLSX.read(data, { type: 'array' })
-      const firstSheet = workbook.Sheets[workbook.SheetNames[0]]
-      const jsonData = XLSX.utils.sheet_to_json(firstSheet, { defval: '' })
-
-      if (jsonData.length === 0) {
-        parseError.value = t('listImport.review.emptyFile')
-        return
-      }
-
-      if (jsonData.length > props.maxRows) {
-        parseError.value = t(
-          'listImport.review.tooManyRows',
-          { max: props.maxRows }
-        )
-
-        return
-      }
-
-      rows.value = jsonData
-      headers.value = Object.keys(jsonData[0] || {})
-
-      validateRows()
+    if (jsonData.length === 0) {
+      parseError.value = t('listImport.review.emptyFile')
+      return
     }
-    catch {
-      parseError.value = t('listImport.review.parseError')
-    }
-    finally {
-      finishReview()
-    }
-  })
 
-  reader.addEventListener('error', () => {
-    parseError.value = t('listImport.review.readError')
+    if (jsonData.length > props.maxRows) {
+      parseError.value = t(
+        'listImport.review.tooManyRows',
+        { max: props.maxRows }
+      )
+
+      return
+    }
+
+    rows.value = jsonData
+    headers.value = Object.keys(jsonData[0] || {})
+    validateRows()
+  }
+  catch (error) {
+    console.error(error)
+    parseError.value = t('listImport.review.parseError')
+  }
+  finally {
     finishReview()
-  })
-
-  reader.readAsArrayBuffer(file.value)
+  }
 }
 
 // Validation.
@@ -503,7 +531,7 @@ async function importData() {
   isImporting.value = true
   abortController.value = new AbortController()
 
-  const allowedFields = Object.keys(props.entity.properties)
+  const allowedFields = importableKeys.value
 
   for (const index in rows.value) {
     if (abortController.value.signal.aborted) break
@@ -511,13 +539,18 @@ async function importData() {
     const row = rows.value[index]
     const rowNumber = Number(index) + 2
 
+    const parsed = props.entity.schema.safeParse(row)
+    const coercedRow = parsed.success ? { ...row, ...parsed.data } : row
+
     const sanitizedData = {}
 
     for (const field of allowedFields) {
-      if (field in row) {
-        const value = row[field]
-        sanitizedData[field] = value === '' ? null : value
-      }
+      if (!(field in row)) continue
+
+      const value = coercedRow[field]
+      const isEmpty = value === '' || value === null || value === undefined
+
+      sanitizedData[field] = isEmpty ? null : value
     }
 
     try {

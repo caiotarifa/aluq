@@ -10,10 +10,11 @@
       :class="file.error ? 'border-error' : 'border-default'"
     >
       <component
-        :is="canPreview(file) ? 'button' : file.url ? 'a' : 'div'"
-        class="group flex flex-1 gap-1.5 hover:cursor-pointer"
-        v-bind="canPreview(file) ? {} : file.url ? { href: file.url, download: file.name } : {}"
-        @click="canPreview(file) ? openPreview(file) : undefined"
+        :is="canPreview(file) || file.onClick ? 'button' : file.url ? 'a' : 'div'"
+        class="group flex flex-1 gap-1.5"
+        :class="canPreview(file) || file.onClick || file.url ? 'hover:cursor-pointer' : ''"
+        v-bind="canPreview(file) || file.onClick ? {} : file.url ? { href: file.url, download: file.name } : {}"
+        @click="canPreview(file) ? openPreview(file) : file.onClick?.()"
       >
         <UAvatar
           class="shrink-0 rounded-md"
@@ -27,7 +28,7 @@
           </span>
 
           <div class="block truncate text-dimmed">
-            {{ formatBytes(file.size) }}
+            {{ file.size ? formatBytes(file.size) : file.description }}
           </div>
         </span>
       </component>

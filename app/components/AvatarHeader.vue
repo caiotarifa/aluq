@@ -7,7 +7,7 @@
       <UIcon
         class="size-8"
         :class="[textClass, loading ? 'animate-spin' : '']"
-        :name="loading ? 'i-tabler-loader-2' : icon"
+        :name="resolvedIcon"
       />
     </div>
 
@@ -86,4 +86,12 @@ const backgroundClass = computed(() =>
 const textClass = computed(() =>
   colorClasses[props.color]?.text || colorClasses.primary.text
 )
+
+const resolvedIcon = computed(() => {
+  if (props.loading) {
+    return 'i-tabler-loader-2'
+  }
+
+  return props.icon
+})
 </script>

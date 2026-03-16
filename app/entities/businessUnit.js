@@ -45,7 +45,7 @@ export default {
     isActive: z.boolean().optional().default(true),
     name: z.string().trim().min(1),
     legalName: z.string().trim().optional(),
-    taxId: z.string().trim().optional()
+    taxId: z.coerce.string().trim().optional()
   }),
 
   views: {

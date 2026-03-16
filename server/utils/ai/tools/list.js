@@ -10,8 +10,8 @@ import {
 } from '../registry'
 
 // Constants.
-const MAX_TAKE = 200
-const DEFAULT_TAKE = 50
+const MAX_TAKE = 100
+const DEFAULT_TAKE = 10
 
 const LOGICAL_OPERATORS = new Set(['AND', 'OR', 'NOT'])
 
@@ -49,9 +49,17 @@ function hasAggregateRequest(input) {
 
 // Normalize null values to DbNull for ZenStack compatibility.
 function normalizeNullValues(value) {
-  if (value === null) return DbNull
-  if (Array.isArray(value)) return value.map(normalizeNullValues)
-  if (typeof value !== 'object') return value
+  if (value === null) {
+    return DbNull
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(normalizeNullValues)
+  }
+
+  if (typeof value !== 'object') {
+    return value
+  }
 
   const result = {}
 

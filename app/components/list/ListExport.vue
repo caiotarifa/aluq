@@ -121,7 +121,8 @@
 </template>
 
 <script setup>
-import * as XLSX from 'xlsx'
+import { Workbook } from '@cj-tech-master/excelts'
+import { formatCsv } from '@cj-tech-master/excelts/csv'
 
 const props = defineProps({
   entity: {
@@ -148,17 +149,39 @@ const open = defineModel('open', {
 const { t } = useI18n()
 const { notifyError, notifySuccess } = useNotify()
 
+// Exportable keys.
+const exportableKeys = computed(() => {
+  const keys = []
+
+  for (const key in props.entity.properties) {
+    if (key.endsWith('.id')) continue
+    keys.push(key)
+  }
+
+  return keys
+})
+
 // Export state.
 const isExporting = ref(false)
 const source = ref('current')
 
 // Remote list for paginated export.
-const exportQuery = ref({ page: 1, size: props.pageSize })
+const exportQuery = ref({
+  page: 1,
+  size: props.pageSize
+})
 
 const createRemote = composable => composable(
   () => props.entity.name,
-  exportQuery,
-  () => ({ enabled: isExporting.value && source.value === 'all' })
+
+  computed(() => ({
+    ...exportQuery.value,
+    properties: exportableKeys.value
+  })),
+
+  () => ({
+    enabled: isExporting.value && source.value === 'all'
+  })
 )
 
 const list = createRemote(useRemoteList)
@@ -189,8 +212,7 @@ const format = ref('xlsx')
 
 const formatOptions = [
   { value: 'xlsx', label: 'Microsoft Excel', badge: '.xlsx' },
-  { value: 'csv', label: 'Comma-Separated Values', badge: '.csv' },
-  { value: 'ods', label: 'OpenDocument Spreadsheet', badge: '.ods' }
+  { value: 'csv', label: 'Comma-Separated Values', badge: '.csv' }
 ]
 
 function getFormatOption(value) {
@@ -218,7 +240,9 @@ const isCancelled = ref(false)
 const progress = ref({ current: 0, total: 0 })
 
 const progressPercent = computed(() => {
-  if (progress.value.total === 0) return 0
+  if (progress.value.total === 0) {
+    return 0
+  }
 
   return Math.round(
     (progress.value.current / progress.value.total) * 100
@@ -226,19 +250,34 @@ const progressPercent = computed(() => {
 })
 
 const statusColor = computed(() => {
-  if (isCancelled.value) return 'warning'
-  if (isComplete.value) return 'success'
+  if (isCancelled.value) {
+    return 'warning'
+  }
+
+  if (isComplete.value) {
+    return 'success'
+  }
+
   return 'primary'
 })
 
 const statusIcon = computed(() => {
-  if (isCancelled.value) return 'i-tabler-circle-x'
+  if (isCancelled.value) {
+    return 'i-tabler-circle-x'
+  }
+
   return 'i-tabler-circle-check'
 })
 
 const statusTitle = computed(() => {
-  if (isCancelled.value) return t('listExport.exporting.exportCancelled')
-  if (isComplete.value) return t('listExport.exporting.exportDone')
+  if (isCancelled.value) {
+    return t('listExport.exporting.exportCancelled')
+  }
+
+  if (isComplete.value) {
+    return t('listExport.exporting.exportDone')
+  }
+
   return t('listExport.exporting.exportingData')
 })
 
@@ -272,7 +311,7 @@ async function startExport() {
 
   if (isCancelled.value) return
 
-  downloadFile(data)
+  await downloadFile(data)
   isComplete.value = true
 
   notifySuccess({
@@ -319,43 +358,77 @@ async function exportAllData() {
   return data
 }
 
+function resolveNestedValue(item, key) {
+  if (!key.includes('.')) {
+    return item[key]
+  }
+
+  const [relation, property] = key.split('.')
+  const value = item[relation]
+
+  if (Array.isArray(value)) {
+    return value.map(v => v?.[property]).filter(Boolean).join(', ')
+  }
+
+  return value?.[property] ?? null
+}
+
+function resolveColumnNames() {
+  const columns = {}
+
+  for (const key of exportableKeys.value) {
+    const property = props.entity.properties[key]
+
+    columns[key] = headers.value === 'translated'
+      ? (property?.label || key)
+      : key
+  }
+
+  return columns
+}
+
 function formatRow(item) {
   const row = {}
+  const columns = resolveColumnNames()
 
-  for (const key in props.entity.properties) {
-    const columnName = headers.value === 'translated'
-      ? (props.entity.properties[key].label || key)
-      : key
-
-    row[columnName] = item[key] ?? ''
+  for (const key in columns) {
+    row[columns[key]] = resolveNestedValue(item, key) ?? ''
   }
 
   return row
 }
 
-function downloadFile(data) {
-  const columnNames = []
+async function downloadFile(data) {
+  const columns = resolveColumnNames()
+  const columnNames = Object.values(columns)
+  const rows = [columnNames]
 
-  for (const key in props.entity.properties) {
-    const columnName = headers.value === 'translated'
-      ? (props.entity.properties[key].label || key)
-      : key
-
-    columnNames.push(columnName)
+  for (const row of data) {
+    rows.push(columnNames.map(col => row[col] ?? ''))
   }
 
-  const worksheet = XLSX.utils.json_to_sheet(data, { header: columnNames })
-  const workbook = XLSX.utils.book_new()
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5)
 
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Data')
+  const title = t(`${props.entity.name}.title`) || props.entity.name
+  const fileName = `${title}_${timestamp}.${format.value}`
 
-  const timestamp = new Date()
-    .toISOString()
-    .replace(/[:.]/g, '-')
-    .slice(0, -5)
+  if (format.value === 'csv') {
+    const buffer = new TextEncoder().encode(
+      formatCsv(rows, { bom: true })
+    )
 
-  const fileName = `${t(`${props.entity.name}.title`)}_${timestamp}.${format.value}`
+    return saveAsFile(buffer, fileName, 'text/csv')
+  }
 
-  XLSX.writeFile(workbook, fileName, { bookType: format.value })
+  const workbook = new Workbook()
+  workbook.addWorksheet('Data').addAOA(rows)
+
+  const buffer = await workbook.xlsx.writeBuffer()
+
+  saveAsFile(
+    buffer,
+    fileName,
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  )
 }
 </script>
