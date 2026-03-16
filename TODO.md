@@ -277,7 +277,7 @@ Campo composto para endereços internacionais com busca automática usando OpenS
 
 ---
 
-### 3.6 🔴 Campo de upload com NuxtHub Blob (InputFile)
+### 3.6 ✅ Campo de upload com NuxtHub Blob (InputFile)
 
 **Arquivos principais:** `app/components/input/InputFile.vue` (novo), `server/api/upload/` (novo), configuração NuxtHub Blob
 

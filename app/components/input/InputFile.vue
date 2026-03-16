@@ -160,10 +160,10 @@ function startUpload(file) {
 
   uploads.value.push({
     key,
-    file,
+    file: markRaw(file),
     progress: 0,
     error: false,
-    xhr,
+    xhr: markRaw(xhr),
     objectUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : ''
   })
 

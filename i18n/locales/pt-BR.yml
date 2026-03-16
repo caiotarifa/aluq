@@ -107,6 +107,12 @@ copyButton:
 displayPhone:
   whatsapp: Abrir no WhatsApp
 
+filePreview:
+  notSupported: Preview não disponível para este tipo de arquivo.
+  download: Download
+  downloadFailed: Não foi possível baixar o arquivo.
+  share: Compartilhar
+
 inputCurrency:
   searchCurrency: Buscar moeda...
 

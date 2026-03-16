@@ -9,26 +9,28 @@
       class="relative flex min-w-0 items-center gap-1.5 rounded-md border p-2.5 text-xs"
       :class="file.error ? 'border-error' : 'border-default'"
     >
-      <UAvatar
-        :as="{ img: 'img' }"
-        class="shrink-0 rounded-md"
-        :icon="getFileIcon(file.contentType)"
-        :src="file.previewUrl"
-      />
+      <component
+        :is="canPreview(file) ? 'button' : file.url ? 'a' : 'div'"
+        class="flex flex-1 gap-1.5"
+        v-bind="canPreview(file) ? {} : file.url ? { href: file.url, download: file.name } : {}"
+        @click="canPreview(file) ? openPreview(file) : undefined"
+      >
+        <UAvatar
+          class="shrink-0 rounded-md"
+          :icon="getFileIcon(file.contentType)"
+          :src="file.contentType?.startsWith('image/') ? file.url : undefined"
+        />
 
-      <div class="flex min-w-0 flex-1 flex-col">
-        <component
-          :is="file.url ? 'a' : 'div'"
-          class="truncate text-default"
-          v-bind="file.url ? { href: file.url, target: '_blank' } : {}"
-        >
-          {{ file.name }}
-        </component>
+        <span class="block space-y-0.5 text-left">
+          <span class="block truncate">
+            {{ file.name }}
+          </span>
 
-        <div class="truncate text-muted">
-          {{ formatBytes(file.size) }}
-        </div>
-      </div>
+          <div class="block truncate text-dimmed">
+            {{ formatBytes(file.size) }}
+          </div>
+        </span>
+      </component>
 
       <UButton
         v-for="action in fileActions(file, index)"
@@ -60,6 +62,8 @@
 </template>
 
 <script setup>
+import { LazyFilePreview } from '#components'
+
 const props = defineProps({
   actions: {
     type: Function,
@@ -91,15 +95,7 @@ const files = computed(() => {
     }
 
     if (!file.url && item.pathname) {
-      file.url = `/api/upload?pathname=${encodeURIComponent(item.pathname)}`
-    }
-
-    if (
-      !file.previewUrl
-      && item.contentType?.startsWith('image/')
-      && item.pathname
-    ) {
-      file.previewUrl = file.url
+      file.url = `/assets/${item.pathname}`
     }
 
     result.push(file)
@@ -108,6 +104,22 @@ const files = computed(() => {
   return result
 })
 
+// Preview.
+function canPreview(file) {
+  if (!file.url) return false
+
+  const type = file.contentType || ''
+  return type.startsWith('image/') || type.includes('pdf')
+}
+
+const overlay = useOverlay()
+const previewModal = overlay.create(LazyFilePreview)
+
+function openPreview(file) {
+  previewModal.open({ file })
+}
+
+// Actions.
 function fileActions(file, index) {
   return props.actions?.(file, index) || []
 }
@@ -115,8 +127,13 @@ function fileActions(file, index) {
 function getFileIcon(contentType) {
   const type = contentType || ''
 
-  if (type.startsWith('image/')) return 'i-tabler-photo'
-  if (type.includes('pdf')) return 'i-tabler-file-type-pdf'
+  if (type.startsWith('image/')) {
+    return 'i-tabler-photo'
+  }
+
+  if (type.includes('pdf')) {
+    return 'i-tabler-file-type-pdf'
+  }
 
   if (/excel|spreadsheet/.test(type)) {
     return 'i-tabler-file-type-xls'

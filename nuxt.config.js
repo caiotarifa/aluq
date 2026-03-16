@@ -1,7 +1,6 @@
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
-    '@nuxt/hints',
     '@nuxt/ui',
     '@nuxt/image',
     '@nuxt/scripts',
@@ -67,5 +66,10 @@ export default defineNuxtConfig({
     ],
 
     defaultLocale: 'pt-BR'
+  },
+
+  // Image.
+  image: {
+    provider: 'none'
   }
 })

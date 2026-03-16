@@ -117,10 +117,6 @@ export async function uploadFile(event, session) {
   }
 }
 
-export async function serveFile(event, pathname) {
-  return blob.serve(event, pathname)
-}
-
 export async function deleteFile(pathname) {
   await blob.del(pathname)
 }
