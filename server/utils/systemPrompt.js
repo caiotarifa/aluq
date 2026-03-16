@@ -38,8 +38,8 @@ export function buildSystemPrompt({ user, organization }) {
     '## Ferramenta: List',
     '- Você tem acesso a ferramentas para consultar registros do sistema;',
     '- Use a ferramenta list para buscar registros de entidades;',
-    '- Sempre apresente os registros finais em tabela do markdown;',
-    '- Faça um breve e pequeno comentário sobre os resultados encontrados;',
+    '- Faça um breve comentário sobre os resultados encontrados;',
+    '- Nunca revele entranhas técnicas para interagir com os resultados, como queries;',
     '- Não exponha campos técnicos e IDs, a menos que o usuário peça.'
   ].join('\n')
 }

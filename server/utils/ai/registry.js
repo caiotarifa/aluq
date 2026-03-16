@@ -11,6 +11,20 @@ const locale = parse(readFileSync(localePath, 'utf-8'))
 // Build registry from entity files.
 const entityRegistry = new Map()
 
+function buildRelations(entity) {
+  const relations = {}
+
+  for (const name of entity.hasOne || []) {
+    relations[name] = { type: 'hasOne', entity: name }
+  }
+
+  for (const name of entity.hasMany || []) {
+    relations[name] = { type: 'hasMany', entity: name }
+  }
+
+  return relations
+}
+
 for (const key in entities) {
   const entity = entities[key]
 
@@ -29,8 +43,9 @@ for (const key in entities) {
   entityRegistry.set(entity.name, {
     name: entity.name,
     label: translations.title || entity.name,
+    aiDescription: entity.aiDescription || null,
     properties,
-    relations: entity.relations || {},
+    relations: buildRelations(entity),
     propertyKeys: Object.keys(entity.properties)
   })
 }
@@ -83,7 +98,24 @@ export function describeEntities() {
 
     for (const key in entity.properties) {
       const property = entity.properties[key]
-      lines.push(`- ${key} (${property.label}): ${property.type}`)
+
+      const parts = [
+        `- ${key} (${property.label}): ${property.type}`
+      ]
+
+      if (property.options?.length) {
+        const values = property.options
+          .map(option => option.value ?? option)
+          .join(', ')
+
+        parts.push(`[${values}]`)
+      }
+
+      if (property.aiDescription) {
+        parts.push(`— ${property.aiDescription}`)
+      }
+
+      lines.push(parts.join(' '))
     }
 
     // List relations.

@@ -161,7 +161,7 @@ O `Form.vue` recebe a prop `fetching`, mas não exibe skeletons. O formulário a
 
 ---
 
-## 3. Sistema de Tipos de Campo e Inputs
+## 3. ✅ Sistema de Tipos de Campo e Inputs
 
 Consolidar o registro de tipos para que novas entidades possam usar qualquer campo sem friction.
 
@@ -307,7 +307,7 @@ Criar um campo de upload seguro usando o **NuxtHub Blob** para armazenamento.
 
 ---
 
-## 4. Novos Modos de Visualização
+## 4. ✅ Novos Modos de Visualização
 
 ### 4.1 ✅ Criar visualização em Cards no List
 
@@ -606,11 +606,11 @@ Criar um sistema completo de relatórios com templates customizáveis, suporte a
 **Arquivos principais:** `app/pages/app/chat/`, `app/components/chat/`, `server/utils/ai/tools/list.js`
 
 **O que precisa ser feito:**
-- Revisar o `list.js` (12.9KB): garantir que está passando os dados de forma eficiente para o LLM (não enviar campos desnecessários, IDs, timestamps técnicos).
+- Revisar o `list.js` (12.9KB): garantir que está passando os dados de forma eficiente para o LLM (não enviar campos desnecessários).
 - **Usar `aiDescription`:** entidades e propriedades podem ter um atributo `aiDescription` (string descritiva) que será usado pelo chat para entender melhor o contexto.
   - Exemplo: `businessUnit.aiDescription = "Unidade de negócio representa uma filial ou departamento da empresa"`
-- Melhorar a exibição dos resultados no chat: usar componentes visuais (mini-tabelas, cards) em vez de depender apenas do markdown do LLM.
-- Considerar paginação nos resultados do chat (ex.: "Mostrando os primeiros 10 resultados. Quer ver mais?").
+- Melhorar a exibição dos resultados no chat: usar componentes visuais (tabelas ou, no futuro, cards) em vez de depender apenas do markdown do LLM.
+- Considerar paginação nos resultados do chat (ou se conseguir integrar e exibir o List.vue melhor ainda).
 - Usar as **labels traduzidas** (do i18n) nos headers das tabelas/cards em vez dos nomes técnicos das properties.
 
 ---

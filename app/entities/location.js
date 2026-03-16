@@ -5,6 +5,8 @@ export default {
 
   hasOne: ['businessUnit'],
 
+  aiDescription: 'A location represents a physical site or branch of a business unit, such as an office, warehouse, or store.',
+
   display: {
     property: 'name',
     view: 'default'
