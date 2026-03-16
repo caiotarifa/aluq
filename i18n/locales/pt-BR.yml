@@ -98,7 +98,7 @@ appUserMenu:
   signOut: Desconectar
 
 alertList:
-  more: '...e mais {count} item(s)'
+  more: '...e mais {count} item | ...e mais {count} itens'
 
 copyButton:
   copy: Copiar
@@ -154,7 +154,7 @@ list:
   perPage: Itens por página
 
   batchActions:
-    selected: '{count} selecionado(s)'
+    selected: '{count} selecionado | {count} selecionados'
     selectAll: Selecionar tudo
     deselectAll: Desmarcar tudo
 
@@ -226,8 +226,8 @@ listImport:
     description: CSV ou XLSX
   
   review:
-    totalRows: '{count} linha(s) encontrada(s)'
-    moreRows: '...e mais {count} linha(s)'
+    totalRows: '{count} linha encontrada | {count} linhas encontradas'
+    moreRows: '...e mais {count} linha | ...e mais {count} linhas'
 
     errorTitle: Oops!
 
@@ -260,7 +260,7 @@ listExport:
 
   source:
     current: Exportar apenas o que está na tela
-    currentDescription: '{count} registro(s) visível(is) agora'
+    currentDescription: '{count} registro visível agora | {count} registros visíveis agora'
     all: Exportar todos os dados
     allDescription: Exporta tudo, mesmo os registros que não aparecem na tela
 
@@ -277,8 +277,8 @@ listExport:
     exportDone: Exportação concluída!
     exportCancelled: Exportação cancelada
     progressStatus: '{current} de {total} registros processados'
-    success: '{count} registro(s) exportado(s) com sucesso'
-    cancelled: 'Exportação cancelada com {count} registro(s)'
+    success: '{count} registro exportado com sucesso | {count} registros exportados com sucesso'
+    cancelled: 'Exportação cancelada com {count} registro | Exportação cancelada com {count} registros'
 
 listEditView:
   title: Editar visualização

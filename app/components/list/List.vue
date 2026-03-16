@@ -56,7 +56,7 @@
           />
 
           <span class="text-sm font-medium">
-            {{ t('list.batchActions.selected', { count: selectedCount }) }}
+            {{ t('list.batchActions.selected', { count: selectedCount }, selectedCount) }}
           </span>
 
           <div class="ml-auto flex gap-2">

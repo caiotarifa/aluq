@@ -62,7 +62,7 @@
                 </h3>
 
                 <div class="text-xs text-dimmed">
-                  {{ t('listImport.review.totalRows', { count: rows.length }) }}
+                  {{ t('listImport.review.totalRows', { count: rows.length }, rows.length) }}
                 </div>
               </div>
 
@@ -122,7 +122,7 @@
                       class="px-3 py-2.5 text-dimmed"
                       :colspan="headers.length + 1"
                     >
-                      {{ t('listImport.review.moreRows', { count: rows.length - previewRows.length }) }}
+                      {{ t('listImport.review.moreRows', { count: rows.length - previewRows.length }, rows.length - previewRows.length) }}
                     </td>
                   </tr>
                 </tbody>

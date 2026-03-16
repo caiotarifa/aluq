@@ -23,7 +23,7 @@
           v-if="hiddenCount > 0"
           class="opacity-50"
         >
-          {{ t('alertList.more', { count: hiddenCount }) }}
+          {{ t('alertList.more', { count: hiddenCount }, hiddenCount) }}
         </li>
       </ul>
     </template>

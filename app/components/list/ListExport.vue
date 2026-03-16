@@ -198,7 +198,7 @@ const sourceOptions = computed(() => [
     label: t('listExport.source.current'),
     description: t('listExport.source.currentDescription', {
       count: props.items.length
-    })
+    }, props.items.length)
   },
   {
     value: 'all',
@@ -298,7 +298,7 @@ function cancelExport() {
   notifyError({
     title: t('listExport.exporting.cancelled', {
       count: progress.value.current
-    })
+    }, progress.value.current)
   })
 }
 
@@ -315,7 +315,7 @@ async function startExport() {
   isComplete.value = true
 
   notifySuccess({
-    title: t('listExport.exporting.success', { count: data.length })
+    title: t('listExport.exporting.success', { count: data.length }, data.length)
   })
 }
 
