@@ -11,7 +11,7 @@
     >
       <component
         :is="canPreview(file) ? 'button' : file.url ? 'a' : 'div'"
-        class="flex flex-1 gap-1.5"
+        class="group flex flex-1 gap-1.5 hover:cursor-pointer"
         v-bind="canPreview(file) ? {} : file.url ? { href: file.url, download: file.name } : {}"
         @click="canPreview(file) ? openPreview(file) : undefined"
       >
@@ -22,7 +22,7 @@
         />
 
         <span class="block space-y-0.5 text-left">
-          <span class="block truncate">
+          <span class="block truncate transition-colors group-hover:text-primary">
             {{ file.name }}
           </span>
 
