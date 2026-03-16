@@ -44,6 +44,7 @@ for (const key in entities) {
     name: entity.name,
     label: translations.title || entity.name,
     aiDescription: entity.aiDescription || null,
+    display: entity.display || null,
     properties,
     relations: buildRelations(entity),
     propertyKeys: Object.keys(entity.properties)
@@ -79,56 +80,90 @@ export function getEntityConfig(name) {
   return resolved ? entityRegistry.get(resolved) : null
 }
 
+function buildEntityDescription(entity) {
+  const lines = [`## ${entity.name} (${entity.label})`]
+
+  if (entity.aiDescription) {
+    lines.push('', entity.aiDescription)
+  }
+
+  if (entity.display?.property) {
+    lines.push('', `Display property: \`${entity.display.property}\``)
+  }
+
+  const properties = Object.entries(entity.properties)
+
+  if (properties.length > 0) {
+    lines.push('', '#### Properties')
+  }
+
+  for (const [key, property] of properties) {
+    const parts = [`- ${key} (${property.label}): ${property.type}`]
+
+    if (property.options?.length) {
+      const values = property.options
+        .map((option) => {
+          const value = option.value ?? option
+          const label = option.label
+          return label ? `${value} (${label})` : String(value)
+        })
+        .join(', ')
+
+      parts.push(`[${values}]`)
+    }
+
+    if (property.aiDescription) {
+      parts.push(`— ${property.aiDescription}`)
+    }
+
+    lines.push(parts.join(' '))
+  }
+
+  const relations = Object.entries(entity.relations)
+
+  if (relations.length > 0) {
+    lines.push('', '#### Relations')
+  }
+
+  for (const [key, relation] of relations) {
+    const relatedEntity = entityRegistry.get(relation.entity)
+    const displayProp = relatedEntity?.display?.property
+
+    const parts = [`- ${key} (${relation.entity}): ${relation.type}`]
+
+    if (displayProp) {
+      parts.push(`— display via \`${displayProp}\``)
+    }
+
+    lines.push(parts.join(' '))
+  }
+
+  return lines.join('\n')
+}
+
+export function listEntityNames() {
+  const lines = []
+
+  for (const [, entity] of entityRegistry) {
+    lines.push(`- ${entity.name} (${entity.label})`)
+  }
+
+  return lines.join('\n')
+}
+
+export function describeSingleEntity(name) {
+  const entity = getEntityConfig(name)
+
+  if (!entity) return null
+
+  return buildEntityDescription(entity)
+}
+
 export function describeEntities() {
   const lines = ['# Entities']
 
   for (const [, entity] of entityRegistry) {
-    lines.push('', `## ${entity.name} (${entity.label})`)
-
-    if (entity.aiDescription) {
-      lines.push('', entity.aiDescription)
-    }
-
-    // List properties.
-    const properties = Object.entries(entity.properties) || []
-
-    if (properties.length > 0) {
-      lines.push('', '#### Properties')
-    }
-
-    for (const key in entity.properties) {
-      const property = entity.properties[key]
-
-      const parts = [
-        `- ${key} (${property.label}): ${property.type}`
-      ]
-
-      if (property.options?.length) {
-        const values = property.options
-          .map(option => option.value ?? option)
-          .join(', ')
-
-        parts.push(`[${values}]`)
-      }
-
-      if (property.aiDescription) {
-        parts.push(`— ${property.aiDescription}`)
-      }
-
-      lines.push(parts.join(' '))
-    }
-
-    // List relations.
-    const relations = Object.entries(entity.relations) || []
-
-    if (relations.length > 0) {
-      lines.push('', '### Relations')
-    }
-
-    for (const key in entity.relations) {
-      const relation = entity.relations[key]
-      lines.push(`- ${key} (${relation.entity}): ${relation.type}`)
-    }
+    lines.push('', buildEntityDescription(entity))
   }
 
   return lines.join('\n')

@@ -601,7 +601,7 @@ Criar um sistema completo de relatórios com templates customizáveis, suporte a
 
 ## 11. Inteligência Artificial (Chat)
 
-### 11.1 🟡 Melhorar consumo e exibição de dados do sistema no Chat
+### 11.1 ✅ Melhorar consumo e exibição de dados do sistema no Chat
 
 **Arquivos principais:** `app/pages/app/chat/`, `app/components/chat/`, `server/utils/ai/tools/list.js`
 
@@ -615,7 +615,7 @@ Criar um sistema completo de relatórios com templates customizáveis, suporte a
 
 ---
 
-### 11.2 🟡 Melhorar prompts e criar tools de consulta
+### 11.2 ✅ Melhorar prompts e criar tools de consulta
 
 **Arquivos principais:** `server/utils/systemPrompt.js`, `server/utils/ai/registry.js`, `server/utils/ai/tools/`
 

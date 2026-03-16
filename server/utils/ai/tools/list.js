@@ -3,9 +3,9 @@ import { z } from 'zod'
 import { DbNull } from '@zenstackhq/orm'
 
 import {
-  describeEntities,
   entityRegistry,
   getEntityConfig,
+  listEntityNames,
   resolveEntityName
 } from '../registry'
 
@@ -100,8 +100,10 @@ function buildDescription() {
     '- The user may speak in PT-BR using the displayed label.',
     '- The "model" must be the technical registry name.',
     '- If there is ambiguity between two entities, ask a question.',
+    '- Call describeEntity first if you need property details before querying.',
     '',
-    describeEntities()
+    '## Available entities',
+    listEntityNames()
   ].join('\n')
 }
 

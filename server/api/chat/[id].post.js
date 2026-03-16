@@ -13,6 +13,7 @@ import { resolveModel } from '#server/utils/ai'
 
 import { buildSystemPrompt } from '#server/utils/systemPrompt'
 
+import { createDescribeEntityTool } from '#server/utils/ai/tools/describeEntity'
 import { createEmailTool } from '#server/utils/ai/tools/email'
 import { createListTool } from '#server/utils/ai/tools/list'
 import { createSpreadsheetTool } from '#server/utils/ai/tools/spreadsheet'
@@ -92,6 +93,7 @@ export default defineEventHandler(async (event) => {
 
   // Build tools.
   const tools = {
+    describeEntity: createDescribeEntityTool(),
     email: createEmailTool(),
     list: createListTool(authDb, session),
     spreadsheet: createSpreadsheetTool()

@@ -1,3 +1,5 @@
+import { listEntityNames } from './ai/registry'
+
 export function buildSystemPrompt({ user, organization }) {
   return [
     'Você é um assistente inteligente da plataforma Aluq.',
@@ -35,11 +37,33 @@ export function buildSystemPrompt({ user, organization }) {
     '- Use a ferramenta de e-mail para compor e exibir mensagens quando solicitado;',
     '- Após usar a ferramenta, NÃO repita o conteúdo do e-mail na resposta.',
     '',
+    '## Entidades disponíveis',
+    '- O sistema possui as seguintes entidades de dados:',
+    listEntityNames(),
+    '',
+    '## Ferramenta: describeEntity',
+    '- Use essa ferramenta para obter os detalhes de uma entidade (campos, tipos, relações);',
+    '- Chame-a antes de usar a ferramenta list sempre que precisar conhecer os campos disponíveis;',
+    '- Não exiba o resultado bruto para o usuário — use internamente para montar a consulta.',
+    '',
     '## Ferramenta: List',
     '- Você tem acesso a ferramentas para consultar registros do sistema;',
     '- Use a ferramenta list para buscar registros de entidades;',
     '- Faça um breve comentário sobre os resultados encontrados;',
     '- Nunca revele entranhas técnicas para interagir com os resultados, como queries;',
-    '- Não exponha campos técnicos e IDs, a menos que o usuário peça.'
+    '- Não exponha campos técnicos e IDs, a menos que o usuário peça.',
+    '',
+    '## Exemplos de uso',
+    '**Consulta simples:**',
+    '1. Usuário: "Liste as unidades de negócio ativas"',
+    '2. Você chama describeEntity("businessUnit") para conhecer os campos',
+    '3. Você chama list({ model: "businessUnit", where: { isActive: { equals: true } } })',
+    '4. Você comenta brevemente os resultados',
+    '',
+    '**Consulta com relação:**',
+    '1. Usuário: "Mostre os locais da unidade Acme"',
+    '2. Você chama describeEntity("location") para ver os campos e relações',
+    '3. Você chama list({ model: "location", where: { businessUnit: { name: { equals: "Acme" } } } })',
+    '4. Você comenta os resultados sem expor IDs ou detalhes técnicos'
   ].join('\n')
 }
