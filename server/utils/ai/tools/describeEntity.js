@@ -1,4 +1,4 @@
-import { tool } from 'ai'
+import { tool, zodSchema } from 'ai'
 import { z } from 'zod'
 
 import { describeSingleEntity, isAllowedEntity } from '../registry'
@@ -11,11 +11,13 @@ export function createDescribeEntityTool() {
       'Do not expose the raw output to the user — use it internally to build queries.'
     ].join('\n'),
 
-    parameters: z.object({
-      entityName: z.string().describe(
-        'The name of the entity to describe (e.g. "businessUnit", "location").'
-      )
-    }),
+    inputSchema: zodSchema(
+      z.object({
+        entityName: z.string().describe(
+          'The name of the entity to describe (e.g. "businessUnit", "location").'
+        )
+      })
+    ),
 
     execute: async ({ entityName }) => {
       if (!isAllowedEntity(entityName)) {
