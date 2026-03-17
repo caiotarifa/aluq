@@ -82,7 +82,7 @@ Atualmente quando o `save()` falha, apenas um toast genérico é exibido. Erros 
 
 ---
 
-### 1.4 ⭐🟡 Traduzir erros do Zod automaticamente
+### 1.4 ✅ Traduzir erros do Zod automaticamente
 
 **Arquivos principais:** `app/plugins/zod.js` (novo plugin), `i18n/locales/pt-BR.yml`, `app/entities/`
 
@@ -599,7 +599,7 @@ Criar um sistema completo de relatórios com templates customizáveis, suporte a
 
 ---
 
-## 11. Inteligência Artificial (Chat)
+## 11. ✅ Inteligência Artificial (Chat)
 
 ### 11.1 ✅ Melhorar consumo e exibição de dados do sistema no Chat
 

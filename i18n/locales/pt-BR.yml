@@ -86,6 +86,12 @@ messages:
     invitationAccepted: 'Convite aceito com sucesso!'
     invitationRejected: 'Convite recusado.'
 
+# Zod Validation
+zod:
+  required: 'este campo é obrigatório'
+  too_small: 'deve conter no mínimo {minimum} caracteres'
+  too_big: 'deve conter no máximo {maximum} caracteres'
+
 # Components
 appOrganizationMenu:
   createOrganization: Criar organização
